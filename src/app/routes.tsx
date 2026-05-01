@@ -7,8 +7,13 @@ import { PortfolioPhotographyPage } from "./pages/portfolio-photography/Portfoli
 import { PortfolioVoicePage } from "./pages/portfolio-voice/PortfolioVoicePage";
 import { CoursesPage } from "./pages/courses/CoursesPage";
 import { NotFoundPage } from "./pages/not-found/NotFoundPage";
+import { AdminPage } from "./pages/admin/AdminPage";
 
 export const router = createBrowserRouter([
+  {
+    path: "/admin",
+    Component: AdminPage,
+  },
   {
     path: "/",
     Component: Layout,
