@@ -1,8 +1,37 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { ImageWithFallback } from "../../shared/ImageWithFallback";
 import { Camera, Mic, Palette, GraduationCap, ArrowLeft } from "lucide-react";
+import { db } from "../../../firebase";
+import { collection, onSnapshot } from "firebase/firestore";
+
+interface SiteInfo {
+  heroName: string;
+  heroDescription: string;
+  profileImageUrl: string;
+  email: string;
+  phone: string;
+}
 
 export function HomePage() {
+  const [siteInfo, setSiteInfo] = useState<SiteInfo>({
+    heroName: "مصطفى جغلال",
+    heroDescription: "معلق صوتي محترف ومصمم بصري مقيم في مسقط، سلطنة عُمان. يجمع بين قوة الصوت المؤثر وخبرة التصميم الجرافيكي لتقديم محتوى إبداعي متكامل للمشاريع التجارية.",
+    profileImageUrl: "",
+    email: "info@example.com",
+    phone: "+968",
+  });
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "siteInfo"), (snap) => {
+      if (!snap.empty) {
+        const data = snap.docs[0].data() as SiteInfo;
+        setSiteInfo((prev) => ({ ...prev, ...data }));
+      }
+    });
+    return unsub;
+  }, []);
+
   const services = [
     {
       icon: <Palette className="w-12 h-12 text-blue-400" />,
@@ -30,17 +59,9 @@ export function HomePage() {
     },
   ];
 
-  const clients = [
-    { name: "شركة الإبداع" },
-    { name: "مؤسسة النجاح" },
-    { name: "شركة التميز الرقمي" },
-    { name: "مركز التطوير المهني" },
-    { name: "وكالة التسويق الذكي" },
-    { name: "استوديو الفنون" },
-  ];
-
   return (
     <div className="bg-black text-white">
+      {/* Hero */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -49,12 +70,11 @@ export function HomePage() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
                 مرحباً، أنا{" "}
                 <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                  مصطفى المحترف
+                  {siteInfo.heroName}
                 </span>
               </h1>
               <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-                خبير في التصميم الجرافيكي والتصوير الفوتوغرافي والتعليق الصوتي مع أكثر من 10 سنوات من الخبرة في تقديم حلول إبداعية متكاملة.
-                أساعد الشركات والأفراد على تحقيق أهدافهم من خلال محتوى بصري وصوتي احترافي.
+                {siteInfo.heroDescription}
               </p>
               <div className="flex flex-wrap gap-4">
                 <a
@@ -75,8 +95,8 @@ export function HomePage() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full blur-3xl opacity-30"></div>
                 <ImageWithFallback
-                  src="https://images.unsplash.com/photo-1624411024074-18a756682b50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBhcmFiaWMlMjBtYW4lMjBwb3J0cmFpdHxlbnwxfHx8fDE3Nzc1NjQ4MjN8MA&ixlib=rb-4.1.0&q=80&w=1080"
-                  alt="مصطفى المحترف - مصمم جرافيك، مصور، معلق صوتي"
+                  src={siteInfo.profileImageUrl || "https://images.unsplash.com/photo-1624411024074-18a756682b50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"}
+                  alt={`${siteInfo.heroName} - معلق صوتي ومصمم بصري`}
                   className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-cover border-4 border-gray-800 shadow-2xl"
                 />
               </div>
@@ -85,6 +105,7 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* Services */}
       <section id="services" className="py-20 bg-gradient-to-b from-black to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -111,25 +132,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="py-20 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">عملاؤنا المميزون</h2>
-            <p className="text-gray-400 text-lg">فخورون بثقة هذه الجهات المرموقة</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-            {clients.map((client, index) => (
-              <div
-                key={index}
-                className="bg-gray-800 border border-gray-700 rounded-lg p-6 flex items-center justify-center hover:border-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/10"
-              >
-                <p className="text-center text-gray-300 font-semibold">{client.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
+      {/* Contact */}
       <section id="contact" className="py-20 bg-gradient-to-b from-gray-900 to-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">جاهز لبدء مشروعك؟</h2>
@@ -138,13 +141,13 @@ export function HomePage() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <a
-              href="mailto:info@example.com"
+              href={`mailto:${siteInfo.email}`}
               className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all font-semibold"
             >
               أرسل رسالة
             </a>
             <a
-              href="tel:+966123456789"
+              href={`tel:${siteInfo.phone}`}
               className="px-8 py-3 border border-gray-600 rounded-lg hover:border-blue-400 hover:text-blue-400 transition-all font-semibold"
             >
               اتصل الآن
