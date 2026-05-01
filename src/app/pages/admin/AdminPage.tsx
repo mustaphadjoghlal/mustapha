@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import { db, auth } from "../../../firebase";
+import { useState, useEffect, useRef } from "react";
+import { db, auth, storage } from "../../../firebase";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import { Trash2, Pencil, Plus, LogOut, Save, X, Image } from "lucide-react";
+import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader } from "lucide-react";
 
 interface Work {
   id: string;
@@ -28,6 +29,192 @@ interface SiteInfo {
   instagramUrl: string;
 }
 
+// ===== مكون رفع الصور =====
+function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs: string[]) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const fileName = `works/${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, fileName);
+    return new Promise((resolve, reject) => {
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          setProgress(Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100));
+        },
+        reject,
+        async () => {
+          const url = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(url);
+        }
+      );
+    });
+  };
+
+  const handleFiles = async (files: FileList) => {
+    setUploading(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        const url = await uploadFile(file);
+        urls.push(url);
+      }
+      const cleanExisting = images.filter(img => img.trim() !== "");
+      onChange([...cleanExisting, ...urls]);
+    } catch (e) {
+      console.error(e);
+    }
+    setUploading(false);
+    setProgress(0);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+  };
+
+  const removeImage = async (url: string, index: number) => {
+    try {
+      if (url.includes("firebasestorage")) {
+        const fileRef = ref(storage, url);
+        await deleteObject(fileRef);
+      }
+    } catch {}
+    onChange(images.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-3">
+      <label className="block text-gray-400 text-sm flex items-center gap-1">
+        <Image size={14} /> الصور
+      </label>
+
+      {/* منطقة السحب والإفلات */}
+      <div
+        onDrop={handleDrop}
+        onDragOver={(e) => e.preventDefault()}
+        onClick={() => fileInputRef.current?.click()}
+        className="border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-all"
+      >
+        {uploading ? (
+          <div className="space-y-2">
+            <Loader size={24} className="animate-spin mx-auto text-blue-400" />
+            <p className="text-gray-400 text-sm">جارٍ الرفع... {progress}%</p>
+            <div className="w-full bg-gray-700 rounded-full h-2">
+              <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Upload size={24} className="mx-auto text-gray-500" />
+            <p className="text-gray-400 text-sm">اسحب الصور هنا أو اضغط للاختيار</p>
+            <p className="text-gray-600 text-xs">يمكنك اختيار أكثر من صورة في نفس الوقت</p>
+          </div>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => e.target.files && handleFiles(e.target.files)}
+        />
+      </div>
+
+      {/* معاينة الصور */}
+      {images.filter(img => img.trim()).length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {images.filter(img => img.trim()).map((img, i) => (
+            <div key={i} className="relative group aspect-square">
+              <img src={img} alt="" className="w-full h-full object-cover rounded-lg border border-gray-700" />
+              <button
+                onClick={() => removeImage(img, i)}
+                className="absolute top-1 left-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* رابط يدوي كبديل */}
+      <details className="text-xs">
+        <summary className="text-gray-500 cursor-pointer hover:text-gray-400">أو أضف رابط خارجي يدوياً</summary>
+        <div className="mt-2 flex gap-2">
+          <input
+            placeholder="https://..."
+            className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const val = (e.target as HTMLInputElement).value.trim();
+                if (val) { onChange([...images.filter(img => img.trim()), val]); (e.target as HTMLInputElement).value = ""; }
+              }
+            }}
+          />
+          <span className="text-gray-500 text-xs self-center">اضغط Enter</span>
+        </div>
+      </details>
+    </div>
+  );
+}
+
+// ===== مكون رفع الصورة الشخصية =====
+function ProfileImageUploader({ url, onChange }: { url: string; onChange: (url: string) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const handleFile = async (file: File) => {
+    setUploading(true);
+    const fileName = `profile/${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, fileName);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    uploadTask.on(
+      "state_changed",
+      (snap) => setProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+      console.error,
+      async () => {
+        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+        onChange(downloadUrl);
+        setUploading(false);
+        setProgress(0);
+      }
+    );
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-gray-400 mb-1 text-sm">الصورة الشخصية</label>
+      <div className="flex gap-3 items-center">
+        {url && <img src={url} alt="profile" className="w-16 h-16 rounded-full object-cover border-2 border-gray-700" />}
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="flex-1 border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition-all"
+        >
+          {uploading ? (
+            <div className="space-y-1">
+              <Loader size={18} className="animate-spin mx-auto text-blue-400" />
+              <p className="text-gray-400 text-xs">{progress}%</p>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+              <Upload size={16} />
+              <span>رفع صورة جديدة</span>
+            </div>
+          )}
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
+            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== مكون تسجيل الدخول =====
 function LoginForm({ onLogin }: { onLogin: (email: string, password: string) => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,6 +250,7 @@ function LoginForm({ onLogin }: { onLogin: (email: string, password: string) => 
   );
 }
 
+// ===== لوحة التحكم الرئيسية =====
 export function AdminPage() {
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"info" | "footer" | "works">("info");
@@ -73,7 +261,7 @@ export function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  const emptyWork = { title: "", description: "", images: [""], altText: "", soundcloudUrl: "", category: "design" as Work["category"] };
+  const emptyWork = { title: "", description: "", images: [], altText: "", soundcloudUrl: "", category: "design" as Work["category"] };
   const [newWork, setNewWork] = useState(emptyWork);
 
   const [infoForm, setInfoForm] = useState({
@@ -139,8 +327,7 @@ export function AdminPage() {
     if (!newWork.title) return;
     setSaving(true);
     try {
-      const cleanImages = newWork.images.filter(img => img.trim() !== "");
-      await addDoc(collection(db, "works"), { ...newWork, images: cleanImages });
+      await addDoc(collection(db, "works"), newWork);
       setNewWork(emptyWork);
       setShowAddWork(false);
       showMsg("✅ تمت إضافة العمل");
@@ -153,8 +340,7 @@ export function AdminPage() {
     setSaving(true);
     try {
       const { id, ...data } = editingWork;
-      const cleanImages = (data.images || []).filter((img: string) => img.trim() !== "");
-      await updateDoc(doc(db, "works", id), { ...data, images: cleanImages });
+      await updateDoc(doc(db, "works", id), data);
       setEditingWork(null);
       showMsg("✅ تم التعديل");
     } catch { showMsg("❌ حدث خطأ"); }
@@ -180,26 +366,6 @@ export function AdminPage() {
     </button>
   );
 
-  // مكون حقول الصور المتعددة
-  const ImagesField = ({ images, onChange }: { images: string[], onChange: (imgs: string[]) => void }) => (
-    <div className="space-y-2">
-      <label className="block text-gray-400 mb-1 text-sm flex items-center gap-1"><Image size={14} /> الصور (روابط)</label>
-      {images.map((img, i) => (
-        <div key={i} className="flex gap-2">
-          <input value={img} onChange={(e) => { const n = [...images]; n[i] = e.target.value; onChange(n); }}
-            placeholder={`رابط الصورة ${i + 1} (https://...)`} className={smallInputClass} />
-          {images.length > 1 && (
-            <button onClick={() => onChange(images.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-300 p-1"><X size={16} /></button>
-          )}
-        </div>
-      ))}
-      <button onClick={() => onChange([...images, ""])}
-        className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1 mt-1">
-        <Plus size={14} /> إضافة صورة أخرى
-      </button>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-gray-950 text-white" dir="rtl">
       <div className="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
@@ -214,7 +380,6 @@ export function AdminPage() {
       )}
 
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* Tabs */}
         <div className="flex gap-2 mb-8 bg-gray-900 p-1 rounded-xl w-fit">
           {(["info", "footer", "works"] as const).map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
@@ -228,15 +393,13 @@ export function AdminPage() {
         {activeTab === "info" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-6">
             <h2 className="text-xl font-bold">الصفحة الرئيسية</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-400 mb-2 text-sm">الاسم في الهيرو</label>
-                <input value={infoForm.heroName} onChange={(e) => setInfoForm({ ...infoForm, heroName: e.target.value })} className={inputClass} placeholder="مصطفى جغلال" />
-              </div>
-              <div>
-                <label className="block text-gray-400 mb-2 text-sm">رابط الصورة الشخصية</label>
-                <input value={infoForm.profileImageUrl} onChange={(e) => setInfoForm({ ...infoForm, profileImageUrl: e.target.value })} className={inputClass} placeholder="https://..." />
-              </div>
+            <ProfileImageUploader
+              url={infoForm.profileImageUrl}
+              onChange={(url) => setInfoForm({ ...infoForm, profileImageUrl: url })}
+            />
+            <div>
+              <label className="block text-gray-400 mb-2 text-sm">الاسم في الهيرو</label>
+              <input value={infoForm.heroName} onChange={(e) => setInfoForm({ ...infoForm, heroName: e.target.value })} className={inputClass} placeholder="مصطفى جغلال" />
             </div>
             <div>
               <label className="block text-gray-400 mb-2 text-sm">وصف الهيرو</label>
@@ -295,10 +458,9 @@ export function AdminPage() {
               </button>
             </div>
 
-            {/* نموذج إضافة */}
             {showAddWork && (
-              <div className="bg-gray-900 border border-blue-800 rounded-2xl p-6 mb-6">
-                <div className="flex items-center justify-between mb-4">
+              <div className="bg-gray-900 border border-blue-800 rounded-2xl p-6 mb-6 space-y-4">
+                <div className="flex items-center justify-between">
                   <h3 className="font-bold text-blue-400">إضافة عمل جديد</h3>
                   <button onClick={() => setShowAddWork(false)}><X size={18} className="text-gray-400 hover:text-white" /></button>
                 </div>
@@ -309,24 +471,23 @@ export function AdminPage() {
                     <option value="photography">تصوير</option>
                     <option value="voice">تعليق صوتي</option>
                   </select>
-                  <div className="md:col-span-2">
-                    <ImagesField images={newWork.images} onChange={(imgs) => setNewWork({ ...newWork, images: imgs })} />
-                  </div>
                   <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={smallInputClass} />
                   {newWork.category === "voice" && (
                     <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={smallInputClass} />
                   )}
                   <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2}
-                    className={`${smallInputClass} resize-none ${newWork.category === "voice" ? "" : "md:col-span-2"}`} />
+                    className={`${smallInputClass} resize-none md:col-span-2`} />
                 </div>
+                {newWork.category !== "voice" && (
+                  <ImageUploader images={newWork.images} onChange={(imgs) => setNewWork({ ...newWork, images: imgs })} />
+                )}
                 <button onClick={addWork} disabled={saving}
-                  className="mt-4 flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50">
+                  className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50">
                   <Plus size={16} /> {saving ? "جارٍ الإضافة..." : "إضافة"}
                 </button>
               </div>
             )}
 
-            {/* قائمة الأعمال */}
             <div className="space-y-4">
               {works.length === 0 && <div className="text-center text-gray-500 py-16">لا توجد أعمال بعد — أضف أول عمل</div>}
               {works.map((work) => (
@@ -340,16 +501,16 @@ export function AdminPage() {
                           <option value="photography">تصوير</option>
                           <option value="voice">تعليق صوتي</option>
                         </select>
-                        <div className="md:col-span-2">
-                          <ImagesField images={editingWork.images || [""]} onChange={(imgs) => setEditingWork({ ...editingWork, images: imgs })} />
-                        </div>
                         <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className={smallInputClass} />
                         {editingWork.category === "voice" && (
                           <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={smallInputClass} />
                         )}
                         <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2}
-                          className={`${smallInputClass} resize-none ${editingWork.category === "voice" ? "" : "md:col-span-2"}`} />
+                          className={`${smallInputClass} resize-none md:col-span-2`} />
                       </div>
+                      {editingWork.category !== "voice" && (
+                        <ImageUploader images={editingWork.images || []} onChange={(imgs) => setEditingWork({ ...editingWork, images: imgs })} />
+                      )}
                       <div className="flex gap-3">
                         <button onClick={saveWork} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition-all">
                           <Save size={16} /> حفظ
@@ -361,9 +522,7 @@ export function AdminPage() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-4">
-                      {work.images?.[0] && (
-                        <img src={work.images[0]} alt={work.altText} className="w-16 h-16 rounded-lg object-cover border border-gray-700 flex-shrink-0" />
-                      )}
+                      {work.images?.[0] && <img src={work.images[0]} alt={work.altText} className="w-16 h-16 rounded-lg object-cover border border-gray-700 flex-shrink-0" />}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-white">{work.title}</h3>
                         <p className="text-gray-400 text-sm mt-1 truncate">{work.description}</p>
