@@ -1,26 +1,16 @@
 import { useState, useEffect } from "react";
 import { db, auth } from "../../../firebase";
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  onSnapshot,
-} from "firebase/firestore";
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
-import { Trash2, Pencil, Plus, LogOut, Save, X } from "lucide-react";
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { Trash2, Pencil, Plus, LogOut, Save, X, Image } from "lucide-react";
 
 interface Work {
   id: string;
   title: string;
   description: string;
-  imageUrl: string;
+  images: string[];
   altText: string;
+  soundcloudUrl: string;
   category: "design" | "photography" | "voice";
 }
 
@@ -47,11 +37,8 @@ function LoginForm({ onLogin }: { onLogin: (email: string, password: string) => 
   const handleSubmit = async () => {
     setLoading(true);
     setError("");
-    try {
-      await onLogin(email, password);
-    } catch {
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
-    }
+    try { await onLogin(email, password); }
+    catch { setError("البريد الإلكتروني أو كلمة المرور غير صحيحة"); }
     setLoading(false);
   };
 
@@ -60,9 +47,7 @@ function LoginForm({ onLogin }: { onLogin: (email: string, password: string) => 
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 w-full max-w-md">
         <h1 className="text-2xl font-bold text-white mb-2 text-center">لوحة التحكم</h1>
         <p className="text-gray-400 text-center mb-8">أدخل بياناتك للدخول</p>
-        {error && (
-          <div className="bg-red-900/40 border border-red-700 text-red-300 rounded-lg p-3 mb-6 text-center">{error}</div>
-        )}
+        {error && <div className="bg-red-900/40 border border-red-700 text-red-300 rounded-lg p-3 mb-6 text-center">{error}</div>}
         <div className="space-y-4">
           <input type="email" placeholder="البريد الإلكتروني" value={email} onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
@@ -88,7 +73,8 @@ export function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  const [newWork, setNewWork] = useState({ title: "", description: "", imageUrl: "", altText: "", category: "design" as Work["category"] });
+  const emptyWork = { title: "", description: "", images: [""], altText: "", soundcloudUrl: "", category: "design" as Work["category"] };
+  const [newWork, setNewWork] = useState(emptyWork);
 
   const [infoForm, setInfoForm] = useState({
     heroName: "", heroDescription: "", profileImageUrl: "", aboutText: "",
@@ -100,7 +86,18 @@ export function AdminPage() {
   useEffect(() => {
     if (!user) return;
     const unsub = onSnapshot(collection(db, "works"), (snap) => {
-      setWorks(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Work)));
+      setWorks(snap.docs.map((d) => {
+        const data = d.data();
+        return {
+          id: d.id,
+          title: data.title || "",
+          description: data.description || "",
+          images: data.images || (data.imageUrl ? [data.imageUrl] : []),
+          altText: data.altText || "",
+          soundcloudUrl: data.soundcloudUrl || "",
+          category: data.category || "design",
+        } as Work;
+      }));
     });
     return unsub;
   }, [user]);
@@ -142,8 +139,9 @@ export function AdminPage() {
     if (!newWork.title) return;
     setSaving(true);
     try {
-      await addDoc(collection(db, "works"), newWork);
-      setNewWork({ title: "", description: "", imageUrl: "", altText: "", category: "design" });
+      const cleanImages = newWork.images.filter(img => img.trim() !== "");
+      await addDoc(collection(db, "works"), { ...newWork, images: cleanImages });
+      setNewWork(emptyWork);
       setShowAddWork(false);
       showMsg("✅ تمت إضافة العمل");
     } catch { showMsg("❌ حدث خطأ"); }
@@ -155,7 +153,8 @@ export function AdminPage() {
     setSaving(true);
     try {
       const { id, ...data } = editingWork;
-      await updateDoc(doc(db, "works", id), data);
+      const cleanImages = (data.images || []).filter((img: string) => img.trim() !== "");
+      await updateDoc(doc(db, "works", id), { ...data, images: cleanImages });
       setEditingWork(null);
       showMsg("✅ تم التعديل");
     } catch { showMsg("❌ حدث خطأ"); }
@@ -171,12 +170,34 @@ export function AdminPage() {
   if (!user) return <LoginForm onLogin={handleLogin} />;
 
   const inputClass = "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500";
+  const smallInputClass = "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 text-sm";
+
   const saveBtn = (
     <button onClick={saveInfo} disabled={saving}
       className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50">
       <Save size={18} />
       {saving ? "جارٍ الحفظ..." : "حفظ"}
     </button>
+  );
+
+  // مكون حقول الصور المتعددة
+  const ImagesField = ({ images, onChange }: { images: string[], onChange: (imgs: string[]) => void }) => (
+    <div className="space-y-2">
+      <label className="block text-gray-400 mb-1 text-sm flex items-center gap-1"><Image size={14} /> الصور (روابط)</label>
+      {images.map((img, i) => (
+        <div key={i} className="flex gap-2">
+          <input value={img} onChange={(e) => { const n = [...images]; n[i] = e.target.value; onChange(n); }}
+            placeholder={`رابط الصورة ${i + 1} (https://...)`} className={smallInputClass} />
+          {images.length > 1 && (
+            <button onClick={() => onChange(images.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-300 p-1"><X size={16} /></button>
+          )}
+        </div>
+      ))}
+      <button onClick={() => onChange([...images, ""])}
+        className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1 mt-1">
+        <Plus size={14} /> إضافة صورة أخرى
+      </button>
+    </div>
   );
 
   return (
@@ -274,6 +295,7 @@ export function AdminPage() {
               </button>
             </div>
 
+            {/* نموذج إضافة */}
             {showAddWork && (
               <div className="bg-gray-900 border border-blue-800 rounded-2xl p-6 mb-6">
                 <div className="flex items-center justify-between mb-4">
@@ -281,22 +303,30 @@ export function AdminPage() {
                   <button onClick={() => setShowAddWork(false)}><X size={18} className="text-gray-400 hover:text-white" /></button>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
-                  <select value={newWork.category} onChange={(e) => setNewWork({ ...newWork, category: e.target.value as Work["category"] })} className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                  <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className={smallInputClass} />
+                  <select value={newWork.category} onChange={(e) => setNewWork({ ...newWork, category: e.target.value as Work["category"] })} className={smallInputClass}>
                     <option value="design">تصميم جرافيكي</option>
                     <option value="photography">تصوير</option>
                     <option value="voice">تعليق صوتي</option>
                   </select>
-                  <input value={newWork.imageUrl} onChange={(e) => setNewWork({ ...newWork, imageUrl: e.target.value })} placeholder="رابط الصورة (https://...)" className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
-                  <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
-                  <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2} className="md:col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 resize-none" />
+                  <div className="md:col-span-2">
+                    <ImagesField images={newWork.images} onChange={(imgs) => setNewWork({ ...newWork, images: imgs })} />
+                  </div>
+                  <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={smallInputClass} />
+                  {newWork.category === "voice" && (
+                    <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={smallInputClass} />
+                  )}
+                  <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2}
+                    className={`${smallInputClass} resize-none ${newWork.category === "voice" ? "" : "md:col-span-2"}`} />
                 </div>
-                <button onClick={addWork} disabled={saving} className="mt-4 flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50">
+                <button onClick={addWork} disabled={saving}
+                  className="mt-4 flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50">
                   <Plus size={16} /> {saving ? "جارٍ الإضافة..." : "إضافة"}
                 </button>
               </div>
             )}
 
+            {/* قائمة الأعمال */}
             <div className="space-y-4">
               {works.length === 0 && <div className="text-center text-gray-500 py-16">لا توجد أعمال بعد — أضف أول عمل</div>}
               {works.map((work) => (
@@ -304,15 +334,21 @@ export function AdminPage() {
                   {editingWork?.id === work.id ? (
                     <div className="space-y-4">
                       <div className="grid md:grid-cols-2 gap-4">
-                        <input value={editingWork.title} onChange={(e) => setEditingWork({ ...editingWork, title: e.target.value })} className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500" />
-                        <select value={editingWork.category} onChange={(e) => setEditingWork({ ...editingWork, category: e.target.value as Work["category"] })} className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
+                        <input value={editingWork.title} onChange={(e) => setEditingWork({ ...editingWork, title: e.target.value })} className={smallInputClass} />
+                        <select value={editingWork.category} onChange={(e) => setEditingWork({ ...editingWork, category: e.target.value as Work["category"] })} className={smallInputClass}>
                           <option value="design">تصميم جرافيكي</option>
                           <option value="photography">تصوير</option>
                           <option value="voice">تعليق صوتي</option>
                         </select>
-                        <input value={editingWork.imageUrl} onChange={(e) => setEditingWork({ ...editingWork, imageUrl: e.target.value })} placeholder="رابط الصورة" className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500" />
-                        <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500" />
-                        <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2} className="md:col-span-2 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 resize-none" />
+                        <div className="md:col-span-2">
+                          <ImagesField images={editingWork.images || [""]} onChange={(imgs) => setEditingWork({ ...editingWork, images: imgs })} />
+                        </div>
+                        <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className={smallInputClass} />
+                        {editingWork.category === "voice" && (
+                          <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={smallInputClass} />
+                        )}
+                        <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2}
+                          className={`${smallInputClass} resize-none ${editingWork.category === "voice" ? "" : "md:col-span-2"}`} />
                       </div>
                       <div className="flex gap-3">
                         <button onClick={saveWork} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition-all">
@@ -325,15 +361,21 @@ export function AdminPage() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-4">
-                      {work.imageUrl && <img src={work.imageUrl} alt={work.altText} className="w-16 h-16 rounded-lg object-cover border border-gray-700" />}
-                      <div className="flex-1">
+                      {work.images?.[0] && (
+                        <img src={work.images[0]} alt={work.altText} className="w-16 h-16 rounded-lg object-cover border border-gray-700 flex-shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-white">{work.title}</h3>
-                        <p className="text-gray-400 text-sm mt-1">{work.description}</p>
-                        <span className="text-xs text-blue-400 mt-1 inline-block">
-                          {work.category === "design" ? "تصميم" : work.category === "photography" ? "تصوير" : "تعليق صوتي"}
-                        </span>
+                        <p className="text-gray-400 text-sm mt-1 truncate">{work.description}</p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-xs text-blue-400">
+                            {work.category === "design" ? "تصميم" : work.category === "photography" ? "تصوير" : "تعليق صوتي"}
+                          </span>
+                          {work.images?.length > 1 && <span className="text-xs text-gray-500">{work.images.length} صور</span>}
+                          {work.soundcloudUrl && <span className="text-xs text-orange-400">SoundCloud ✓</span>}
+                        </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-shrink-0">
                         <button onClick={() => setEditingWork(work)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-lg transition-all"><Pencil size={18} /></button>
                         <button onClick={() => deleteWork(work.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-all"><Trash2 size={18} /></button>
                       </div>
