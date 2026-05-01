@@ -29,7 +29,6 @@ interface SiteInfo {
   instagramUrl: string;
 }
 
-// ===== مكون رفع الصور =====
 function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs: string[]) => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -40,16 +39,10 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
     const storageRef = ref(storage, fileName);
     return new Promise((resolve, reject) => {
       const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          setProgress(Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100));
-        },
+      uploadTask.on("state_changed",
+        (snapshot) => setProgress(Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)),
         reject,
-        async () => {
-          const url = await getDownloadURL(uploadTask.snapshot.ref);
-          resolve(url);
-        }
+        async () => { const url = await getDownloadURL(uploadTask.snapshot.ref); resolve(url); }
       );
     });
   };
@@ -58,54 +51,29 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
     setUploading(true);
     try {
       const urls: string[] = [];
-      for (const file of Array.from(files)) {
-        const url = await uploadFile(file);
-        urls.push(url);
-      }
-      const cleanExisting = images.filter(img => img.trim() !== "");
-      onChange([...cleanExisting, ...urls]);
-    } catch (e) {
-      console.error(e);
-    }
+      for (const file of Array.from(files)) { urls.push(await uploadFile(file)); }
+      onChange([...images.filter(img => img.trim()), ...urls]);
+    } catch (e) { console.error(e); }
     setUploading(false);
     setProgress(0);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
-  };
-
   const removeImage = async (url: string, index: number) => {
-    try {
-      if (url.includes("firebasestorage")) {
-        const fileRef = ref(storage, url);
-        await deleteObject(fileRef);
-      }
-    } catch {}
+    try { if (url.includes("firebasestorage")) await deleteObject(ref(storage, url)); } catch {}
     onChange(images.filter((_, i) => i !== index));
   };
 
   return (
     <div className="space-y-3">
-      <label className="block text-gray-400 text-sm flex items-center gap-1">
-        <Image size={14} /> الصور
-      </label>
-
-      {/* منطقة السحب والإفلات */}
-      <div
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-        onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-all"
-      >
+      <label className="block text-gray-400 text-sm flex items-center gap-1"><Image size={14} /> الصور</label>
+      <div onDrop={(e) => { e.preventDefault(); e.dataTransfer.files.length && handleFiles(e.dataTransfer.files); }}
+        onDragOver={(e) => e.preventDefault()} onClick={() => fileInputRef.current?.click()}
+        className="border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-all">
         {uploading ? (
           <div className="space-y-2">
             <Loader size={24} className="animate-spin mx-auto text-blue-400" />
             <p className="text-gray-400 text-sm">جارٍ الرفع... {progress}%</p>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
-            </div>
+            <div className="w-full bg-gray-700 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} /></div>
           </div>
         ) : (
           <div className="space-y-2">
@@ -114,47 +82,32 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
             <p className="text-gray-600 text-xs">يمكنك اختيار أكثر من صورة في نفس الوقت</p>
           </div>
         )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={(e) => e.target.files && handleFiles(e.target.files)}
-        />
+        <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
+          onChange={(e) => e.target.files && handleFiles(e.target.files)} />
       </div>
-
-      {/* معاينة الصور */}
       {images.filter(img => img.trim()).length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {images.filter(img => img.trim()).map((img, i) => (
             <div key={i} className="relative group aspect-square">
               <img src={img} alt="" className="w-full h-full object-cover rounded-lg border border-gray-700" />
-              <button
-                onClick={() => removeImage(img, i)}
-                className="absolute top-1 left-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
+              <button onClick={() => removeImage(img, i)}
+                className="absolute top-1 left-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <X size={12} />
               </button>
             </div>
           ))}
         </div>
       )}
-
-      {/* رابط يدوي كبديل */}
       <details className="text-xs">
         <summary className="text-gray-500 cursor-pointer hover:text-gray-400">أو أضف رابط خارجي يدوياً</summary>
         <div className="mt-2 flex gap-2">
-          <input
-            placeholder="https://..."
-            className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+          <input placeholder="https://..." className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 const val = (e.target as HTMLInputElement).value.trim();
                 if (val) { onChange([...images.filter(img => img.trim()), val]); (e.target as HTMLInputElement).value = ""; }
               }
-            }}
-          />
+            }} />
           <span className="text-gray-500 text-xs self-center">اضغط Enter</span>
         </div>
       </details>
@@ -162,7 +115,6 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
   );
 }
 
-// ===== مكون رفع الصورة الشخصية =====
 function ProfileImageUploader({ url, onChange }: { url: string; onChange: (url: string) => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -170,19 +122,11 @@ function ProfileImageUploader({ url, onChange }: { url: string; onChange: (url: 
 
   const handleFile = async (file: File) => {
     setUploading(true);
-    const fileName = `profile/${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-    uploadTask.on(
-      "state_changed",
+    const uploadTask = uploadBytesResumable(ref(storage, `profile/${Date.now()}_${file.name}`), file);
+    uploadTask.on("state_changed",
       (snap) => setProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
       console.error,
-      async () => {
-        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-        onChange(downloadUrl);
-        setUploading(false);
-        setProgress(0);
-      }
+      async () => { onChange(await getDownloadURL(uploadTask.snapshot.ref)); setUploading(false); setProgress(0); }
     );
   };
 
@@ -191,20 +135,12 @@ function ProfileImageUploader({ url, onChange }: { url: string; onChange: (url: 
       <label className="block text-gray-400 mb-1 text-sm">الصورة الشخصية</label>
       <div className="flex gap-3 items-center">
         {url && <img src={url} alt="profile" className="w-16 h-16 rounded-full object-cover border-2 border-gray-700" />}
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          className="flex-1 border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition-all"
-        >
+        <div onClick={() => fileInputRef.current?.click()}
+          className="flex-1 border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition-all">
           {uploading ? (
-            <div className="space-y-1">
-              <Loader size={18} className="animate-spin mx-auto text-blue-400" />
-              <p className="text-gray-400 text-xs">{progress}%</p>
-            </div>
+            <div className="space-y-1"><Loader size={18} className="animate-spin mx-auto text-blue-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
           ) : (
-            <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-              <Upload size={16} />
-              <span>رفع صورة جديدة</span>
-            </div>
+            <div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={16} /><span>رفع صورة جديدة</span></div>
           )}
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
             onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
@@ -214,7 +150,6 @@ function ProfileImageUploader({ url, onChange }: { url: string; onChange: (url: 
   );
 }
 
-// ===== مكون تسجيل الدخول =====
 function LoginForm({ onLogin }: { onLogin: (email: string, password: string) => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -222,8 +157,7 @@ function LoginForm({ onLogin }: { onLogin: (email: string, password: string) => 
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    setLoading(true);
-    setError("");
+    setLoading(true); setError("");
     try { await onLogin(email, password); }
     catch { setError("البريد الإلكتروني أو كلمة المرور غير صحيحة"); }
     setLoading(false);
@@ -250,10 +184,105 @@ function LoginForm({ onLogin }: { onLogin: (email: string, password: string) => 
   );
 }
 
-// ===== لوحة التحكم الرئيسية =====
+// ===== مكون قائمة أعمال فئة معينة =====
+function WorksList({
+  works, category, saving,
+  editingWork, setEditingWork,
+  onSave, onDelete,
+  showAdd, setShowAdd,
+  newWork, setNewWork, onAdd,
+  inputClass, smallInputClass,
+}: any) {
+  const filtered = works.filter((w: Work) => w.category === category);
+  const isVoice = category === "voice";
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <span className="text-gray-400 text-sm">{filtered.length} عمل</span>
+        <button onClick={() => { setNewWork({ title: "", description: "", images: [], altText: "", soundcloudUrl: "", category }); setShowAdd(true); }}
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all text-sm">
+          <Plus size={16} /> إضافة عمل
+        </button>
+      </div>
+
+      {showAdd && newWork.category === category && (
+        <div className="bg-gray-900 border border-blue-800 rounded-2xl p-6 mb-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-blue-400">إضافة عمل جديد</h3>
+            <button onClick={() => setShowAdd(false)}><X size={18} className="text-gray-400 hover:text-white" /></button>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className={smallInputClass} />
+            <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={smallInputClass} />
+            {isVoice && (
+              <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${smallInputClass} md:col-span-2`} />
+            )}
+            <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2}
+              className={`${smallInputClass} resize-none md:col-span-2`} />
+          </div>
+          {!isVoice && <ImageUploader images={newWork.images} onChange={(imgs: string[]) => setNewWork({ ...newWork, images: imgs })} />}
+          <button onClick={onAdd} disabled={saving}
+            className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50">
+            <Plus size={16} /> {saving ? "جارٍ الإضافة..." : "إضافة"}
+          </button>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {filtered.length === 0 && <div className="text-center text-gray-500 py-12 border border-dashed border-gray-800 rounded-xl">لا توجد أعمال بعد — أضف أول عمل</div>}
+        {filtered.map((work: Work) => (
+          <div key={work.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            {editingWork?.id === work.id ? (
+              <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <input value={editingWork.title} onChange={(e) => setEditingWork({ ...editingWork, title: e.target.value })} className={smallInputClass} />
+                  <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className={smallInputClass} />
+                  {isVoice && (
+                    <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${smallInputClass} md:col-span-2`} />
+                  )}
+                  <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2}
+                    className={`${smallInputClass} resize-none md:col-span-2`} />
+                </div>
+                {!isVoice && <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork({ ...editingWork, images: imgs })} />}
+                <div className="flex gap-3">
+                  <button onClick={onSave} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition-all">
+                    <Save size={16} /> حفظ
+                  </button>
+                  <button onClick={() => setEditingWork(null)} className="flex items-center gap-2 bg-gray-700 px-5 py-2 rounded-lg hover:bg-gray-600 transition-all">
+                    <X size={16} /> إلغاء
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4">
+                {work.images?.[0] && <img src={work.images[0]} alt={work.altText} className="w-16 h-16 rounded-lg object-cover border border-gray-700 flex-shrink-0" />}
+                {isVoice && !work.images?.[0] && (
+                  <div className="w-16 h-16 rounded-lg border border-gray-700 flex-shrink-0 bg-pink-900/20 flex items-center justify-center text-pink-400 text-xs">🎙️</div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-white">{work.title}</h3>
+                  <p className="text-gray-400 text-sm mt-1 truncate">{work.description}</p>
+                  {work.images?.length > 1 && <span className="text-xs text-gray-500 mt-1 inline-block">{work.images.length} صور</span>}
+                  {work.soundcloudUrl && <span className="text-xs text-orange-400 mt-1 inline-block mr-2">SoundCloud ✓</span>}
+                </div>
+                <div className="flex gap-2 flex-shrink-0">
+                  <button onClick={() => setEditingWork(work)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-lg transition-all"><Pencil size={18} /></button>
+                  <button onClick={() => onDelete(work.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-all"><Trash2 size={18} /></button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function AdminPage() {
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"info" | "footer" | "works">("info");
+  const [worksSubTab, setWorksSubTab] = useState<"design" | "photography" | "voice">("design");
   const [works, setWorks] = useState<Work[]>([]);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
   const [editingWork, setEditingWork] = useState<Work | null>(null);
@@ -276,15 +305,7 @@ export function AdminPage() {
     const unsub = onSnapshot(collection(db, "works"), (snap) => {
       setWorks(snap.docs.map((d) => {
         const data = d.data();
-        return {
-          id: d.id,
-          title: data.title || "",
-          description: data.description || "",
-          images: data.images || (data.imageUrl ? [data.imageUrl] : []),
-          altText: data.altText || "",
-          soundcloudUrl: data.soundcloudUrl || "",
-          category: data.category || "design",
-        } as Work;
+        return { id: d.id, title: data.title || "", description: data.description || "", images: data.images || (data.imageUrl ? [data.imageUrl] : []), altText: data.altText || "", soundcloudUrl: data.soundcloudUrl || "", category: data.category || "design" } as Work;
       }));
     });
     return unsub;
@@ -297,13 +318,7 @@ export function AdminPage() {
         const d = snap.docs[0];
         const data = { id: d.id, ...d.data() } as SiteInfo;
         setSiteInfo(data);
-        setInfoForm({
-          heroName: data.heroName || "", heroDescription: data.heroDescription || "",
-          profileImageUrl: data.profileImageUrl || "", aboutText: data.aboutText || "",
-          email: data.email || "", phone: data.phone || "",
-          footerDescription: data.footerDescription || "",
-          linkedinUrl: data.linkedinUrl || "", twitterUrl: data.twitterUrl || "", instagramUrl: data.instagramUrl || "",
-        });
+        setInfoForm({ heroName: data.heroName || "", heroDescription: data.heroDescription || "", profileImageUrl: data.profileImageUrl || "", aboutText: data.aboutText || "", email: data.email || "", phone: data.phone || "", footerDescription: data.footerDescription || "", linkedinUrl: data.linkedinUrl || "", twitterUrl: data.twitterUrl || "", instagramUrl: data.instagramUrl || "" });
       }
     });
     return unsub;
@@ -326,24 +341,16 @@ export function AdminPage() {
   const addWork = async () => {
     if (!newWork.title) return;
     setSaving(true);
-    try {
-      await addDoc(collection(db, "works"), newWork);
-      setNewWork(emptyWork);
-      setShowAddWork(false);
-      showMsg("✅ تمت إضافة العمل");
-    } catch { showMsg("❌ حدث خطأ"); }
+    try { await addDoc(collection(db, "works"), newWork); setNewWork(emptyWork); setShowAddWork(false); showMsg("✅ تمت إضافة العمل"); }
+    catch { showMsg("❌ حدث خطأ"); }
     setSaving(false);
   };
 
   const saveWork = async () => {
     if (!editingWork) return;
     setSaving(true);
-    try {
-      const { id, ...data } = editingWork;
-      await updateDoc(doc(db, "works", id), data);
-      setEditingWork(null);
-      showMsg("✅ تم التعديل");
-    } catch { showMsg("❌ حدث خطأ"); }
+    try { const { id, ...data } = editingWork; await updateDoc(doc(db, "works", id), data); setEditingWork(null); showMsg("✅ تم التعديل"); }
+    catch { showMsg("❌ حدث خطأ"); }
     setSaving(false);
   };
 
@@ -361,10 +368,15 @@ export function AdminPage() {
   const saveBtn = (
     <button onClick={saveInfo} disabled={saving}
       className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50">
-      <Save size={18} />
-      {saving ? "جارٍ الحفظ..." : "حفظ"}
+      <Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ"}
     </button>
   );
+
+  const subTabs = [
+    { key: "design", label: "🎨 التصميم", count: works.filter(w => w.category === "design").length },
+    { key: "photography", label: "📷 التصوير", count: works.filter(w => w.category === "photography").length },
+    { key: "voice", label: "🎙️ التعليق الصوتي", count: works.filter(w => w.category === "voice").length },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" dir="rtl">
@@ -380,6 +392,7 @@ export function AdminPage() {
       )}
 
       <div className="max-w-5xl mx-auto px-4 py-8">
+        {/* التبويبات الرئيسية */}
         <div className="flex gap-2 mb-8 bg-gray-900 p-1 rounded-xl w-fit">
           {(["info", "footer", "works"] as const).map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
@@ -393,10 +406,7 @@ export function AdminPage() {
         {activeTab === "info" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-6">
             <h2 className="text-xl font-bold">الصفحة الرئيسية</h2>
-            <ProfileImageUploader
-              url={infoForm.profileImageUrl}
-              onChange={(url) => setInfoForm({ ...infoForm, profileImageUrl: url })}
-            />
+            <ProfileImageUploader url={infoForm.profileImageUrl} onChange={(url) => setInfoForm({ ...infoForm, profileImageUrl: url })} />
             <div>
               <label className="block text-gray-400 mb-2 text-sm">الاسم في الهيرو</label>
               <input value={infoForm.heroName} onChange={(e) => setInfoForm({ ...infoForm, heroName: e.target.value })} className={inputClass} placeholder="مصطفى جغلال" />
@@ -450,99 +460,33 @@ export function AdminPage() {
         {/* الأعمال */}
         {activeTab === "works" && (
           <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold">الأعمال ({works.length})</h2>
-              <button onClick={() => setShowAddWork(true)}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all">
-                <Plus size={18} /> إضافة عمل
-              </button>
-            </div>
-
-            {showAddWork && (
-              <div className="bg-gray-900 border border-blue-800 rounded-2xl p-6 mb-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-blue-400">إضافة عمل جديد</h3>
-                  <button onClick={() => setShowAddWork(false)}><X size={18} className="text-gray-400 hover:text-white" /></button>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className={smallInputClass} />
-                  <select value={newWork.category} onChange={(e) => setNewWork({ ...newWork, category: e.target.value as Work["category"] })} className={smallInputClass}>
-                    <option value="design">تصميم جرافيكي</option>
-                    <option value="photography">تصوير</option>
-                    <option value="voice">تعليق صوتي</option>
-                  </select>
-                  <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={smallInputClass} />
-                  {newWork.category === "voice" && (
-                    <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={smallInputClass} />
-                  )}
-                  <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2}
-                    className={`${smallInputClass} resize-none md:col-span-2`} />
-                </div>
-                {newWork.category !== "voice" && (
-                  <ImageUploader images={newWork.images} onChange={(imgs) => setNewWork({ ...newWork, images: imgs })} />
-                )}
-                <button onClick={addWork} disabled={saving}
-                  className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50">
-                  <Plus size={16} /> {saving ? "جارٍ الإضافة..." : "إضافة"}
+            {/* التبويبات الفرعية */}
+            <div className="flex gap-2 mb-6 bg-gray-900 p-1 rounded-xl">
+              {subTabs.map((tab) => (
+                <button key={tab.key} onClick={() => { setWorksSubTab(tab.key as any); setShowAddWork(false); setEditingWork(null); }}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all text-sm ${worksSubTab === tab.key ? "bg-gray-700 text-white" : "text-gray-400 hover:text-white"}`}>
+                  {tab.label}
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${worksSubTab === tab.key ? "bg-blue-600" : "bg-gray-800"}`}>{tab.count}</span>
                 </button>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              {works.length === 0 && <div className="text-center text-gray-500 py-16">لا توجد أعمال بعد — أضف أول عمل</div>}
-              {works.map((work) => (
-                <div key={work.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-                  {editingWork?.id === work.id ? (
-                    <div className="space-y-4">
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <input value={editingWork.title} onChange={(e) => setEditingWork({ ...editingWork, title: e.target.value })} className={smallInputClass} />
-                        <select value={editingWork.category} onChange={(e) => setEditingWork({ ...editingWork, category: e.target.value as Work["category"] })} className={smallInputClass}>
-                          <option value="design">تصميم جرافيكي</option>
-                          <option value="photography">تصوير</option>
-                          <option value="voice">تعليق صوتي</option>
-                        </select>
-                        <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className={smallInputClass} />
-                        {editingWork.category === "voice" && (
-                          <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={smallInputClass} />
-                        )}
-                        <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2}
-                          className={`${smallInputClass} resize-none md:col-span-2`} />
-                      </div>
-                      {editingWork.category !== "voice" && (
-                        <ImageUploader images={editingWork.images || []} onChange={(imgs) => setEditingWork({ ...editingWork, images: imgs })} />
-                      )}
-                      <div className="flex gap-3">
-                        <button onClick={saveWork} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition-all">
-                          <Save size={16} /> حفظ
-                        </button>
-                        <button onClick={() => setEditingWork(null)} className="flex items-center gap-2 bg-gray-700 px-5 py-2 rounded-lg hover:bg-gray-600 transition-all">
-                          <X size={16} /> إلغاء
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-4">
-                      {work.images?.[0] && <img src={work.images[0]} alt={work.altText} className="w-16 h-16 rounded-lg object-cover border border-gray-700 flex-shrink-0" />}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-white">{work.title}</h3>
-                        <p className="text-gray-400 text-sm mt-1 truncate">{work.description}</p>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs text-blue-400">
-                            {work.category === "design" ? "تصميم" : work.category === "photography" ? "تصوير" : "تعليق صوتي"}
-                          </span>
-                          {work.images?.length > 1 && <span className="text-xs text-gray-500">{work.images.length} صور</span>}
-                          {work.soundcloudUrl && <span className="text-xs text-orange-400">SoundCloud ✓</span>}
-                        </div>
-                      </div>
-                      <div className="flex gap-2 flex-shrink-0">
-                        <button onClick={() => setEditingWork(work)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-lg transition-all"><Pencil size={18} /></button>
-                        <button onClick={() => deleteWork(work.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-all"><Trash2 size={18} /></button>
-                      </div>
-                    </div>
-                  )}
-                </div>
               ))}
             </div>
+
+            <WorksList
+              works={works}
+              category={worksSubTab}
+              saving={saving}
+              editingWork={editingWork}
+              setEditingWork={setEditingWork}
+              onSave={saveWork}
+              onDelete={deleteWork}
+              showAdd={showAddWork}
+              setShowAdd={setShowAddWork}
+              newWork={newWork}
+              setNewWork={setNewWork}
+              onAdd={addWork}
+              inputClass={inputClass}
+              smallInputClass={smallInputClass}
+            />
           </div>
         )}
       </div>
