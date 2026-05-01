@@ -21,6 +21,7 @@ export function HomePage() {
     email: "info@example.com",
     phone: "+968",
   });
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "siteInfo"), (snap) => {
@@ -28,6 +29,7 @@ export function HomePage() {
         const data = snap.docs[0].data() as SiteInfo;
         setSiteInfo((prev) => ({ ...prev, ...data }));
       }
+      setLoaded(true);
     });
     return unsub;
   }, []);
@@ -94,11 +96,15 @@ export function HomePage() {
             <div className="order-1 lg:order-2 flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full blur-3xl opacity-30"></div>
-                <ImageWithFallback
-                  src={siteInfo.profileImageUrl || "https://images.unsplash.com/photo-1624411024074-18a756682b50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"}
-                  alt={`${siteInfo.heroName} - معلق صوتي ومصمم بصري`}
-                  className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-cover border-4 border-gray-800 shadow-2xl"
-                />
+                {loaded && siteInfo.profileImageUrl ? (
+                  <ImageWithFallback
+                    src={siteInfo.profileImageUrl}
+                    alt={`${siteInfo.heroName} - معلق صوتي ومصمم بصري`}
+                    className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-cover border-4 border-gray-800 shadow-2xl"
+                  />
+                ) : (
+                  <div className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 border-4 border-gray-800 bg-gray-900 animate-pulse" />
+                )}
               </div>
             </div>
           </div>
