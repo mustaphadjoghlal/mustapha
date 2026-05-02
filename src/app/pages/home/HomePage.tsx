@@ -13,21 +13,44 @@ interface SiteInfo {
   phone: string;
 }
 
+const CACHE_KEY = "mustapha_site_info";
+const CACHE_TTL = 1000 * 60 * 30; // 30 دقيقة
+
+function getCached(): SiteInfo | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { data, timestamp } = JSON.parse(raw);
+    if (Date.now() - timestamp > CACHE_TTL) return null;
+    return data;
+  } catch { return null; }
+}
+
+function setCache(data: SiteInfo) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch {}
+}
+
+const defaults: SiteInfo = {
+  heroName: "مصطفى جغلال",
+  heroDescription: "معلق صوتي محترف ومصمم بصري مقيم في مسقط، سلطنة عُمان. يجمع بين قوة الصوت المؤثر وخبرة التصميم الجرافيكي لتقديم محتوى إبداعي متكامل للمشاريع التجارية.",
+  profileImageUrl: "",
+  email: "info@example.com",
+  phone: "+968",
+};
+
 export function HomePage() {
-  const [siteInfo, setSiteInfo] = useState<SiteInfo>({
-    heroName: "مصطفى جغلال",
-    heroDescription: "معلق صوتي محترف ومصمم بصري مقيم في مسقط، سلطنة عُمان. يجمع بين قوة الصوت المؤثر وخبرة التصميم الجرافيكي لتقديم محتوى إبداعي متكامل للمشاريع التجارية.",
-    profileImageUrl: "",
-    email: "info@example.com",
-    phone: "+968",
-  });
-  const [loaded, setLoaded] = useState(false);
+  const cached = getCached();
+  const [siteInfo, setSiteInfo] = useState<SiteInfo>(cached || defaults);
+  const [loaded, setLoaded] = useState(!!cached);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "siteInfo"), (snap) => {
       if (!snap.empty) {
         const data = snap.docs[0].data() as SiteInfo;
         setSiteInfo((prev) => ({ ...prev, ...data }));
+        setCache({ ...defaults, ...data });
       }
       setLoaded(true);
     });
