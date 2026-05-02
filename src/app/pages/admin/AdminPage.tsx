@@ -5,6 +5,7 @@ import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebas
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader } from "lucide-react";
 
+// ===== الأنواع =====
 interface Work {
   id: string;
   title: string;
@@ -15,12 +16,37 @@ interface Work {
   category: "design" | "photography" | "voice";
 }
 
+interface Experience {
+  id: string;
+  period: string;
+  title: string;
+  location: string;
+  tasks: string;
+}
+
+interface MediaOutput {
+  id: string;
+  title: string;
+  channel: string;
+  type: "تلفزيون" | "إذاعة" | "صحافة" | "بودكاست" | "يوتيوب" | "أخرى";
+  date: string;
+  description: string;
+  url: string;
+}
+
+interface AboutImage {
+  url: string;
+  alt: string;
+}
+
 interface SiteInfo {
   id: string;
   heroName: string;
   heroDescription: string;
   profileImageUrl: string;
   aboutText: string;
+  aboutBio: string;
+  aboutImages: AboutImage[];
   email: string;
   phone: string;
   footerDescription: string;
@@ -29,21 +55,53 @@ interface SiteInfo {
   instagramUrl: string;
 }
 
+// ===== رفع صورة واحدة =====
+function SingleImageUploader({ url, onChange, folder = "images", label = "رفع صورة", rounded = false }: {
+  url: string; onChange: (url: string) => void; folder?: string; label?: string; rounded?: boolean;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const handleFile = async (file: File) => {
+    setUploading(true);
+    const uploadTask = uploadBytesResumable(ref(storage, `${folder}/${Date.now()}_${file.name}`), file);
+    uploadTask.on("state_changed",
+      (snap) => setProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
+      console.error,
+      async () => { onChange(await getDownloadURL(uploadTask.snapshot.ref)); setUploading(false); setProgress(0); }
+    );
+  };
+
+  return (
+    <div className="flex gap-3 items-center">
+      {url && <img src={url} alt="" className={`w-16 h-16 object-cover border-2 border-gray-700 ${rounded ? "rounded-full" : "rounded-lg"}`} />}
+      <div onClick={() => fileInputRef.current?.click()}
+        className="flex-1 border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-3 text-center cursor-pointer transition-all">
+        {uploading ? (
+          <div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-blue-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
+        ) : (
+          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={14} /><span>{label}</span></div>
+        )}
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
+          onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+      </div>
+    </div>
+  );
+}
+
+// ===== رفع صور متعددة =====
 function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs: string[]) => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const uploadFile = async (file: File): Promise<string> => {
-    const fileName = `works/${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, fileName);
+    const storageRef = ref(storage, `works/${Date.now()}_${file.name}`);
     return new Promise((resolve, reject) => {
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on("state_changed",
-        (snapshot) => setProgress(Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)),
-        reject,
-        async () => { const url = await getDownloadURL(uploadTask.snapshot.ref); resolve(url); }
-      );
+      const task = uploadBytesResumable(storageRef, file);
+      task.on("state_changed", (s) => setProgress(Math.round((s.bytesTransferred / s.totalBytes) * 100)), reject,
+        async () => resolve(await getDownloadURL(task.snapshot.ref)));
     });
   };
 
@@ -51,11 +109,10 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
     setUploading(true);
     try {
       const urls: string[] = [];
-      for (const file of Array.from(files)) { urls.push(await uploadFile(file)); }
+      for (const file of Array.from(files)) urls.push(await uploadFile(file));
       onChange([...images.filter(img => img.trim()), ...urls]);
     } catch (e) { console.error(e); }
-    setUploading(false);
-    setProgress(0);
+    setUploading(false); setProgress(0);
   };
 
   const removeImage = async (url: string, index: number) => {
@@ -68,19 +125,15 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
       <label className="block text-gray-400 text-sm flex items-center gap-1"><Image size={14} /> الصور</label>
       <div onDrop={(e) => { e.preventDefault(); e.dataTransfer.files.length && handleFiles(e.dataTransfer.files); }}
         onDragOver={(e) => e.preventDefault()} onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-all">
+        className="border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-5 text-center cursor-pointer transition-all">
         {uploading ? (
-          <div className="space-y-2">
-            <Loader size={24} className="animate-spin mx-auto text-blue-400" />
-            <p className="text-gray-400 text-sm">جارٍ الرفع... {progress}%</p>
-            <div className="w-full bg-gray-700 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} /></div>
+          <div className="space-y-2"><Loader size={20} className="animate-spin mx-auto text-blue-400" />
+            <p className="text-gray-400 text-sm">{progress}%</p>
+            <div className="w-full bg-gray-700 rounded-full h-1.5"><div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${progress}%` }} /></div>
           </div>
         ) : (
-          <div className="space-y-2">
-            <Upload size={24} className="mx-auto text-gray-500" />
-            <p className="text-gray-400 text-sm">اسحب الصور هنا أو اضغط للاختيار</p>
-            <p className="text-gray-600 text-xs">يمكنك اختيار أكثر من صورة في نفس الوقت</p>
-          </div>
+          <div className="space-y-1"><Upload size={20} className="mx-auto text-gray-500" />
+            <p className="text-gray-400 text-sm">اسحب أو اضغط للاختيار</p></div>
         )}
         <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
           onChange={(e) => e.target.files && handleFiles(e.target.files)} />
@@ -91,75 +144,23 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
             <div key={i} className="relative group aspect-square">
               <img src={img} alt="" className="w-full h-full object-cover rounded-lg border border-gray-700" />
               <button onClick={() => removeImage(img, i)}
-                className="absolute top-1 left-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <X size={12} />
-              </button>
+                className="absolute top-1 left-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><X size={10} /></button>
             </div>
           ))}
         </div>
       )}
-      <details className="text-xs">
-        <summary className="text-gray-500 cursor-pointer hover:text-gray-400">أو أضف رابط خارجي يدوياً</summary>
-        <div className="mt-2 flex gap-2">
-          <input placeholder="https://..." className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const val = (e.target as HTMLInputElement).value.trim();
-                if (val) { onChange([...images.filter(img => img.trim()), val]); (e.target as HTMLInputElement).value = ""; }
-              }
-            }} />
-          <span className="text-gray-500 text-xs self-center">اضغط Enter</span>
-        </div>
-      </details>
     </div>
   );
 }
 
-function ProfileImageUploader({ url, onChange }: { url: string; onChange: (url: string) => void }) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-
-  const handleFile = async (file: File) => {
-    setUploading(true);
-    const uploadTask = uploadBytesResumable(ref(storage, `profile/${Date.now()}_${file.name}`), file);
-    uploadTask.on("state_changed",
-      (snap) => setProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
-      console.error,
-      async () => { onChange(await getDownloadURL(uploadTask.snapshot.ref)); setUploading(false); setProgress(0); }
-    );
-  };
-
-  return (
-    <div className="space-y-2">
-      <label className="block text-gray-400 mb-1 text-sm">الصورة الشخصية</label>
-      <div className="flex gap-3 items-center">
-        {url && <img src={url} alt="profile" className="w-16 h-16 rounded-full object-cover border-2 border-gray-700" />}
-        <div onClick={() => fileInputRef.current?.click()}
-          className="flex-1 border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition-all">
-          {uploading ? (
-            <div className="space-y-1"><Loader size={18} className="animate-spin mx-auto text-blue-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
-          ) : (
-            <div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={16} /><span>رفع صورة جديدة</span></div>
-          )}
-          <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
+// ===== تسجيل الدخول =====
 function LoginForm({ onLogin }: { onLogin: (email: string, password: string) => void }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState(""); const [password, setPassword] = useState("");
+  const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true); setError("");
-    try { await onLogin(email, password); }
-    catch { setError("البريد الإلكتروني أو كلمة المرور غير صحيحة"); }
+    try { await onLogin(email, password); } catch { setError("البريد أو كلمة المرور غير صحيحة"); }
     setLoading(false);
   };
 
@@ -184,15 +185,8 @@ function LoginForm({ onLogin }: { onLogin: (email: string, password: string) => 
   );
 }
 
-// ===== مكون قائمة أعمال فئة معينة =====
-function WorksList({
-  works, category, saving,
-  editingWork, setEditingWork,
-  onSave, onDelete,
-  showAdd, setShowAdd,
-  newWork, setNewWork, onAdd,
-  inputClass, smallInputClass,
-}: any) {
+// ===== قائمة الأعمال =====
+function WorksList({ works, category, saving, editingWork, setEditingWork, onSave, onDelete, showAdd, setShowAdd, newWork, setNewWork, onAdd, smallInputClass }: any) {
   const filtered = works.filter((w: Work) => w.category === category);
   const isVoice = category === "voice";
 
@@ -201,7 +195,7 @@ function WorksList({
       <div className="flex items-center justify-between mb-6">
         <span className="text-gray-400 text-sm">{filtered.length} عمل</span>
         <button onClick={() => { setNewWork({ title: "", description: "", images: [], altText: "", soundcloudUrl: "", category }); setShowAdd(true); }}
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all text-sm">
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-blue-600 hover:to-purple-700 transition-all">
           <Plus size={16} /> إضافة عمل
         </button>
       </div>
@@ -210,27 +204,23 @@ function WorksList({
         <div className="bg-gray-900 border border-blue-800 rounded-2xl p-6 mb-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-blue-400">إضافة عمل جديد</h3>
-            <button onClick={() => setShowAdd(false)}><X size={18} className="text-gray-400 hover:text-white" /></button>
+            <button onClick={() => setShowAdd(false)}><X size={18} className="text-gray-400" /></button>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className={smallInputClass} />
             <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={smallInputClass} />
-            {isVoice && (
-              <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${smallInputClass} md:col-span-2`} />
-            )}
-            <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2}
-              className={`${smallInputClass} resize-none md:col-span-2`} />
+            {isVoice && <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${smallInputClass} md:col-span-2`} />}
+            <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2} className={`${smallInputClass} resize-none md:col-span-2`} />
           </div>
           {!isVoice && <ImageUploader images={newWork.images} onChange={(imgs: string[]) => setNewWork({ ...newWork, images: imgs })} />}
-          <button onClick={onAdd} disabled={saving}
-            className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50">
+          <button onClick={onAdd} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50">
             <Plus size={16} /> {saving ? "جارٍ الإضافة..." : "إضافة"}
           </button>
         </div>
       )}
 
       <div className="space-y-4">
-        {filtered.length === 0 && <div className="text-center text-gray-500 py-12 border border-dashed border-gray-800 rounded-xl">لا توجد أعمال بعد — أضف أول عمل</div>}
+        {filtered.length === 0 && <div className="text-center text-gray-500 py-12 border border-dashed border-gray-800 rounded-xl">لا توجد أعمال بعد</div>}
         {filtered.map((work: Work) => (
           <div key={work.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
             {editingWork?.id === work.id ? (
@@ -238,37 +228,28 @@ function WorksList({
                 <div className="grid md:grid-cols-2 gap-4">
                   <input value={editingWork.title} onChange={(e) => setEditingWork({ ...editingWork, title: e.target.value })} className={smallInputClass} />
                   <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className={smallInputClass} />
-                  {isVoice && (
-                    <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${smallInputClass} md:col-span-2`} />
-                  )}
-                  <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2}
-                    className={`${smallInputClass} resize-none md:col-span-2`} />
+                  {isVoice && <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${smallInputClass} md:col-span-2`} />}
+                  <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2} className={`${smallInputClass} resize-none md:col-span-2`} />
                 </div>
                 {!isVoice && <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork({ ...editingWork, images: imgs })} />}
                 <div className="flex gap-3">
-                  <button onClick={onSave} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition-all">
-                    <Save size={16} /> حفظ
-                  </button>
-                  <button onClick={() => setEditingWork(null)} className="flex items-center gap-2 bg-gray-700 px-5 py-2 rounded-lg hover:bg-gray-600 transition-all">
-                    <X size={16} /> إلغاء
-                  </button>
+                  <button onClick={onSave} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg font-semibold hover:bg-green-700"><Save size={16} /> حفظ</button>
+                  <button onClick={() => setEditingWork(null)} className="flex items-center gap-2 bg-gray-700 px-5 py-2 rounded-lg hover:bg-gray-600"><X size={16} /> إلغاء</button>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                {work.images?.[0] && <img src={work.images[0]} alt={work.altText} className="w-16 h-16 rounded-lg object-cover border border-gray-700 flex-shrink-0" />}
-                {isVoice && !work.images?.[0] && (
-                  <div className="w-16 h-16 rounded-lg border border-gray-700 flex-shrink-0 bg-pink-900/20 flex items-center justify-center text-pink-400 text-xs">🎙️</div>
-                )}
+                {work.images?.[0] ? <img src={work.images[0]} alt={work.altText} className="w-14 h-14 rounded-lg object-cover border border-gray-700 flex-shrink-0" /> :
+                  isVoice ? <div className="w-14 h-14 rounded-lg border border-gray-700 flex-shrink-0 bg-pink-900/20 flex items-center justify-center">🎙️</div> : null}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-white">{work.title}</h3>
-                  <p className="text-gray-400 text-sm mt-1 truncate">{work.description}</p>
-                  {work.images?.length > 1 && <span className="text-xs text-gray-500 mt-1 inline-block">{work.images.length} صور</span>}
-                  {work.soundcloudUrl && <span className="text-xs text-orange-400 mt-1 inline-block mr-2">SoundCloud ✓</span>}
+                  <p className="text-gray-400 text-sm truncate">{work.description}</p>
+                  {work.images?.length > 1 && <span className="text-xs text-gray-500">{work.images.length} صور</span>}
+                  {work.soundcloudUrl && <span className="text-xs text-orange-400 mr-2">SoundCloud ✓</span>}
                 </div>
-                <div className="flex gap-2 flex-shrink-0">
-                  <button onClick={() => setEditingWork(work)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-lg transition-all"><Pencil size={18} /></button>
-                  <button onClick={() => onDelete(work.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-all"><Trash2 size={18} /></button>
+                <div className="flex gap-2">
+                  <button onClick={() => setEditingWork(work)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-lg"><Pencil size={16} /></button>
+                  <button onClick={() => onDelete(work.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg"><Trash2 size={16} /></button>
                 </div>
               </div>
             )}
@@ -279,22 +260,35 @@ function WorksList({
   );
 }
 
+// ===== الصفحة الرئيسية للوحة التحكم =====
 export function AdminPage() {
   const [user, setUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"info" | "footer" | "works">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "about" | "media" | "footer" | "works">("info");
   const [worksSubTab, setWorksSubTab] = useState<"design" | "photography" | "voice">("design");
   const [works, setWorks] = useState<Work[]>([]);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [mediaOutputs, setMediaOutputs] = useState<MediaOutput[]>([]);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
   const [editingWork, setEditingWork] = useState<Work | null>(null);
+  const [editingExp, setEditingExp] = useState<Experience | null>(null);
+  const [editingMedia, setEditingMedia] = useState<MediaOutput | null>(null);
   const [showAddWork, setShowAddWork] = useState(false);
+  const [showAddExp, setShowAddExp] = useState(false);
+  const [showAddMedia, setShowAddMedia] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
   const emptyWork = { title: "", description: "", images: [], altText: "", soundcloudUrl: "", category: "design" as Work["category"] };
+  const emptyExp: Omit<Experience, "id"> = { period: "", title: "", location: "", tasks: "" };
+  const emptyMedia: Omit<MediaOutput, "id"> = { title: "", channel: "", type: "تلفزيون", date: "", description: "", url: "" };
+
   const [newWork, setNewWork] = useState(emptyWork);
+  const [newExp, setNewExp] = useState(emptyExp);
+  const [newMedia, setNewMedia] = useState(emptyMedia);
 
   const [infoForm, setInfoForm] = useState({
     heroName: "", heroDescription: "", profileImageUrl: "", aboutText: "",
+    aboutBio: "", aboutImages: [] as AboutImage[],
     email: "", phone: "", footerDescription: "", linkedinUrl: "", twitterUrl: "", instagramUrl: "",
   });
 
@@ -302,26 +296,34 @@ export function AdminPage() {
 
   useEffect(() => {
     if (!user) return;
-    const unsub = onSnapshot(collection(db, "works"), (snap) => {
+    const u1 = onSnapshot(collection(db, "works"), (snap) => {
       setWorks(snap.docs.map((d) => {
         const data = d.data();
         return { id: d.id, title: data.title || "", description: data.description || "", images: data.images || (data.imageUrl ? [data.imageUrl] : []), altText: data.altText || "", soundcloudUrl: data.soundcloudUrl || "", category: data.category || "design" } as Work;
       }));
     });
-    return unsub;
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-    const unsub = onSnapshot(collection(db, "siteInfo"), (snap) => {
+    const u2 = onSnapshot(collection(db, "experiences"), (snap) => {
+      setExperiences(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Experience)));
+    });
+    const u3 = onSnapshot(collection(db, "mediaOutputs"), (snap) => {
+      setMediaOutputs(snap.docs.map((d) => ({ id: d.id, ...d.data() } as MediaOutput)));
+    });
+    const u4 = onSnapshot(collection(db, "siteInfo"), (snap) => {
       if (!snap.empty) {
         const d = snap.docs[0];
         const data = { id: d.id, ...d.data() } as SiteInfo;
         setSiteInfo(data);
-        setInfoForm({ heroName: data.heroName || "", heroDescription: data.heroDescription || "", profileImageUrl: data.profileImageUrl || "", aboutText: data.aboutText || "", email: data.email || "", phone: data.phone || "", footerDescription: data.footerDescription || "", linkedinUrl: data.linkedinUrl || "", twitterUrl: data.twitterUrl || "", instagramUrl: data.instagramUrl || "" });
+        setInfoForm({
+          heroName: data.heroName || "", heroDescription: data.heroDescription || "",
+          profileImageUrl: data.profileImageUrl || "", aboutText: data.aboutText || "",
+          aboutBio: data.aboutBio || "", aboutImages: data.aboutImages || [],
+          email: data.email || "", phone: data.phone || "",
+          footerDescription: data.footerDescription || "",
+          linkedinUrl: data.linkedinUrl || "", twitterUrl: data.twitterUrl || "", instagramUrl: data.instagramUrl || "",
+        });
       }
     });
-    return unsub;
+    return () => { u1(); u2(); u3(); u4(); };
   }, [user]);
 
   const handleLogin = async (email: string, password: string) => { await signInWithEmailAndPassword(auth, email, password); };
@@ -331,17 +333,17 @@ export function AdminPage() {
   const saveInfo = async () => {
     setSaving(true);
     try {
-      if (siteInfo) { await updateDoc(doc(db, "siteInfo", siteInfo.id), infoForm); }
-      else { await addDoc(collection(db, "siteInfo"), infoForm); }
-      showMsg("✅ تم الحفظ بنجاح");
-    } catch { showMsg("❌ حدث خطأ أثناء الحفظ"); }
+      if (siteInfo) await updateDoc(doc(db, "siteInfo", siteInfo.id), infoForm);
+      else await addDoc(collection(db, "siteInfo"), infoForm);
+      showMsg("✅ تم الحفظ");
+    } catch { showMsg("❌ حدث خطأ"); }
     setSaving(false);
   };
 
   const addWork = async () => {
     if (!newWork.title) return;
     setSaving(true);
-    try { await addDoc(collection(db, "works"), newWork); setNewWork(emptyWork); setShowAddWork(false); showMsg("✅ تمت إضافة العمل"); }
+    try { await addDoc(collection(db, "works"), newWork); setNewWork(emptyWork); setShowAddWork(false); showMsg("✅ تمت الإضافة"); }
     catch { showMsg("❌ حدث خطأ"); }
     setSaving(false);
   };
@@ -355,112 +357,314 @@ export function AdminPage() {
   };
 
   const deleteWork = async (id: string) => {
-    if (!confirm("هل أنت متأكد من الحذف؟")) return;
-    await deleteDoc(doc(db, "works", id));
-    showMsg("✅ تم الحذف");
+    if (!confirm("هل أنت متأكد؟")) return;
+    await deleteDoc(doc(db, "works", id)); showMsg("✅ تم الحذف");
+  };
+
+  const addExp = async () => {
+    if (!newExp.title) return;
+    setSaving(true);
+    try { await addDoc(collection(db, "experiences"), newExp); setNewExp(emptyExp); setShowAddExp(false); showMsg("✅ تمت الإضافة"); }
+    catch { showMsg("❌ حدث خطأ"); }
+    setSaving(false);
+  };
+
+  const saveExp = async () => {
+    if (!editingExp) return;
+    setSaving(true);
+    try { const { id, ...data } = editingExp; await updateDoc(doc(db, "experiences", id), data); setEditingExp(null); showMsg("✅ تم التعديل"); }
+    catch { showMsg("❌ حدث خطأ"); }
+    setSaving(false);
+  };
+
+  const deleteExp = async (id: string) => {
+    if (!confirm("هل أنت متأكد؟")) return;
+    await deleteDoc(doc(db, "experiences", id)); showMsg("✅ تم الحذف");
+  };
+
+  const addMedia = async () => {
+    if (!newMedia.title) return;
+    setSaving(true);
+    try { await addDoc(collection(db, "mediaOutputs"), newMedia); setNewMedia(emptyMedia); setShowAddMedia(false); showMsg("✅ تمت الإضافة"); }
+    catch { showMsg("❌ حدث خطأ"); }
+    setSaving(false);
+  };
+
+  const saveMedia = async () => {
+    if (!editingMedia) return;
+    setSaving(true);
+    try { const { id, ...data } = editingMedia; await updateDoc(doc(db, "mediaOutputs", id), data); setEditingMedia(null); showMsg("✅ تم التعديل"); }
+    catch { showMsg("❌ حدث خطأ"); }
+    setSaving(false);
+  };
+
+  const deleteMedia = async (id: string) => {
+    if (!confirm("هل أنت متأكد؟")) return;
+    await deleteDoc(doc(db, "mediaOutputs", id)); showMsg("✅ تم الحذف");
+  };
+
+  const updateAboutImage = (index: number, field: "url" | "alt", value: string) => {
+    const imgs = [...(infoForm.aboutImages || [])];
+    if (!imgs[index]) imgs[index] = { url: "", alt: "" };
+    imgs[index] = { ...imgs[index], [field]: value };
+    setInfoForm({ ...infoForm, aboutImages: imgs });
   };
 
   if (!user) return <LoginForm onLogin={handleLogin} />;
 
-  const inputClass = "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500";
-  const smallInputClass = "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 text-sm";
+  const ic = "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500";
+  const sc = "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 text-sm";
+  const saveBtn = <button onClick={saveInfo} disabled={saving} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ"}</button>;
 
-  const saveBtn = (
-    <button onClick={saveInfo} disabled={saving}
-      className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50">
-      <Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ"}
-    </button>
-  );
+  const tabs = [
+    { key: "info", label: "🏠 الرئيسية" },
+    { key: "about", label: "👤 عني" },
+    { key: "media", label: "📺 المخرجات" },
+    { key: "footer", label: "📋 الفوتر" },
+    { key: "works", label: "💼 الأعمال" },
+  ];
 
+  const mediaTypes = ["تلفزيون", "إذاعة", "صحافة", "بودكاست", "يوتيوب", "أخرى"];
   const subTabs = [
     { key: "design", label: "🎨 التصميم", count: works.filter(w => w.category === "design").length },
     { key: "photography", label: "📷 التصوير", count: works.filter(w => w.category === "photography").length },
-    { key: "voice", label: "🎙️ التعليق الصوتي", count: works.filter(w => w.category === "voice").length },
+    { key: "voice", label: "🎙️ الصوتي", count: works.filter(w => w.category === "voice").length },
   ];
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" dir="rtl">
       <div className="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
         <h1 className="text-xl font-bold">لوحة التحكم</h1>
-        <button onClick={handleLogout} className="flex items-center gap-2 text-gray-400 hover:text-red-400 transition-colors">
-          <LogOut size={18} /> خروج
-        </button>
+        <button onClick={handleLogout} className="flex items-center gap-2 text-gray-400 hover:text-red-400 transition-colors"><LogOut size={18} /> خروج</button>
       </div>
 
-      {message && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 bg-gray-800 border border-gray-700 text-white px-6 py-3 rounded-xl shadow-xl z-50">{message}</div>
-      )}
+      {message && <div className="fixed top-6 left-1/2 -translate-x-1/2 bg-gray-800 border border-gray-700 text-white px-6 py-3 rounded-xl shadow-xl z-50">{message}</div>}
 
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* التبويبات الرئيسية */}
-        <div className="flex gap-2 mb-8 bg-gray-900 p-1 rounded-xl w-fit">
-          {(["info", "footer", "works"] as const).map((tab) => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-lg font-semibold transition-all ${activeTab === tab ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"}`}>
-              {tab === "info" ? "الصفحة الرئيسية" : tab === "footer" ? "الفوتر" : "الأعمال"}
+        {/* التبويبات */}
+        <div className="flex gap-1 mb-8 bg-gray-900 p-1 rounded-xl overflow-x-auto">
+          {tabs.map((tab) => (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all text-sm whitespace-nowrap ${activeTab === tab.key ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"}`}>
+              {tab.label}
             </button>
           ))}
         </div>
 
-        {/* الصفحة الرئيسية */}
+        {/* 🏠 الصفحة الرئيسية */}
         {activeTab === "info" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-6">
             <h2 className="text-xl font-bold">الصفحة الرئيسية</h2>
-            <ProfileImageUploader url={infoForm.profileImageUrl} onChange={(url) => setInfoForm({ ...infoForm, profileImageUrl: url })} />
+            <div className="space-y-2">
+              <label className="block text-gray-400 text-sm">الصورة الشخصية (الهيرو)</label>
+              <SingleImageUploader url={infoForm.profileImageUrl} onChange={(url) => setInfoForm({ ...infoForm, profileImageUrl: url })} folder="profile" label="رفع صورة جديدة" rounded />
+            </div>
             <div>
               <label className="block text-gray-400 mb-2 text-sm">الاسم في الهيرو</label>
-              <input value={infoForm.heroName} onChange={(e) => setInfoForm({ ...infoForm, heroName: e.target.value })} className={inputClass} placeholder="مصطفى جغلال" />
+              <input value={infoForm.heroName} onChange={(e) => setInfoForm({ ...infoForm, heroName: e.target.value })} className={ic} placeholder="مصطفى جغلال" />
             </div>
             <div>
               <label className="block text-gray-400 mb-2 text-sm">وصف الهيرو</label>
-              <textarea value={infoForm.heroDescription} onChange={(e) => setInfoForm({ ...infoForm, heroDescription: e.target.value })} rows={3} className={`${inputClass} resize-none`} placeholder="وصف قصير يظهر في الصفحة الرئيسية..." />
-            </div>
-            <div>
-              <label className="block text-gray-400 mb-2 text-sm">نص صفحة عني</label>
-              <textarea value={infoForm.aboutText} onChange={(e) => setInfoForm({ ...infoForm, aboutText: e.target.value })} rows={6} className={`${inputClass} resize-none`} placeholder="السيرة الذاتية التفصيلية..." />
+              <textarea value={infoForm.heroDescription} onChange={(e) => setInfoForm({ ...infoForm, heroDescription: e.target.value })} rows={3} className={`${ic} resize-none`} />
             </div>
             {saveBtn}
           </div>
         )}
 
-        {/* الفوتر */}
+        {/* 👤 صفحة عني */}
+        {activeTab === "about" && (
+          <div className="space-y-6">
+            {/* النبذة */}
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-4">
+              <h2 className="text-xl font-bold">النبذة الشخصية</h2>
+              <div>
+                <label className="block text-gray-400 mb-2 text-sm">النبذة القصيرة (تظهر في الهيرو)</label>
+                <textarea value={infoForm.aboutBio} onChange={(e) => setInfoForm({ ...infoForm, aboutBio: e.target.value })} rows={4} className={`${ic} resize-none`} placeholder="معلّق صوتي محترف ومصمّم محتوى بصري..." />
+              </div>
+              {saveBtn}
+            </div>
+
+            {/* الصور */}
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-6">
+              <h2 className="text-xl font-bold">صور صفحة عني (3 صور)</h2>
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="border border-gray-800 rounded-xl p-4 space-y-3">
+                  <p className="text-gray-400 text-sm font-semibold">الصورة {i + 1} {i === 0 ? "— تظهر في الهيرو" : i === 1 ? "— تظهر مع المهارات" : "— تظهر مع الصفات"}</p>
+                  <SingleImageUploader
+                    url={infoForm.aboutImages?.[i]?.url || ""}
+                    onChange={(url) => updateAboutImage(i, "url", url)}
+                    folder="about"
+                    label={`رفع الصورة ${i + 1}`}
+                  />
+                  <input
+                    value={infoForm.aboutImages?.[i]?.alt || ""}
+                    onChange={(e) => updateAboutImage(i, "alt", e.target.value)}
+                    placeholder="Alt text للـ SEO (مثال: مصطفى جغلال في استوديو التسجيل)"
+                    className={sc}
+                  />
+                </div>
+              ))}
+              {saveBtn}
+            </div>
+
+            {/* الخبرات */}
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">المسيرة المهنية ({experiences.length})</h2>
+                <button onClick={() => setShowAddExp(true)} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-blue-600 hover:to-purple-700 transition-all">
+                  <Plus size={16} /> إضافة تجربة
+                </button>
+              </div>
+
+              {showAddExp && (
+                <div className="bg-gray-800 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-blue-400 font-bold">إضافة تجربة جديدة</h3>
+                    <button onClick={() => setShowAddExp(false)}><X size={16} className="text-gray-400" /></button>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <input value={newExp.title} onChange={(e) => setNewExp({ ...newExp, title: e.target.value })} placeholder="المسمى الوظيفي" className={sc} />
+                    <input value={newExp.period} onChange={(e) => setNewExp({ ...newExp, period: e.target.value })} placeholder="الفترة (مثال: 2024 — الآن)" className={sc} />
+                    <input value={newExp.location} onChange={(e) => setNewExp({ ...newExp, location: e.target.value })} placeholder="الموقع" className={sc} />
+                  </div>
+                  <textarea value={newExp.tasks} onChange={(e) => setNewExp({ ...newExp, tasks: e.target.value })} placeholder="المهام (سطر لكل مهمة)" rows={3} className={`${sc} resize-none md:col-span-2`} />
+                  <button onClick={addExp} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">
+                    <Plus size={14} /> {saving ? "جارٍ الإضافة..." : "إضافة"}
+                  </button>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                {experiences.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد تجارب — أضف أول تجربة</p>}
+                {experiences.map((exp) => (
+                  <div key={exp.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                    {editingExp?.id === exp.id ? (
+                      <div className="space-y-3">
+                        <div className="grid md:grid-cols-2 gap-3">
+                          <input value={editingExp.title} onChange={(e) => setEditingExp({ ...editingExp, title: e.target.value })} className={sc} />
+                          <input value={editingExp.period} onChange={(e) => setEditingExp({ ...editingExp, period: e.target.value })} className={sc} />
+                          <input value={editingExp.location} onChange={(e) => setEditingExp({ ...editingExp, location: e.target.value })} className={sc} />
+                        </div>
+                        <textarea value={editingExp.tasks} onChange={(e) => setEditingExp({ ...editingExp, tasks: e.target.value })} rows={3} className={`${sc} resize-none`} />
+                        <div className="flex gap-2">
+                          <button onClick={saveExp} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
+                          <button onClick={() => setEditingExp(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm hover:bg-gray-500"><X size={14} /> إلغاء</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <p className="font-bold text-white text-sm">{exp.title}</p>
+                          <p className="text-blue-400 text-xs">{exp.period} — {exp.location}</p>
+                        </div>
+                        <div className="flex gap-1 flex-shrink-0">
+                          <button onClick={() => setEditingExp(exp)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                          <button onClick={() => deleteExp(exp.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 📺 المخرجات الإعلامية */}
+        {activeTab === "media" && (
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">المخرجات الإعلامية ({mediaOutputs.length})</h2>
+              <button onClick={() => setShowAddMedia(true)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-red-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-pink-600 hover:to-red-700 transition-all">
+                <Plus size={16} /> إضافة ظهور
+              </button>
+            </div>
+
+            {showAddMedia && (
+              <div className="bg-gray-800 border border-pink-700 rounded-xl p-5 mb-6 space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-pink-400 font-bold">إضافة ظهور إعلامي جديد</h3>
+                  <button onClick={() => setShowAddMedia(false)}><X size={16} className="text-gray-400" /></button>
+                </div>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <input value={newMedia.title} onChange={(e) => setNewMedia({ ...newMedia, title: e.target.value })} placeholder="عنوان الظهور / الحلقة" className={sc} />
+                  <input value={newMedia.channel} onChange={(e) => setNewMedia({ ...newMedia, channel: e.target.value })} placeholder="اسم القناة / المنصة" className={sc} />
+                  <select value={newMedia.type} onChange={(e) => setNewMedia({ ...newMedia, type: e.target.value as any })} className={sc}>
+                    {mediaTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                  <input value={newMedia.date} onChange={(e) => setNewMedia({ ...newMedia, date: e.target.value })} placeholder="التاريخ (مثال: مارس 2024)" className={sc} />
+                  <input value={newMedia.url} onChange={(e) => setNewMedia({ ...newMedia, url: e.target.value })} placeholder="رابط الحلقة (اختياري)" className={`${sc} md:col-span-2`} />
+                  <textarea value={newMedia.description} onChange={(e) => setNewMedia({ ...newMedia, description: e.target.value })} placeholder="وصف مختصر" rows={2} className={`${sc} resize-none md:col-span-2`} />
+                </div>
+                <button onClick={addMedia} disabled={saving} className="flex items-center gap-2 bg-pink-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-pink-700">
+                  <Plus size={14} /> {saving ? "جارٍ الإضافة..." : "إضافة"}
+                </button>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {mediaOutputs.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد مخرجات إعلامية بعد</p>}
+              {mediaOutputs.map((media) => (
+                <div key={media.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                  {editingMedia?.id === media.id ? (
+                    <div className="space-y-3">
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <input value={editingMedia.title} onChange={(e) => setEditingMedia({ ...editingMedia, title: e.target.value })} className={sc} />
+                        <input value={editingMedia.channel} onChange={(e) => setEditingMedia({ ...editingMedia, channel: e.target.value })} className={sc} />
+                        <select value={editingMedia.type} onChange={(e) => setEditingMedia({ ...editingMedia, type: e.target.value as any })} className={sc}>
+                          {mediaTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                        <input value={editingMedia.date} onChange={(e) => setEditingMedia({ ...editingMedia, date: e.target.value })} className={sc} />
+                        <input value={editingMedia.url} onChange={(e) => setEditingMedia({ ...editingMedia, url: e.target.value })} placeholder="رابط" className={`${sc} md:col-span-2`} />
+                        <textarea value={editingMedia.description} onChange={(e) => setEditingMedia({ ...editingMedia, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={saveMedia} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
+                        <button onClick={() => setEditingMedia(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm hover:bg-gray-500"><X size={14} /> إلغاء</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${media.type === "تلفزيون" ? "bg-blue-900 text-blue-300" : media.type === "إذاعة" ? "bg-orange-900 text-orange-300" : media.type === "صحافة" ? "bg-green-900 text-green-300" : "bg-purple-900 text-purple-300"}`}>{media.type}</span>
+                          <span className="text-gray-500 text-xs">{media.date}</span>
+                        </div>
+                        <p className="font-bold text-white text-sm">{media.title}</p>
+                        <p className="text-gray-400 text-xs">{media.channel}</p>
+                        {media.url && <a href={media.url} target="_blank" rel="noopener noreferrer" className="text-pink-400 text-xs hover:underline">🔗 مشاهدة</a>}
+                      </div>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <button onClick={() => setEditingMedia(media)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                        <button onClick={() => deleteMedia(media.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 📋 الفوتر */}
         {activeTab === "footer" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-6">
             <h2 className="text-xl font-bold">معلومات الفوتر</h2>
             <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-400 mb-2 text-sm">البريد الإلكتروني</label>
-                <input value={infoForm.email} onChange={(e) => setInfoForm({ ...infoForm, email: e.target.value })} className={inputClass} placeholder="info@example.com" />
-              </div>
-              <div>
-                <label className="block text-gray-400 mb-2 text-sm">رقم الهاتف</label>
-                <input value={infoForm.phone} onChange={(e) => setInfoForm({ ...infoForm, phone: e.target.value })} className={inputClass} placeholder="+968..." />
-              </div>
-              <div>
-                <label className="block text-gray-400 mb-2 text-sm">رابط LinkedIn</label>
-                <input value={infoForm.linkedinUrl} onChange={(e) => setInfoForm({ ...infoForm, linkedinUrl: e.target.value })} className={inputClass} placeholder="https://linkedin.com/in/..." />
-              </div>
-              <div>
-                <label className="block text-gray-400 mb-2 text-sm">رابط Twitter / X</label>
-                <input value={infoForm.twitterUrl} onChange={(e) => setInfoForm({ ...infoForm, twitterUrl: e.target.value })} className={inputClass} placeholder="https://twitter.com/..." />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-gray-400 mb-2 text-sm">رابط Instagram</label>
-                <input value={infoForm.instagramUrl} onChange={(e) => setInfoForm({ ...infoForm, instagramUrl: e.target.value })} className={inputClass} placeholder="https://instagram.com/..." />
-              </div>
+              <div><label className="block text-gray-400 mb-2 text-sm">البريد الإلكتروني</label><input value={infoForm.email} onChange={(e) => setInfoForm({ ...infoForm, email: e.target.value })} className={ic} /></div>
+              <div><label className="block text-gray-400 mb-2 text-sm">رقم الهاتف</label><input value={infoForm.phone} onChange={(e) => setInfoForm({ ...infoForm, phone: e.target.value })} className={ic} /></div>
+              <div><label className="block text-gray-400 mb-2 text-sm">رابط LinkedIn</label><input value={infoForm.linkedinUrl} onChange={(e) => setInfoForm({ ...infoForm, linkedinUrl: e.target.value })} className={ic} /></div>
+              <div><label className="block text-gray-400 mb-2 text-sm">رابط Twitter / X</label><input value={infoForm.twitterUrl} onChange={(e) => setInfoForm({ ...infoForm, twitterUrl: e.target.value })} className={ic} /></div>
+              <div className="md:col-span-2"><label className="block text-gray-400 mb-2 text-sm">رابط Instagram</label><input value={infoForm.instagramUrl} onChange={(e) => setInfoForm({ ...infoForm, instagramUrl: e.target.value })} className={ic} /></div>
             </div>
-            <div>
-              <label className="block text-gray-400 mb-2 text-sm">وصف الفوتر</label>
-              <textarea value={infoForm.footerDescription} onChange={(e) => setInfoForm({ ...infoForm, footerDescription: e.target.value })} rows={3} className={`${inputClass} resize-none`} placeholder="وصف قصير يظهر في أسفل الموقع..." />
-            </div>
+            <div><label className="block text-gray-400 mb-2 text-sm">وصف الفوتر</label><textarea value={infoForm.footerDescription} onChange={(e) => setInfoForm({ ...infoForm, footerDescription: e.target.value })} rows={3} className={`${ic} resize-none`} /></div>
             {saveBtn}
           </div>
         )}
 
-        {/* الأعمال */}
+        {/* 💼 الأعمال */}
         {activeTab === "works" && (
           <div>
-            {/* التبويبات الفرعية */}
             <div className="flex gap-2 mb-6 bg-gray-900 p-1 rounded-xl">
               {subTabs.map((tab) => (
                 <button key={tab.key} onClick={() => { setWorksSubTab(tab.key as any); setShowAddWork(false); setEditingWork(null); }}
@@ -470,23 +674,7 @@ export function AdminPage() {
                 </button>
               ))}
             </div>
-
-            <WorksList
-              works={works}
-              category={worksSubTab}
-              saving={saving}
-              editingWork={editingWork}
-              setEditingWork={setEditingWork}
-              onSave={saveWork}
-              onDelete={deleteWork}
-              showAdd={showAddWork}
-              setShowAdd={setShowAddWork}
-              newWork={newWork}
-              setNewWork={setNewWork}
-              onAdd={addWork}
-              inputClass={inputClass}
-              smallInputClass={smallInputClass}
-            />
+            <WorksList works={works} category={worksSubTab} saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} smallInputClass={sc} />
           </div>
         )}
       </div>
