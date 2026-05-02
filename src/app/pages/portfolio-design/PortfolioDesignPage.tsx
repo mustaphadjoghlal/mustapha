@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, Palette, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router";
+import { CheckCircle, Palette } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 
@@ -7,6 +8,7 @@ interface Work {
   id: string;
   title: string;
   description: string;
+  coverImage: string;
   images: string[];
   altText: string;
   category: "design" | "photography" | "voice";
@@ -14,7 +16,6 @@ interface Work {
 
 export function PortfolioDesignPage() {
   const [works, setWorks] = useState<Work[]>([]);
-  const [lightbox, setLightbox] = useState<{ work: Work; imgIndex: number } | null>(null);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "works"), (snap) => {
@@ -35,52 +36,8 @@ export function PortfolioDesignPage() {
     "تصميم محتوى وسائل التواصل الاجتماعي",
   ];
 
-  const nextImg = () => {
-    if (!lightbox) return;
-    const max = lightbox.work.images.length - 1;
-    setLightbox({ ...lightbox, imgIndex: lightbox.imgIndex < max ? lightbox.imgIndex + 1 : 0 });
-  };
-
-  const prevImg = () => {
-    if (!lightbox) return;
-    const max = lightbox.work.images.length - 1;
-    setLightbox({ ...lightbox, imgIndex: lightbox.imgIndex > 0 ? lightbox.imgIndex - 1 : max });
-  };
-
   return (
     <div className="bg-black text-white min-h-screen">
-      {/* Lightbox */}
-      {lightbox && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
-          <button className="absolute top-4 left-4 text-white hover:text-gray-300" onClick={() => setLightbox(null)}>
-            <X size={32} />
-          </button>
-          <div className="relative max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
-            <img src={lightbox.work.images[lightbox.imgIndex]} alt={lightbox.work.altText} className="w-full max-h-[80vh] object-contain rounded-xl" />
-            {lightbox.work.images.length > 1 && (
-              <>
-                <button onClick={prevImg} className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full">
-                  <ChevronRight size={24} />
-                </button>
-                <button onClick={nextImg} className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full">
-                  <ChevronLeft size={24} />
-                </button>
-                <div className="flex justify-center gap-2 mt-3">
-                  {lightbox.work.images.map((_, i) => (
-                    <button key={i} onClick={() => setLightbox({ ...lightbox, imgIndex: i })}
-                      className={`w-2 h-2 rounded-full transition-all ${i === lightbox.imgIndex ? "bg-blue-400 w-4" : "bg-gray-600"}`} />
-                  ))}
-                </div>
-              </>
-            )}
-            <div className="mt-4 text-center">
-              <h3 className="text-xl font-bold">{lightbox.work.title}</h3>
-              <p className="text-gray-400 mt-1">{lightbox.work.description}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Hero */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-black"></div>
@@ -123,29 +80,37 @@ export function PortfolioDesignPage() {
           {works.length === 0 ? (
             <p className="text-center text-gray-500 py-16">قريباً — سيتم إضافة الأعمال</p>
           ) : (
-            <div className="grid md:grid-cols-2 gap-8">
-              {works.map((work) => (
-                <div key={work.id} className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/20">
-                  {/* صور متعددة */}
-                  {work.images && work.images.length > 0 && (
-                    <div className="relative h-64 overflow-hidden cursor-pointer" onClick={() => setLightbox({ work, imgIndex: 0 })}>
-                      <img src={work.images[0]} alt={work.altText || work.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      {work.images.length > 1 && (
-                        <div className="absolute bottom-3 left-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-                          +{work.images.length - 1} صور
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {works.map((work) => {
+                const cover = work.coverImage || work.images?.[0];
+                return (
+                  <Link key={work.id} to={`/portfolio/${work.id}`}
+                    className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/20">
+                    <div className="relative h-56 overflow-hidden bg-gray-800">
+                      {cover ? (
+                        <img src={cover} alt={work.altText || work.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-600">
+                          <Palette size={40} />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="text-white text-sm font-semibold bg-black/50 px-4 py-2 rounded-full">عرض الصور</span>
+                      {work.images?.length > 0 && (
+                        <div className="absolute bottom-3 left-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                          {work.images.length} صور
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-white text-sm font-semibold bg-black/60 px-4 py-2 rounded-full">عرض المشروع</span>
                       </div>
                     </div>
-                  )}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold mb-2">{work.title}</h3>
-                    <p className="text-gray-400">{work.description}</p>
-                  </div>
-                </div>
-              ))}
+                    <div className="p-5">
+                      <h3 className="text-lg font-bold mb-1 group-hover:text-blue-400 transition-colors">{work.title}</h3>
+                      <p className="text-gray-400 text-sm line-clamp-2">{work.description}</p>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
