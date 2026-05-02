@@ -19,6 +19,7 @@ interface Article {
   id: string; title: string; content: string; coverImage: string;
   coverAlt: string; date: string; tags: string[]; category: string;
 }
+interface Client { id: string; name: string; logoUrl: string; logoAlt: string; }
 interface AboutImage { url: string; alt: string; }
 interface SiteInfo {
   id: string; heroName: string; heroDescription: string; profileImageUrl: string;
@@ -187,21 +188,24 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
 
 export function AdminPage() {
   const [user, setUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"info" | "about" | "media" | "articles" | "footer" | "works">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "about" | "media" | "articles" | "clients" | "footer" | "works">("info");
   const [worksSubTab, setWorksSubTab] = useState<"design" | "photography" | "voice">("design");
   const [works, setWorks] = useState<Work[]>([]);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [mediaOutputs, setMediaOutputs] = useState<MediaOutput[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
   const [editingWork, setEditingWork] = useState<Work | null>(null);
   const [editingExp, setEditingExp] = useState<Experience | null>(null);
   const [editingMedia, setEditingMedia] = useState<MediaOutput | null>(null);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showAddWork, setShowAddWork] = useState(false);
   const [showAddExp, setShowAddExp] = useState(false);
   const [showAddMedia, setShowAddMedia] = useState(false);
   const [showAddArticle, setShowAddArticle] = useState(false);
+  const [showAddClient, setShowAddClient] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -209,11 +213,13 @@ export function AdminPage() {
   const emptyExp: Omit<Experience, "id"> = { period: "", title: "", location: "", tasks: "" };
   const emptyMedia: Omit<MediaOutput, "id"> = { title: "", channel: "", type: "تلفزيون", date: "", description: "", url: "" };
   const emptyArticle: Omit<Article, "id"> = { title: "", content: "", coverImage: "", coverAlt: "", date: new Date().toLocaleDateString("ar-SA"), tags: [], category: "" };
+  const emptyClient: Omit<Client, "id"> = { name: "", logoUrl: "", logoAlt: "" };
 
   const [newWork, setNewWork] = useState(emptyWork);
   const [newExp, setNewExp] = useState(emptyExp);
   const [newMedia, setNewMedia] = useState(emptyMedia);
   const [newArticle, setNewArticle] = useState(emptyArticle);
+  const [newClient, setNewClient] = useState(emptyClient);
 
   const [infoForm, setInfoForm] = useState({
     heroName: "", heroDescription: "", profileImageUrl: "", aboutText: "",
@@ -231,24 +237,21 @@ export function AdminPage() {
     const u2 = onSnapshot(collection(db, "experiences"), (snap) => { setExperiences(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Experience))); });
     const u3 = onSnapshot(collection(db, "mediaOutputs"), (snap) => { setMediaOutputs(snap.docs.map((d) => ({ id: d.id, ...d.data() } as MediaOutput))); });
     const u4 = onSnapshot(collection(db, "articles"), (snap) => { setArticles(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Article))); });
-    const u5 = onSnapshot(collection(db, "siteInfo"), (snap) => {
+    const u5 = onSnapshot(collection(db, "clients"), (snap) => { setClients(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Client))); });
+    const u6 = onSnapshot(collection(db, "siteInfo"), (snap) => {
       if (!snap.empty) {
         const d = snap.docs[0]; const data = { id: d.id, ...d.data() } as SiteInfo; setSiteInfo(data);
         setInfoForm({ heroName: data.heroName || "", heroDescription: data.heroDescription || "", profileImageUrl: data.profileImageUrl || "", aboutText: data.aboutText || "", aboutBio: data.aboutBio || "", aboutImages: data.aboutImages || [], email: data.email || "", phone: data.phone || "", footerDescription: data.footerDescription || "", linkedinUrl: data.linkedinUrl || "", twitterUrl: data.twitterUrl || "", instagramUrl: data.instagramUrl || "" });
       }
     });
-    return () => { u1(); u2(); u3(); u4(); u5(); };
+    return () => { u1(); u2(); u3(); u4(); u5(); u6(); };
   }, [user]);
 
   const handleLogin = async (email: string, password: string) => { await signInWithEmailAndPassword(auth, email, password); };
   const handleLogout = async () => { await signOut(auth); };
   const showMsg = (msg: string) => { setMessage(msg); setTimeout(() => setMessage(""), 3000); };
 
-  const saveInfo = async () => {
-    setSaving(true);
-    try { if (siteInfo) await updateDoc(doc(db, "siteInfo", siteInfo.id), infoForm); else await addDoc(collection(db, "siteInfo"), infoForm); showMsg("✅ تم الحفظ"); }
-    catch { showMsg("❌ حدث خطأ"); } setSaving(false);
-  };
+  const saveInfo = async () => { setSaving(true); try { if (siteInfo) await updateDoc(doc(db, "siteInfo", siteInfo.id), infoForm); else await addDoc(collection(db, "siteInfo"), infoForm); showMsg("✅ تم الحفظ"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
   const addWork = async () => { if (!newWork.title) return; setSaving(true); try { await addDoc(collection(db, "works"), newWork); setNewWork(emptyWork); setShowAddWork(false); showMsg("✅ تمت الإضافة"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
   const saveWork = async () => { if (!editingWork) return; setSaving(true); try { const { id, ...data } = editingWork; await updateDoc(doc(db, "works", id), data); setEditingWork(null); showMsg("✅ تم التعديل"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
   const deleteWork = async (id: string) => { if (!confirm("هل أنت متأكد؟")) return; await deleteDoc(doc(db, "works", id)); showMsg("✅ تم الحذف"); };
@@ -261,6 +264,9 @@ export function AdminPage() {
   const addArticle = async () => { if (!newArticle.title) return; setSaving(true); try { await addDoc(collection(db, "articles"), newArticle); setNewArticle(emptyArticle); setShowAddArticle(false); showMsg("✅ تم نشر المقال"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
   const saveArticle = async () => { if (!editingArticle) return; setSaving(true); try { const { id, ...data } = editingArticle; await updateDoc(doc(db, "articles", id), data); setEditingArticle(null); showMsg("✅ تم التعديل"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
   const deleteArticle = async (id: string) => { if (!confirm("هل أنت متأكد من حذف المقال؟")) return; await deleteDoc(doc(db, "articles", id)); showMsg("✅ تم الحذف"); };
+  const addClient = async () => { if (!newClient.name) return; setSaving(true); try { await addDoc(collection(db, "clients"), newClient); setNewClient(emptyClient); setShowAddClient(false); showMsg("✅ تمت الإضافة"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
+  const saveClient = async () => { if (!editingClient) return; setSaving(true); try { const { id, ...data } = editingClient; await updateDoc(doc(db, "clients", id), data); setEditingClient(null); showMsg("✅ تم التعديل"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
+  const deleteClient = async (id: string) => { if (!confirm("هل أنت متأكد؟")) return; await deleteDoc(doc(db, "clients", id)); showMsg("✅ تم الحذف"); };
 
   const updateAboutImage = (index: number, field: "url" | "alt", value: string) => {
     const imgs = [...(infoForm.aboutImages || [])];
@@ -278,7 +284,8 @@ export function AdminPage() {
   const tabs = [
     { key: "info", label: "🏠 الرئيسية" }, { key: "about", label: "👤 عني" },
     { key: "media", label: "📺 المخرجات" }, { key: "articles", label: "📝 المقالات" },
-    { key: "footer", label: "📋 الفوتر" }, { key: "works", label: "💼 الأعمال" },
+    { key: "clients", label: "🤝 العملاء" }, { key: "footer", label: "📋 الفوتر" },
+    { key: "works", label: "💼 الأعمال" },
   ];
   const subTabs = [
     { key: "design", label: "🎨 التصميم", count: works.filter(w => w.category === "design").length },
@@ -458,7 +465,7 @@ export function AdminPage() {
                 <div className="flex justify-between"><h3 className="text-purple-400 font-bold">مقال جديد</h3><button onClick={() => setShowAddArticle(false)}><X size={16} className="text-gray-400" /></button></div>
                 <div className="grid md:grid-cols-2 gap-3">
                   <input value={newArticle.title} onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })} placeholder="عنوان المقال" className={`${sc} md:col-span-2`} />
-                  <input value={newArticle.category} onChange={(e) => setNewArticle({ ...newArticle, category: e.target.value })} placeholder="التصنيف (مثال: تعليق صوتي)" className={sc} />
+                  <input value={newArticle.category} onChange={(e) => setNewArticle({ ...newArticle, category: e.target.value })} placeholder="التصنيف" className={sc} />
                   <input value={newArticle.date} onChange={(e) => setNewArticle({ ...newArticle, date: e.target.value })} placeholder="التاريخ" className={sc} />
                   <input value={newArticle.tags.join("، ")} onChange={(e) => setNewArticle({ ...newArticle, tags: e.target.value.split("،").map(t => t.trim()).filter(Boolean) })} placeholder="الوسوم (افصل بفاصلة عربية ،)" className={`${sc} md:col-span-2`} />
                   <input value={newArticle.coverImage} onChange={(e) => setNewArticle({ ...newArticle, coverImage: e.target.value })} placeholder="رابط صورة الغلاف" className={sc} />
@@ -469,18 +476,18 @@ export function AdminPage() {
               </div>
             )}
             <div className="space-y-3">
-              {articles.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد مقالات بعد — اكتب أول مقال</p>}
+              {articles.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد مقالات بعد</p>}
               {articles.map((article) => (
                 <div key={article.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
                   {editingArticle?.id === article.id ? (
                     <div className="space-y-3">
                       <div className="grid md:grid-cols-2 gap-3">
                         <input value={editingArticle.title} onChange={(e) => setEditingArticle({ ...editingArticle, title: e.target.value })} className={`${sc} md:col-span-2`} />
-                        <input value={editingArticle.category} onChange={(e) => setEditingArticle({ ...editingArticle, category: e.target.value })} placeholder="التصنيف" className={sc} />
+                        <input value={editingArticle.category} onChange={(e) => setEditingArticle({ ...editingArticle, category: e.target.value })} className={sc} />
                         <input value={editingArticle.date} onChange={(e) => setEditingArticle({ ...editingArticle, date: e.target.value })} className={sc} />
-                        <input value={editingArticle.tags.join("، ")} onChange={(e) => setEditingArticle({ ...editingArticle, tags: e.target.value.split("،").map(t => t.trim()).filter(Boolean) })} placeholder="الوسوم" className={`${sc} md:col-span-2`} />
-                        <input value={editingArticle.coverImage} onChange={(e) => setEditingArticle({ ...editingArticle, coverImage: e.target.value })} placeholder="رابط الغلاف" className={sc} />
-                        <input value={editingArticle.coverAlt} onChange={(e) => setEditingArticle({ ...editingArticle, coverAlt: e.target.value })} placeholder="Alt text" className={sc} />
+                        <input value={editingArticle.tags.join("، ")} onChange={(e) => setEditingArticle({ ...editingArticle, tags: e.target.value.split("،").map(t => t.trim()).filter(Boolean) })} className={`${sc} md:col-span-2`} />
+                        <input value={editingArticle.coverImage} onChange={(e) => setEditingArticle({ ...editingArticle, coverImage: e.target.value })} className={sc} />
+                        <input value={editingArticle.coverAlt} onChange={(e) => setEditingArticle({ ...editingArticle, coverAlt: e.target.value })} className={sc} />
                         <textarea value={editingArticle.content} onChange={(e) => setEditingArticle({ ...editingArticle, content: e.target.value })} rows={10} className={`${sc} resize-none md:col-span-2`} />
                       </div>
                       <div className="flex gap-2">
@@ -502,6 +509,54 @@ export function AdminPage() {
                       <div className="flex gap-1 flex-shrink-0">
                         <button onClick={() => setEditingArticle(article)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
                         <button onClick={() => deleteArticle(article.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 🤝 العملاء */}
+        {activeTab === "clients" && (
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">العملاء ({clients.length})</h2>
+              <button onClick={() => setShowAddClient(true)} className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-teal-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-green-600 hover:to-teal-700 transition-all"><Plus size={16} /> إضافة عميل</button>
+            </div>
+            {showAddClient && (
+              <div className="bg-gray-800 border border-green-700 rounded-xl p-5 mb-6 space-y-3">
+                <div className="flex justify-between"><h3 className="text-green-400 font-bold">عميل جديد</h3><button onClick={() => setShowAddClient(false)}><X size={16} className="text-gray-400" /></button></div>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <input value={newClient.name} onChange={(e) => setNewClient({ ...newClient, name: e.target.value })} placeholder="اسم العميل / الشركة" className={sc} />
+                  <input value={newClient.logoAlt} onChange={(e) => setNewClient({ ...newClient, logoAlt: e.target.value })} placeholder="Alt text للـ SEO" className={sc} />
+                </div>
+                <SingleImageUploader url={newClient.logoUrl} onChange={(url) => setNewClient({ ...newClient, logoUrl: url })} folder="clients" label="رفع شعار العميل" />
+                <button onClick={addClient} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-green-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+              </div>
+            )}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {clients.length === 0 && <p className="text-gray-500 text-center py-8 col-span-3">لا يوجد عملاء بعد — أضف أول عميل</p>}
+              {clients.map((client) => (
+                <div key={client.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                  {editingClient?.id === client.id ? (
+                    <div className="space-y-3">
+                      <input value={editingClient.name} onChange={(e) => setEditingClient({ ...editingClient, name: e.target.value })} className={sc} />
+                      <input value={editingClient.logoAlt} onChange={(e) => setEditingClient({ ...editingClient, logoAlt: e.target.value })} placeholder="Alt text" className={sc} />
+                      <SingleImageUploader url={editingClient.logoUrl} onChange={(url) => setEditingClient({ ...editingClient, logoUrl: url })} folder="clients" label="تغيير الشعار" />
+                      <div className="flex gap-2">
+                        <button onClick={saveClient} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
+                        <button onClick={() => setEditingClient(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-center">
+                      {client.logoUrl ? <img src={client.logoUrl} alt={client.logoAlt || client.name} className="w-16 h-16 object-contain" /> : <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center text-xl font-bold text-gray-400">{client.name.charAt(0)}</div>}
+                      <p className="text-white text-sm font-semibold">{client.name}</p>
+                      <div className="flex gap-1">
+                        <button onClick={() => setEditingClient(client)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                        <button onClick={() => deleteClient(client.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
                       </div>
                     </div>
                   )}
