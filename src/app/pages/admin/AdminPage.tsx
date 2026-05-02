@@ -6,7 +6,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebas
 import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader } from "lucide-react";
 
 interface Work {
-  id: string; title: string; description: string; images: string[];
+  id: string; title: string; description: string; coverImage: string; images: string[];
   altText: string; soundcloudUrl: string; category: "design" | "photography" | "voice";
 }
 interface Experience { id: string; period: string; title: string; location: string; tasks: string; }
@@ -131,7 +131,7 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
     <div>
       <div className="flex items-center justify-between mb-6">
         <span className="text-gray-400 text-sm">{filtered.length} عمل</span>
-        <button onClick={() => { setNewWork({ title: "", description: "", images: [], altText: "", soundcloudUrl: "", category }); setShowAdd(true); }} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-blue-600 hover:to-purple-700 transition-all"><Plus size={16} /> إضافة عمل</button>
+        <button onClick={() => { setNewWork({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category }); setShowAdd(true); }} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-blue-600 hover:to-purple-700 transition-all"><Plus size={16} /> إضافة عمل</button>
       </div>
       {showAdd && newWork.category === category && (
         <div className="bg-gray-900 border border-blue-800 rounded-2xl p-6 mb-6 space-y-4">
@@ -142,7 +142,16 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
             {isVoice && <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${sc} md:col-span-2`} />}
             <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2} className={`${sc} resize-none md:col-span-2`} />
           </div>
-          {!isVoice && <ImageUploader images={newWork.images} onChange={(imgs: string[]) => setNewWork({ ...newWork, images: imgs })} />}
+          <div className="space-y-2">
+            <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف (تظهر في القائمة)</p>
+            <SingleImageUploader url={newWork.coverImage || ""} onChange={(url) => setNewWork({ ...newWork, coverImage: url })} folder="works" label="رفع صورة الغلاف" />
+          </div>
+          {!isVoice && (
+            <div className="space-y-2">
+              <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى (تظهر في الصفحة التفصيلية)</p>
+              <ImageUploader images={newWork.images} onChange={(imgs: string[]) => setNewWork({ ...newWork, images: imgs })} />
+            </div>
+          )}
           <button onClick={onAdd} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50"><Plus size={16} /> {saving ? "جارٍ الإضافة..." : "إضافة"}</button>
         </div>
       )}
@@ -158,7 +167,16 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                   {isVoice && <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${sc} md:col-span-2`} />}
                   <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
                 </div>
-                {!isVoice && <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork({ ...editingWork, images: imgs })} />}
+                <div className="space-y-2">
+                  <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
+                  <SingleImageUploader url={editingWork.coverImage || ""} onChange={(url) => setEditingWork({ ...editingWork, coverImage: url })} folder="works" label="رفع صورة الغلاف" />
+                </div>
+                {!isVoice && (
+                  <div className="space-y-2">
+                    <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى</p>
+                    <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork({ ...editingWork, images: imgs })} />
+                  </div>
+                )}
                 <div className="flex gap-3">
                   <button onClick={onSave} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg font-semibold hover:bg-green-700"><Save size={16} /> حفظ</button>
                   <button onClick={() => setEditingWork(null)} className="flex items-center gap-2 bg-gray-700 px-5 py-2 rounded-lg hover:bg-gray-600"><X size={16} /> إلغاء</button>
@@ -209,7 +227,7 @@ export function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  const emptyWork = { title: "", description: "", images: [], altText: "", soundcloudUrl: "", category: "design" as Work["category"] };
+  const emptyWork = { title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category: "design" as Work["category"] };
   const emptyExp: Omit<Experience, "id"> = { period: "", title: "", location: "", tasks: "" };
   const emptyMedia: Omit<MediaOutput, "id"> = { title: "", channel: "", type: "تلفزيون", date: "", description: "", url: "" };
   const emptyArticle: Omit<Article, "id"> = { title: "", content: "", coverImage: "", coverAlt: "", date: new Date().toLocaleDateString("ar-SA"), tags: [], category: "" };
@@ -232,7 +250,7 @@ export function AdminPage() {
   useEffect(() => {
     if (!user) return;
     const u1 = onSnapshot(collection(db, "works"), (snap) => {
-      setWorks(snap.docs.map((d) => { const data = d.data(); return { id: d.id, title: data.title || "", description: data.description || "", images: data.images || (data.imageUrl ? [data.imageUrl] : []), altText: data.altText || "", soundcloudUrl: data.soundcloudUrl || "", category: data.category || "design" } as Work; }));
+      setWorks(snap.docs.map((d) => { const data = d.data(); return { id: d.id, title: data.title || "", description: data.description || "", coverImage: data.coverImage || "", images: data.images || (data.imageUrl ? [data.imageUrl] : []), altText: data.altText || "", soundcloudUrl: data.soundcloudUrl || "", category: data.category || "design" } as Work; }));
     });
     const u2 = onSnapshot(collection(db, "experiences"), (snap) => { setExperiences(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Experience))); });
     const u3 = onSnapshot(collection(db, "mediaOutputs"), (snap) => { setMediaOutputs(snap.docs.map((d) => ({ id: d.id, ...d.data() } as MediaOutput))); });
