@@ -10,12 +10,10 @@ import { NotFoundPage } from "./pages/not-found/NotFoundPage";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { ArticlesPage } from "./pages/articles/ArticlesPage";
 import { ArticlePage } from "./pages/articles/ArticlePage";
+import { WorkDetailPage } from "./pages/portfolio/WorkDetailPage";
 
 export const router = createBrowserRouter([
-  {
-    path: "/admin",
-    Component: AdminPage,
-  },
+  { path: "/admin", Component: AdminPage },
   {
     path: "/",
     Component: Layout,
@@ -28,6 +26,7 @@ export const router = createBrowserRouter([
       { path: "courses", Component: CoursesPage },
       { path: "articles", Component: ArticlesPage },
       { path: "articles/:id", Component: ArticlePage },
+      { path: "portfolio/:id", Component: WorkDetailPage },
       { path: "*", Component: NotFoundPage },
     ],
   },
