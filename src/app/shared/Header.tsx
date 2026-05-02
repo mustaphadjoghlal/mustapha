@@ -13,6 +13,7 @@ export function Header() {
     { path: "/portfolio-photography", label: "التصوير" },
     { path: "/portfolio-voice", label: "التعليق الصوتي" },
     { path: "/courses", label: "الدورات التدريبية" },
+    { path: "/articles", label: "المقالات" },
   ];
 
   return (
@@ -22,13 +23,12 @@ export function Header() {
           <Link to="/" className="text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
             مصطفى المحترف
           </Link>
-
           <nav className="hidden md:flex gap-8">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`transition-colors hover:text-blue-400 ${
+                className={`transition-colors hover:text-blue-400 text-sm ${
                   location.pathname === item.path ? "text-blue-400" : "text-gray-300"
                 }`}
               >
@@ -36,7 +36,6 @@ export function Header() {
               </Link>
             ))}
           </nav>
-
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden text-white p-2"
@@ -44,7 +43,6 @@ export function Header() {
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-
         {mobileMenuOpen && (
           <nav className="md:hidden py-4 border-t border-gray-800">
             {navItems.map((item) => (
