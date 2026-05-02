@@ -20,6 +20,7 @@ interface Article {
   coverAlt: string; date: string; tags: string[]; category: string;
 }
 interface Client { id: string; name: string; logoUrl: string; logoAlt: string; }
+interface Course { id: string; title: string; description: string; image: string; duration: string; students: string; level: string; modules: string; email: string; }
 interface AboutImage { url: string; alt: string; }
 interface SiteInfo {
   id: string; heroName: string; heroDescription: string; profileImageUrl: string;
@@ -206,13 +207,16 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
 
 export function AdminPage() {
   const [user, setUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"info" | "about" | "media" | "articles" | "clients" | "footer" | "works">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "about" | "media" | "articles" | "clients" | "courses" | "footer" | "works">("info");
   const [worksSubTab, setWorksSubTab] = useState<"design" | "photography" | "voice">("design");
   const [works, setWorks] = useState<Work[]>([]);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [mediaOutputs, setMediaOutputs] = useState<MediaOutput[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [showAddCourse, setShowAddCourse] = useState(false);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
   const [editingWork, setEditingWork] = useState<Work | null>(null);
   const [editingExp, setEditingExp] = useState<Experience | null>(null);
@@ -232,12 +236,14 @@ export function AdminPage() {
   const emptyMedia: Omit<MediaOutput, "id"> = { title: "", channel: "", type: "تلفزيون", date: "", description: "", url: "" };
   const emptyArticle: Omit<Article, "id"> = { title: "", content: "", coverImage: "", coverAlt: "", date: new Date().toLocaleDateString("ar-SA"), tags: [], category: "" };
   const emptyClient: Omit<Client, "id"> = { name: "", logoUrl: "", logoAlt: "" };
+  const emptyCourse: Omit<Course, "id"> = { title: "", description: "", image: "", duration: "", students: "", level: "", modules: "", email: "djo-mustapha@gmail.com" };
 
   const [newWork, setNewWork] = useState(emptyWork);
   const [newExp, setNewExp] = useState(emptyExp);
   const [newMedia, setNewMedia] = useState(emptyMedia);
   const [newArticle, setNewArticle] = useState(emptyArticle);
   const [newClient, setNewClient] = useState(emptyClient);
+  const [newCourse, setNewCourse] = useState(emptyCourse);
 
   const [infoForm, setInfoForm] = useState({
     heroName: "", heroDescription: "", profileImageUrl: "", aboutText: "",
@@ -256,13 +262,14 @@ export function AdminPage() {
     const u3 = onSnapshot(collection(db, "mediaOutputs"), (snap) => { setMediaOutputs(snap.docs.map((d) => ({ id: d.id, ...d.data() } as MediaOutput))); });
     const u4 = onSnapshot(collection(db, "articles"), (snap) => { setArticles(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Article))); });
     const u5 = onSnapshot(collection(db, "clients"), (snap) => { setClients(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Client))); });
+    const u7 = onSnapshot(collection(db, "courses"), (snap) => { setCourses(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Course))); });
     const u6 = onSnapshot(collection(db, "siteInfo"), (snap) => {
       if (!snap.empty) {
         const d = snap.docs[0]; const data = { id: d.id, ...d.data() } as SiteInfo; setSiteInfo(data);
         setInfoForm({ heroName: data.heroName || "", heroDescription: data.heroDescription || "", profileImageUrl: data.profileImageUrl || "", aboutText: data.aboutText || "", aboutBio: data.aboutBio || "", aboutImages: data.aboutImages || [], email: data.email || "", phone: data.phone || "", footerDescription: data.footerDescription || "", linkedinUrl: data.linkedinUrl || "", twitterUrl: data.twitterUrl || "", instagramUrl: data.instagramUrl || "" });
       }
     });
-    return () => { u1(); u2(); u3(); u4(); u5(); u6(); };
+    return () => { u1(); u2(); u3(); u4(); u5(); u6(); u7(); };
   }, [user]);
 
   const handleLogin = async (email: string, password: string) => { await signInWithEmailAndPassword(auth, email, password); };
@@ -285,6 +292,9 @@ export function AdminPage() {
   const addClient = async () => { if (!newClient.name) return; setSaving(true); try { await addDoc(collection(db, "clients"), newClient); setNewClient(emptyClient); setShowAddClient(false); showMsg("✅ تمت الإضافة"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
   const saveClient = async () => { if (!editingClient) return; setSaving(true); try { const { id, ...data } = editingClient; await updateDoc(doc(db, "clients", id), data); setEditingClient(null); showMsg("✅ تم التعديل"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
   const deleteClient = async (id: string) => { if (!confirm("هل أنت متأكد؟")) return; await deleteDoc(doc(db, "clients", id)); showMsg("✅ تم الحذف"); };
+  const addCourse = async () => { if (!newCourse.title) return; setSaving(true); try { await addDoc(collection(db, "courses"), newCourse); setNewCourse(emptyCourse); setShowAddCourse(false); showMsg("✅ تمت الإضافة"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
+  const saveCourse = async () => { if (!editingCourse) return; setSaving(true); try { const { id, ...data } = editingCourse; await updateDoc(doc(db, "courses", id), data); setEditingCourse(null); showMsg("✅ تم التعديل"); } catch { showMsg("❌ حدث خطأ"); } setSaving(false); };
+  const deleteCourse = async (id: string) => { if (!confirm("هل أنت متأكد؟")) return; await deleteDoc(doc(db, "courses", id)); showMsg("✅ تم الحذف"); };
 
   const updateAboutImage = (index: number, field: "url" | "alt", value: string) => {
     const imgs = [...(infoForm.aboutImages || [])];
@@ -302,7 +312,7 @@ export function AdminPage() {
   const tabs = [
     { key: "info", label: "🏠 الرئيسية" }, { key: "about", label: "👤 عني" },
     { key: "media", label: "📺 المخرجات" }, { key: "articles", label: "📝 المقالات" },
-    { key: "clients", label: "🤝 العملاء" }, { key: "footer", label: "📋 الفوتر" },
+    { key: "clients", label: "🤝 العملاء" }, { key: "courses", label: "🎓 الدورات" }, { key: "footer", label: "📋 الفوتر" },
     { key: "works", label: "💼 الأعمال" },
   ];
   const subTabs = [
@@ -575,6 +585,79 @@ export function AdminPage() {
                       <div className="flex gap-1">
                         <button onClick={() => setEditingClient(client)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
                         <button onClick={() => deleteClient(client.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 🎓 الدورات */}
+        {activeTab === "courses" && (
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">الدورات التدريبية ({courses.length})</h2>
+              <button onClick={() => setShowAddCourse(true)} className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-teal-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-green-600 hover:to-teal-700 transition-all"><Plus size={16} /> إضافة دورة</button>
+            </div>
+            {showAddCourse && (
+              <div className="bg-gray-800 border border-green-700 rounded-xl p-5 mb-6 space-y-3">
+                <div className="flex justify-between"><h3 className="text-green-400 font-bold">دورة جديدة</h3><button onClick={() => setShowAddCourse(false)}><X size={16} className="text-gray-400" /></button></div>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <input value={newCourse.title} onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })} placeholder="عنوان الدورة" className={`${sc} md:col-span-2`} />
+                  <textarea value={newCourse.description} onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })} placeholder="وصف الدورة" rows={2} className={`${sc} resize-none md:col-span-2`} />
+                  <input value={newCourse.duration} onChange={(e) => setNewCourse({ ...newCourse, duration: e.target.value })} placeholder="المدة (مثال: 6 أسابيع)" className={sc} />
+                  <input value={newCourse.students} onChange={(e) => setNewCourse({ ...newCourse, students: e.target.value })} placeholder="عدد المتدربين" className={sc} />
+                  <input value={newCourse.level} onChange={(e) => setNewCourse({ ...newCourse, level: e.target.value })} placeholder="المستوى (مثال: مبتدئ - متقدم)" className={sc} />
+                  <input value={newCourse.email} onChange={(e) => setNewCourse({ ...newCourse, email: e.target.value })} placeholder="البريد للتسجيل" className={sc} />
+                  <textarea value={newCourse.modules} onChange={(e) => setNewCourse({ ...newCourse, modules: e.target.value })} placeholder="محتوى الدورة (سطر لكل وحدة)" rows={4} className={`${sc} resize-none md:col-span-2`} />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الدورة</p>
+                  <SingleImageUploader url={newCourse.image} onChange={(url) => setNewCourse({ ...newCourse, image: url })} folder="courses" label="رفع صورة الدورة" />
+                </div>
+                <button onClick={addCourse} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-green-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+              </div>
+            )}
+            <div className="space-y-4">
+              {courses.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد دورات — أضف أول دورة</p>}
+              {courses.map((course) => (
+                <div key={course.id} className="bg-gray-800 border border-gray-700 rounded-xl p-5">
+                  {editingCourse?.id === course.id ? (
+                    <div className="space-y-3">
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <input value={editingCourse.title} onChange={(e) => setEditingCourse({ ...editingCourse, title: e.target.value })} className={`${sc} md:col-span-2`} />
+                        <textarea value={editingCourse.description} onChange={(e) => setEditingCourse({ ...editingCourse, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
+                        <input value={editingCourse.duration} onChange={(e) => setEditingCourse({ ...editingCourse, duration: e.target.value })} placeholder="المدة" className={sc} />
+                        <input value={editingCourse.students} onChange={(e) => setEditingCourse({ ...editingCourse, students: e.target.value })} placeholder="عدد المتدربين" className={sc} />
+                        <input value={editingCourse.level} onChange={(e) => setEditingCourse({ ...editingCourse, level: e.target.value })} placeholder="المستوى" className={sc} />
+                        <input value={editingCourse.email} onChange={(e) => setEditingCourse({ ...editingCourse, email: e.target.value })} placeholder="البريد" className={sc} />
+                        <textarea value={editingCourse.modules} onChange={(e) => setEditingCourse({ ...editingCourse, modules: e.target.value })} rows={4} className={`${sc} resize-none md:col-span-2`} />
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الدورة</p>
+                        <SingleImageUploader url={editingCourse.image} onChange={(url) => setEditingCourse({ ...editingCourse, image: url })} folder="courses" label="تغيير الصورة" />
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={saveCourse} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
+                        <button onClick={() => setEditingCourse(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      {course.image && <img src={course.image} alt={course.title} className="w-16 h-16 rounded-lg object-cover border border-gray-700 flex-shrink-0" />}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-white">{course.title}</h3>
+                        <p className="text-gray-400 text-sm truncate">{course.description}</p>
+                        <div className="flex gap-3 mt-1">
+                          {course.duration && <span className="text-xs text-green-400">{course.duration}</span>}
+                          {course.level && <span className="text-xs text-gray-500">{course.level}</span>}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => setEditingCourse(course)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={16} /></button>
+                        <button onClick={() => deleteCourse(course.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={16} /></button>
                       </div>
                     </div>
                   )}
