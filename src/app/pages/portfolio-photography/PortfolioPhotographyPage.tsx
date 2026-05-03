@@ -116,7 +116,7 @@ export function PortfolioPhotographyPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">هل تحتاج خدمات تصوير فوتوغرافي؟</h2>
           <p className="text-gray-400 text-lg mb-8">دعنا نعمل معاً لتوثيق اللحظات المهمة وإنشاء صور تعكس رؤيتك</p>
-          <a href="mailto:djo-mustapha@gmail.com" className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-lg hover:from-cyan-600 hover:to-teal-700 transition-all font-semibold">
+          <a href="https://wa.me/96871227281?text=مرحباً مصطفى، أود الاستفسار عن خدمات التصوير الفوتوغرافي" className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-lg hover:from-cyan-600 hover:to-teal-700 transition-all font-semibold">
             اطلب خدمة التصوير
           </a>
         </div>
