@@ -7,13 +7,13 @@ import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader } from "lu
 
 interface Work {
   id: string; title: string; description: string; coverImage: string; images: string[];
-  altText: string; soundcloudUrl: string; category: "design" | "photography" | "voice";
+  altText: string; soundcloudUrl: string; audioUrl?: string; category: "design" | "photography" | "voice";
 }
 interface Experience { id: string; period: string; title: string; location: string; tasks: string; }
 interface MediaOutput {
   id: string; title: string; channel: string;
   type: "تلفزيون" | "إذاعة" | "صحافة" | "بودكاست" | "يوتيوب" | "أخرى";
-  date: string; description: string; url: string;
+  date: string; description: string; url: string; coverImage?: string;
 }
 interface Article {
   id: string; title: string; content: string; coverImage: string;
@@ -48,6 +48,30 @@ function SingleImageUploader({ url, onChange, folder = "images", label = "رفع
         {uploading ? <div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-blue-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
           : <div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={14} /><span>{label}</span></div>}
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+      </div>
+    </div>
+  );
+}
+
+function AudioUploader({ url, onChange, folder = "audio", label = "رفع ملف صوتي" }: {
+  url: string; onChange: (url: string) => void; folder?: string; label?: string;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const handleFile = async (file: File) => {
+    setUploading(true);
+    const task = uploadBytesResumable(ref(storage, `${folder}/${Date.now()}_${file.name}`), file);
+    task.on("state_changed", (s) => setProgress(Math.round((s.bytesTransferred / s.totalBytes) * 100)), console.error,
+      async () => { onChange(await getDownloadURL(task.snapshot.ref)); setUploading(false); setProgress(0); });
+  };
+  return (
+    <div className="space-y-2">
+      {url && <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-sm text-green-400">✓ ملف صوتي مرفوع</div>}
+      <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-600 hover:border-purple-500 rounded-xl p-3 text-center cursor-pointer transition-all">
+        {uploading ? <div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-purple-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
+          : <div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={14} /><span>{label}</span></div>}
+        <input ref={fileInputRef} type="file" accept="audio/mp3,audio/mpeg,audio/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
       </div>
     </div>
   );
@@ -132,7 +156,7 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
     <div>
       <div className="flex items-center justify-between mb-6">
         <span className="text-gray-400 text-sm">{filtered.length} عمل</span>
-        <button onClick={() => { setNewWork({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category }); setShowAdd(true); }} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-blue-600 hover:to-purple-700 transition-all"><Plus size={16} /> إضافة عمل</button>
+        <button onClick={() => { setNewWork({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", audioUrl: "", category }); setShowAdd(true); }} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-blue-600 hover:to-purple-700 transition-all"><Plus size={16} /> إضافة عمل</button>
       </div>
       {showAdd && newWork.category === category && (
         <div className="bg-gray-900 border border-blue-800 rounded-2xl p-6 mb-6 space-y-4">
@@ -140,13 +164,19 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
           <div className="grid md:grid-cols-2 gap-4">
             <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className={sc} />
             <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={sc} />
-            {isVoice && <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${sc} md:col-span-2`} />}
+            {isVoice && <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud (اختياري)" className={`${sc} md:col-span-2`} />}
             <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2} className={`${sc} resize-none md:col-span-2`} />
           </div>
           <div className="space-y-2">
             <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف (تظهر في القائمة)</p>
             <SingleImageUploader url={newWork.coverImage || ""} onChange={(url) => setNewWork({ ...newWork, coverImage: url })} folder="works" label="رفع صورة الغلاف" />
           </div>
+          {isVoice && (
+            <div className="space-y-2">
+              <p className="text-gray-400 text-sm font-semibold">🎵 ملف صوتي MP3 (اختياري - بديل SoundCloud)</p>
+              <AudioUploader url={newWork.audioUrl || ""} onChange={(url) => setNewWork({ ...newWork, audioUrl: url })} folder="works/audio" label="رفع ملف MP3" />
+            </div>
+          )}
           {!isVoice && (
             <div className="space-y-2">
               <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى (تظهر في الصفحة التفصيلية)</p>
@@ -165,13 +195,19 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                 <div className="grid md:grid-cols-2 gap-4">
                   <input value={editingWork.title} onChange={(e) => setEditingWork({ ...editingWork, title: e.target.value })} className={sc} />
                   <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className={sc} />
-                  {isVoice && <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${sc} md:col-span-2`} />}
+                  {isVoice && <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud (اختياري)" className={`${sc} md:col-span-2`} />}
                   <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
                 </div>
                 <div className="space-y-2">
                   <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
                   <SingleImageUploader url={editingWork.coverImage || ""} onChange={(url) => setEditingWork({ ...editingWork, coverImage: url })} folder="works" label="رفع صورة الغلاف" />
                 </div>
+                {isVoice && (
+                  <div className="space-y-2">
+                    <p className="text-gray-400 text-sm font-semibold">🎵 ملف صوتي MP3</p>
+                    <AudioUploader url={editingWork.audioUrl || ""} onChange={(url) => setEditingWork({ ...editingWork, audioUrl: url })} folder="works/audio" label="تغيير الملف الصوتي" />
+                  </div>
+                )}
                 {!isVoice && (
                   <div className="space-y-2">
                     <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى</p>
@@ -185,12 +221,12 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                {work.images?.[0] ? <img src={work.images[0]} alt={work.altText} className="w-14 h-14 rounded-lg object-cover border border-gray-700 flex-shrink-0" /> : isVoice ? <div className="w-14 h-14 rounded-lg border border-gray-700 flex-shrink-0 bg-pink-900/20 flex items-center justify-center">🎙️</div> : null}
+                {work.coverImage ? <img src={work.coverImage} alt={work.altText} className="w-14 h-14 rounded-lg object-cover border border-gray-700 flex-shrink-0" /> : isVoice ? <div className="w-14 h-14 rounded-lg border border-gray-700 flex-shrink-0 bg-pink-900/20 flex items-center justify-center">🎙️</div> : null}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-white">{work.title}</h3>
                   <p className="text-gray-400 text-sm truncate">{work.description}</p>
-                  {work.images?.length > 1 && <span className="text-xs text-gray-500">{work.images.length} صور</span>}
                   {work.soundcloudUrl && <span className="text-xs text-orange-400 mr-2">SoundCloud ✓</span>}
+                  {work.audioUrl && <span className="text-xs text-purple-400">MP3 ✓</span>}
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => setEditingWork(work)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-lg"><Pencil size={16} /></button>
@@ -231,7 +267,7 @@ export function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  const emptyWork = { title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category: "design" as Work["category"] };
+  const emptyWork = { title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", audioUrl: "", category: "design" as Work["category"] };
   const emptyExp: Omit<Experience, "id"> = { period: "", title: "", location: "", tasks: "" };
   const emptyMedia: Omit<MediaOutput, "id"> = { title: "", channel: "", type: "تلفزيون", date: "", description: "", url: "" };
   const emptyArticle: Omit<Article, "id"> = { title: "", content: "", coverImage: "", coverAlt: "", date: new Date().toLocaleDateString("ar-SA"), tags: [], category: "" };
@@ -256,7 +292,7 @@ export function AdminPage() {
   useEffect(() => {
     if (!user) return;
     const u1 = onSnapshot(collection(db, "works"), (snap) => {
-      setWorks(snap.docs.map((d) => { const data = d.data(); return { id: d.id, title: data.title || "", description: data.description || "", coverImage: data.coverImage || "", images: data.images || (data.imageUrl ? [data.imageUrl] : []), altText: data.altText || "", soundcloudUrl: data.soundcloudUrl || "", category: data.category || "design" } as Work; }));
+      setWorks(snap.docs.map((d) => { const data = d.data(); return { id: d.id, title: data.title || "", description: data.description || "", coverImage: data.coverImage || "", images: data.images || [], altText: data.altText || "", soundcloudUrl: data.soundcloudUrl || "", audioUrl: data.audioUrl || "", category: data.category || "design" } as Work; }));
     });
     const u2 = onSnapshot(collection(db, "experiences"), (snap) => { setExperiences(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Experience))); });
     const u3 = onSnapshot(collection(db, "mediaOutputs"), (snap) => { setMediaOutputs(snap.docs.map((d) => ({ id: d.id, ...d.data() } as MediaOutput))); });
@@ -338,7 +374,6 @@ export function AdminPage() {
           ))}
         </div>
 
-        {/* 🏠 الرئيسية */}
         {activeTab === "info" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-6">
             <h2 className="text-xl font-bold">الصفحة الرئيسية</h2>
@@ -349,7 +384,6 @@ export function AdminPage() {
           </div>
         )}
 
-        {/* 👤 عني */}
         {activeTab === "about" && (
           <div className="space-y-6">
             <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-4">
@@ -418,7 +452,6 @@ export function AdminPage() {
           </div>
         )}
 
-        {/* 📺 المخرجات */}
         {activeTab === "media" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
@@ -435,6 +468,10 @@ export function AdminPage() {
                   <input value={newMedia.date} onChange={(e) => setNewMedia({ ...newMedia, date: e.target.value })} placeholder="التاريخ" className={sc} />
                   <input value={newMedia.url} onChange={(e) => setNewMedia({ ...newMedia, url: e.target.value })} placeholder="رابط (اختياري)" className={`${sc} md:col-span-2`} />
                   <textarea value={newMedia.description} onChange={(e) => setNewMedia({ ...newMedia, description: e.target.value })} placeholder="وصف مختصر" rows={2} className={`${sc} resize-none md:col-span-2`} />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف (اختياري)</p>
+                  <SingleImageUploader url={newMedia.coverImage || ""} onChange={(url) => setNewMedia({ ...newMedia, coverImage: url })} folder="media" label="رفع صورة الغلاف" />
                 </div>
                 <button onClick={addMedia} disabled={saving} className="flex items-center gap-2 bg-pink-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-pink-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
               </div>
@@ -453,13 +490,18 @@ export function AdminPage() {
                         <input value={editingMedia.url} onChange={(e) => setEditingMedia({ ...editingMedia, url: e.target.value })} className={`${sc} md:col-span-2`} />
                         <textarea value={editingMedia.description} onChange={(e) => setEditingMedia({ ...editingMedia, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
                       </div>
+                      <div className="space-y-2">
+                        <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
+                        <SingleImageUploader url={editingMedia.coverImage || ""} onChange={(url) => setEditingMedia({ ...editingMedia, coverImage: url })} folder="media" label="تغيير الصورة" />
+                      </div>
                       <div className="flex gap-2">
                         <button onClick={saveMedia} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
                         <button onClick={() => setEditingMedia(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      {media.coverImage && <img src={media.coverImage} alt={media.title} className="w-16 h-16 rounded-lg object-cover border border-gray-700 flex-shrink-0" />}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`text-xs px-2 py-0.5 rounded-full ${media.type === "تلفزيون" ? "bg-blue-900 text-blue-300" : media.type === "إذاعة" ? "bg-orange-900 text-orange-300" : media.type === "صحافة" ? "bg-green-900 text-green-300" : "bg-purple-900 text-purple-300"}`}>{media.type}</span>
@@ -481,7 +523,6 @@ export function AdminPage() {
           </div>
         )}
 
-        {/* 📝 المقالات */}
         {activeTab === "articles" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
@@ -546,7 +587,6 @@ export function AdminPage() {
           </div>
         )}
 
-        {/* 🤝 العملاء */}
         {activeTab === "clients" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
@@ -565,7 +605,7 @@ export function AdminPage() {
               </div>
             )}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {clients.length === 0 && <p className="text-gray-500 text-center py-8 col-span-3">لا يوجد عملاء بعد — أضف أول عميل</p>}
+              {clients.length === 0 && <p className="text-gray-500 text-center py-8 col-span-3">لا يوجد عملاء بعد</p>}
               {clients.map((client) => (
                 <div key={client.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
                   {editingClient?.id === client.id ? (
@@ -594,7 +634,6 @@ export function AdminPage() {
           </div>
         )}
 
-        {/* 🎓 الدورات */}
         {activeTab === "courses" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
@@ -607,9 +646,9 @@ export function AdminPage() {
                 <div className="grid md:grid-cols-2 gap-3">
                   <input value={newCourse.title} onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })} placeholder="عنوان الدورة" className={`${sc} md:col-span-2`} />
                   <textarea value={newCourse.description} onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })} placeholder="وصف الدورة" rows={2} className={`${sc} resize-none md:col-span-2`} />
-                  <input value={newCourse.duration} onChange={(e) => setNewCourse({ ...newCourse, duration: e.target.value })} placeholder="المدة (مثال: 6 أسابيع)" className={sc} />
+                  <input value={newCourse.duration} onChange={(e) => setNewCourse({ ...newCourse, duration: e.target.value })} placeholder="المدة" className={sc} />
                   <input value={newCourse.students} onChange={(e) => setNewCourse({ ...newCourse, students: e.target.value })} placeholder="عدد المتدربين" className={sc} />
-                  <input value={newCourse.level} onChange={(e) => setNewCourse({ ...newCourse, level: e.target.value })} placeholder="المستوى (مثال: مبتدئ - متقدم)" className={sc} />
+                  <input value={newCourse.level} onChange={(e) => setNewCourse({ ...newCourse, level: e.target.value })} placeholder="المستوى" className={sc} />
                   <input value={newCourse.email} onChange={(e) => setNewCourse({ ...newCourse, email: e.target.value })} placeholder="البريد للتسجيل" className={sc} />
                   <textarea value={newCourse.modules} onChange={(e) => setNewCourse({ ...newCourse, modules: e.target.value })} placeholder="محتوى الدورة (سطر لكل وحدة)" rows={4} className={`${sc} resize-none md:col-span-2`} />
                 </div>
@@ -621,7 +660,7 @@ export function AdminPage() {
               </div>
             )}
             <div className="space-y-4">
-              {courses.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد دورات — أضف أول دورة</p>}
+              {courses.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد دورات</p>}
               {courses.map((course) => (
                 <div key={course.id} className="bg-gray-800 border border-gray-700 rounded-xl p-5">
                   {editingCourse?.id === course.id ? (
@@ -629,10 +668,10 @@ export function AdminPage() {
                       <div className="grid md:grid-cols-2 gap-3">
                         <input value={editingCourse.title} onChange={(e) => setEditingCourse({ ...editingCourse, title: e.target.value })} className={`${sc} md:col-span-2`} />
                         <textarea value={editingCourse.description} onChange={(e) => setEditingCourse({ ...editingCourse, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
-                        <input value={editingCourse.duration} onChange={(e) => setEditingCourse({ ...editingCourse, duration: e.target.value })} placeholder="المدة" className={sc} />
-                        <input value={editingCourse.students} onChange={(e) => setEditingCourse({ ...editingCourse, students: e.target.value })} placeholder="عدد المتدربين" className={sc} />
-                        <input value={editingCourse.level} onChange={(e) => setEditingCourse({ ...editingCourse, level: e.target.value })} placeholder="المستوى" className={sc} />
-                        <input value={editingCourse.email} onChange={(e) => setEditingCourse({ ...editingCourse, email: e.target.value })} placeholder="البريد" className={sc} />
+                        <input value={editingCourse.duration} onChange={(e) => setEditingCourse({ ...editingCourse, duration: e.target.value })} className={sc} />
+                        <input value={editingCourse.students} onChange={(e) => setEditingCourse({ ...editingCourse, students: e.target.value })} className={sc} />
+                        <input value={editingCourse.level} onChange={(e) => setEditingCourse({ ...editingCourse, level: e.target.value })} className={sc} />
+                        <input value={editingCourse.email} onChange={(e) => setEditingCourse({ ...editingCourse, email: e.target.value })} className={sc} />
                         <textarea value={editingCourse.modules} onChange={(e) => setEditingCourse({ ...editingCourse, modules: e.target.value })} rows={4} className={`${sc} resize-none md:col-span-2`} />
                       </div>
                       <div className="space-y-2">
@@ -667,7 +706,6 @@ export function AdminPage() {
           </div>
         )}
 
-        {/* 📋 الفوتر */}
         {activeTab === "footer" && (
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-6">
             <h2 className="text-xl font-bold">معلومات الفوتر</h2>
@@ -683,7 +721,6 @@ export function AdminPage() {
           </div>
         )}
 
-        {/* 💼 الأعمال */}
         {activeTab === "works" && (
           <div>
             <div className="flex gap-2 mb-6 bg-gray-900 p-1 rounded-xl">
