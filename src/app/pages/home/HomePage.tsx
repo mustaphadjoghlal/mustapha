@@ -97,7 +97,13 @@ export function HomePage() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full blur-3xl opacity-30"></div>
                 {loaded && siteInfo.profileImageUrl ? (
-                  <ImageWithFallback src={siteInfo.profileImageUrl} alt={`${siteInfo.heroName} - معلق صوتي ومصمم بصري`} className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-cover border-4 border-gray-800 shadow-2xl" />
+                  <ImageWithFallback 
+                    src={siteInfo.profileImageUrl} 
+                    alt={`${siteInfo.heroName} - معلق صوتي ومصمم بصري`} 
+                    className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-cover border-4 border-gray-800 shadow-2xl" 
+                    loading="eager"
+                    fetchPriority="high"
+                  />
                 ) : (
                   <div className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 border-4 border-gray-800 bg-gray-900 animate-pulse" />
                 )}

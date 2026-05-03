@@ -4,9 +4,17 @@ interface ImageWithFallbackProps {
   src: string;
   alt: string;
   className?: string;
+  loading?: "lazy" | "eager";
+  fetchPriority?: "high" | "low" | "auto";
 }
 
-export function ImageWithFallback({ src, alt, className = "" }: ImageWithFallbackProps) {
+export function ImageWithFallback({ 
+  src, 
+  alt, 
+  className = "", 
+  loading = "lazy",
+  fetchPriority = "auto"
+}: ImageWithFallbackProps) {
   const [error, setError] = useState(false);
 
   if (error) {
@@ -25,7 +33,9 @@ export function ImageWithFallback({ src, alt, className = "" }: ImageWithFallbac
       alt={alt}
       className={className}
       onError={() => setError(true)}
-      loading="lazy"
+      loading={loading}
+      // @ts-ignore
+      fetchpriority={fetchPriority}
     />
   );
 }
