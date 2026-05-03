@@ -196,7 +196,7 @@ export function PortfolioVoicePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">هل تحتاج تعليق صوتي احترافي؟</h2>
           <p className="text-gray-400 text-lg mb-8">دعني أضيف صوتاً مميزاً يعزز رسالتك ويجذب جمهورك</p>
-          <a href="mailto:djo-mustapha@gmail.com" className="inline-block px-8 py-3 bg-gradient-to-r from-pink-500 to-red-600 rounded-lg hover:from-pink-600 hover:to-red-700 transition-all font-semibold">
+          <a href="https://wa.me/96871227281?text=مرحباً مصطفى، أود الاستفسار عن خدمات التعليق الصوتي" className="inline-block px-8 py-3 bg-gradient-to-r from-pink-500 to-red-600 rounded-lg hover:from-pink-600 hover:to-red-700 transition-all font-semibold">
             اطلب عينة صوتية
           </a>
         </div>
