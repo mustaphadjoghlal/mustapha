@@ -13,7 +13,7 @@ interface Experience { id: string; period: string; title: string; location: stri
 interface MediaOutput {
   id: string; title: string; channel: string;
   type: "تلفزيون" | "إذاعة" | "صحافة" | "بودكاست" | "يوتيوب" | "أخرى";
-  date: string; description: string; url: string;
+  date: string; description: string; url: string; coverImage?: string;
 }
 interface Article {
   id: string; title: string; content: string; coverImage: string;
@@ -48,6 +48,30 @@ function SingleImageUploader({ url, onChange, folder = "images", label = "رفع
         {uploading ? <div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-blue-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
           : <div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={14} /><span>{label}</span></div>}
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+      </div>
+    </div>
+  );
+}
+
+function AudioUploader({ url, onChange, folder = "audio", label = "رفع ملف صوتي" }: {
+  url: string; onChange: (url: string) => void; folder?: string; label?: string;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const handleFile = async (file: File) => {
+    setUploading(true);
+    const task = uploadBytesResumable(ref(storage, `${folder}/${Date.now()}_${file.name}`), file);
+    task.on("state_changed", (s) => setProgress(Math.round((s.bytesTransferred / s.totalBytes) * 100)), console.error,
+      async () => { onChange(await getDownloadURL(task.snapshot.ref)); setUploading(false); setProgress(0); });
+  };
+  return (
+    <div className="flex gap-3 items-center">
+      {url && <div className="flex-1 bg-gray-800 border border-gray-700 rounded-lg p-3 text-sm text-gray-300 truncate">✓ ملف مرفوع</div>}
+      <div onClick={() => fileInputRef.current?.click()} className="flex-1 border-2 border-dashed border-gray-600 hover:border-purple-500 rounded-xl p-3 text-center cursor-pointer transition-all">
+        {uploading ? <div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-purple-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
+          : <div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={14} /><span>{label}</span></div>}
+        <input ref={fileInputRef} type="file" accept="audio/mp3,audio/mpeg" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
       </div>
     </div>
   );
@@ -140,13 +164,19 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
           <div className="grid md:grid-cols-2 gap-4">
             <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className={sc} />
             <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={sc} />
-            {isVoice && <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${sc} md:col-span-2`} />}
+            {isVoice && <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud (اختياري)" className={`${sc} md:col-span-2`} />}
             <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2} className={`${sc} resize-none md:col-span-2`} />
           </div>
           <div className="space-y-2">
             <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف (تظهر في القائمة)</p>
             <SingleImageUploader url={newWork.coverImage || ""} onChange={(url) => setNewWork({ ...newWork, coverImage: url })} folder="works" label="رفع صورة الغلاف" />
           </div>
+          {isVoice && (
+            <div className="space-y-2">
+              <p className="text-gray-400 text-sm font-semibold">🎵 ملف صوتي MP3 (اختياري - بدلاً من SoundCloud)</p>
+              <AudioUploader url={newWork.audioUrl || ""} onChange={(url) => setNewWork({ ...newWork, audioUrl: url })} folder="works/audio" label="رفع ملف صوتي" />
+            </div>
+          )}
           {!isVoice && (
             <div className="space-y-2">
               <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى (تظهر في الصفحة التفصيلية)</p>
@@ -165,18 +195,24 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                 <div className="grid md:grid-cols-2 gap-4">
                   <input value={editingWork.title} onChange={(e) => setEditingWork({ ...editingWork, title: e.target.value })} className={sc} />
                   <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className={sc} />
-                  {isVoice && <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${sc} md:col-span-2`} />}
+                  {isVoice && <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud (اختياري)" className={`${sc} md:col-span-2`} />}
                   <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
                 </div>
                 <div className="space-y-2">
                   <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
                   <SingleImageUploader url={editingWork.coverImage || ""} onChange={(url) => setEditingWork({ ...editingWork, coverImage: url })} folder="works" label="رفع صورة الغلاف" />
                 </div>
+                {isVoice && (
+                <div className="space-y-2">
+                  <p className="text-gray-400 text-sm font-semibold">🎵 ملف صوتي MP3</p>
+                  <AudioUploader url={editingWork.audioUrl || ""} onChange={(url) => setEditingWork({ ...editingWork, audioUrl: url })} folder="works/audio" label="تغيير الملف الصوتي" />
+                </div>
+                )}
                 {!isVoice && (
-                  <div className="space-y-2">
-                    <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى</p>
-                    <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork({ ...editingWork, images: imgs })} />
-                  </div>
+                <div className="space-y-2">
+                  <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى</p>
+                  <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork({ ...editingWork, images: imgs })} />
+                </div>
                 )}
                 <div className="flex gap-3">
                   <button onClick={onSave} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg font-semibold hover:bg-green-700"><Save size={16} /> حفظ</button>
@@ -436,6 +472,10 @@ export function AdminPage() {
                   <input value={newMedia.url} onChange={(e) => setNewMedia({ ...newMedia, url: e.target.value })} placeholder="رابط (اختياري)" className={`${sc} md:col-span-2`} />
                   <textarea value={newMedia.description} onChange={(e) => setNewMedia({ ...newMedia, description: e.target.value })} placeholder="وصف مختصر" rows={2} className={`${sc} resize-none md:col-span-2`} />
                 </div>
+                <div className="space-y-2">
+                  <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف (اختياري)</p>
+                  <SingleImageUploader url={newMedia.coverImage || ""} onChange={(url) => setNewMedia({ ...newMedia, coverImage: url })} folder="media-outputs" label="رفع صورة الغلاف" />
+                </div>
                 <button onClick={addMedia} disabled={saving} className="flex items-center gap-2 bg-pink-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-pink-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
               </div>
             )}
@@ -453,6 +493,10 @@ export function AdminPage() {
                         <input value={editingMedia.url} onChange={(e) => setEditingMedia({ ...editingMedia, url: e.target.value })} className={`${sc} md:col-span-2`} />
                         <textarea value={editingMedia.description} onChange={(e) => setEditingMedia({ ...editingMedia, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
                       </div>
+                      <div className="space-y-2">
+                        <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
+                        <SingleImageUploader url={editingMedia.coverImage || ""} onChange={(url) => setEditingMedia({ ...editingMedia, coverImage: url })} folder="media-outputs" label="تغيير الصورة" />
+                      </div>
                       <div className="flex gap-2">
                         <button onClick={saveMedia} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
                         <button onClick={() => setEditingMedia(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
@@ -460,9 +504,10 @@ export function AdminPage() {
                     </div>
                   ) : (
                     <div className="flex items-start justify-between gap-4">
+                      {media.coverImage && <img src={media.coverImage} alt={media.title} className="w-16 h-16 rounded-lg object-cover border border-gray-600 flex-shrink-0" />}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${media.type === "تلفزيون" ? "bg-blue-900 text-blue-300" : media.type === "إذاعة" ? "bg-orange-900 text-orange-300" : media.type === "صحافة" ? "bg-green-900 text-green-300" : "bg-purple-900 text-purple-300"}`}>{media.type}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${media.type === "تلفزيون" ? "bg-blue-900 text-blue-300" : media.type === "إذاعة" ? "bg-orange-900 text-orange-300" : media.type === "صحافة" ? "bg-green-900 text-green-300" : "bg-purple-900 text-purple-300"}">{media.type}</span>
                           <span className="text-gray-500 text-xs">{media.date}</span>
                         </div>
                         <p className="font-bold text-white text-sm">{media.title}</p>

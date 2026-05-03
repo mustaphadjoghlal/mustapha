@@ -118,6 +118,7 @@ export function PortfolioVoicePage() {
                       allow="autoplay"
                       src={getSoundCloudEmbed(work.soundcloudUrl)}
                       className="rounded-lg"
+                      loading="lazy"
                     />
                   )}
                 </div>

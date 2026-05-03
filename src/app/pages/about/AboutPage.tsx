@@ -25,6 +25,7 @@ interface MediaOutput {
   date: string;
   description: string;
   url: string;
+  coverImage?: string;
 }
 
 const defaultInfo: SiteInfo = {
@@ -224,6 +225,9 @@ export function AboutPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {mediaOutputs.map((item) => (
                 <div key={item.id} className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-pink-500 transition-all">
+                  {item.coverImage && (
+                    <img src={item.coverImage} alt={item.title} className="w-full h-40 object-cover rounded-lg mb-4 border border-gray-700" loading="lazy" />
+                  )}
                   <div className="flex items-center gap-2 mb-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${typeColor(item.type)}`}>{item.type}</span>
                     {item.date && <span className="text-gray-500 text-xs">{item.date}</span>}

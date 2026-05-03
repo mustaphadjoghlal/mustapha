@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router";
 import { db } from "../../../firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { ArrowRight, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { CustomAudioPlayer } from "../../components/CustomAudioPlayer";
 
 interface Work {
   id: string;
@@ -12,6 +13,7 @@ interface Work {
   images: string[];
   altText: string;
   soundcloudUrl: string;
+  audioUrl?: string;
   category: "design" | "photography" | "voice";
 }
 
@@ -75,7 +77,7 @@ export function WorkDetailPage() {
           </button>
           <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
             <img src={allImages[lightboxIndex]} alt={work.altText || work.title}
-              className="w-full max-h-[85vh] object-contain rounded-xl" />
+              className="w-full max-h-[85vh] object-contain rounded-xl" loading="lazy" />
             {allImages.length > 1 && (
               <>
                 <button onClick={prevImg} className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition-all">
@@ -109,7 +111,7 @@ export function WorkDetailPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <div className="rounded-2xl overflow-hidden cursor-pointer" onClick={() => setLightboxIndex(0)}>
             <img src={work.coverImage} alt={work.altText || work.title}
-              className="w-full max-h-[500px] object-cover hover:scale-105 transition-transform duration-500" />
+              className="w-full max-h-[500px] object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
           </div>
         </div>
       )}
@@ -119,15 +121,19 @@ export function WorkDetailPage() {
         <h1 className="text-3xl md:text-4xl font-bold mb-4">{work.title}</h1>
         {work.description && <p className="text-gray-400 text-lg leading-relaxed mb-10">{work.description}</p>}
 
-        {/* SoundCloud للتعليق الصوتي */}
-        {work.category === "voice" && work.soundcloudUrl && (
+        {/* المشغل الصوتي المخصص أو SoundCloud */}
+        {work.category === "voice" && (work.audioUrl || work.soundcloudUrl) && (
           <div className="mb-10">
             <h2 className="text-xl font-bold mb-4">استمع للعمل</h2>
-            <iframe
-              width="100%" height="120" scrolling="no" frameBorder="no" allow="autoplay"
-              src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(work.soundcloudUrl)}&color=%23a855f7&auto_play=false&hide_related=true&show_comments=false&show_user=true`}
-              className="rounded-xl"
-            />
+            {work.audioUrl ? (
+              <CustomAudioPlayer src={work.audioUrl} title={work.title} coverImage={work.coverImage} />
+            ) : (
+              <iframe
+                width="100%" height="120" scrolling="no" frameBorder="no" allow="autoplay"
+                src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(work.soundcloudUrl)}&color=%23a855f7&auto_play=false&hide_related=true&show_comments=false&show_user=true`}
+                className="rounded-xl"
+              />
+            )}
           </div>
         )}
 
@@ -140,7 +146,7 @@ export function WorkDetailPage() {
                 <div key={i} className="relative group aspect-square overflow-hidden rounded-xl cursor-pointer border border-gray-800 hover:border-blue-500 transition-all"
                   onClick={() => setLightboxIndex(work.coverImage ? i + 1 : i)}>
                   <img src={img} alt={`${work.title} ${i + 1}`}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               ))}
