@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { CheckCircle, Mic, Play } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { CheckCircle, Mic, Play, Pause, Link } from "lucide-react";
+import { Link as RouterLink } from "react-router";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 
@@ -7,8 +8,60 @@ interface VoiceWork {
   id: string;
   title: string;
   description: string;
-  soundcloudUrl: string;
+  coverImage?: string;
+  soundcloudUrl?: string;
+  audioUrl?: string;
   category: "design" | "photography" | "voice";
+}
+
+function AudioPlayer({ url, title }: { url: string; title: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (playing) { audioRef.current.pause(); setPlaying(false); }
+    else { audioRef.current.play(); setPlaying(true); }
+  };
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="bg-gray-800 rounded-xl p-4 flex items-center gap-4">
+      <audio ref={audioRef}
+        src={url}
+        onTimeUpdate={() => { if (audioRef.current) { setCurrentTime(audioRef.current.currentTime); setProgress((audioRef.current.currentTime / audioRef.current.duration) * 100); } }}
+        onLoadedMetadata={() => { if (audioRef.current) setDuration(audioRef.current.duration); }}
+        onEnded={() => { setPlaying(false); setProgress(0); }}
+      />
+      <button onClick={togglePlay} className="w-12 h-12 flex-shrink-0 bg-gradient-to-br from-pink-500 to-red-600 rounded-full flex items-center justify-center hover:from-pink-600 hover:to-red-700 transition-all">
+        {playing ? <Pause size={20} /> : <Play size={20} className="mr-[-2px]" />}
+      </button>
+      <div className="flex-1 min-w-0">
+        <p className="text-white text-sm font-semibold truncate mb-2">{title}</p>
+        <div className="relative h-1.5 bg-gray-700 rounded-full cursor-pointer"
+          onClick={(e) => {
+            if (!audioRef.current) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const ratio = (e.clientX - rect.left) / rect.width;
+            audioRef.current.currentTime = ratio * audioRef.current.duration;
+          }}>
+          <div className="absolute top-0 right-0 h-full bg-gradient-to-l from-pink-500 to-red-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
+        </div>
+        <div className="flex justify-between mt-1">
+          <span className="text-gray-500 text-xs">{formatTime(currentTime)}</span>
+          <span className="text-gray-500 text-xs">{formatTime(duration)}</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function PortfolioVoicePage() {
@@ -39,11 +92,9 @@ export function PortfolioVoicePage() {
     { title: "سرعة التسليم", description: "تسليم سريع مع إمكانية التعديل حسب ملاحظاتك" },
   ];
 
-  // تحويل رابط SoundCloud لرابط embed
   const getSoundCloudEmbed = (url: string) => {
     if (!url) return "";
-    const encoded = encodeURIComponent(url);
-    return `https://w.soundcloud.com/player/?url=${encoded}&color=%23a855f7&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`;
+    return `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23a855f7&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`;
   };
 
   return (
@@ -79,8 +130,6 @@ export function PortfolioVoicePage() {
               </div>
             ))}
           </div>
-
-          {/* Services */}
           <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">الخدمات الصوتية</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service, index) => (
@@ -100,27 +149,41 @@ export function PortfolioVoicePage() {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">مشاريع صوتية مميزة</h2>
             <p className="text-gray-400 text-lg">استمع لعينات من أعمالي</p>
           </div>
-
           {works.length === 0 ? (
             <p className="text-center text-gray-500 py-16">قريباً — سيتم إضافة الأعمال الصوتية</p>
           ) : (
-            <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
               {works.map((work) => (
-                <div key={work.id} className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-pink-500 transition-all">
-                  <h3 className="text-xl font-bold mb-2">{work.title}</h3>
-                  {work.description && <p className="text-gray-400 mb-4">{work.description}</p>}
-                  {work.soundcloudUrl && (
-                    <iframe
-                      width="100%"
-                      height="120"
-                      scrolling="no"
-                      frameBorder="no"
-                      allow="autoplay"
-                      src={getSoundCloudEmbed(work.soundcloudUrl)}
-                      className="rounded-lg"
-                      loading="lazy"
-                    />
+                <div key={work.id} className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-pink-500 transition-all hover:shadow-xl hover:shadow-pink-500/20">
+                  {/* صورة الغلاف */}
+                  {work.coverImage && (
+                    <RouterLink to={`/portfolio/${work.id}`}>
+                      <div className="relative h-48 overflow-hidden">
+                        <img src={work.coverImage} alt={work.title} loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="text-white text-sm font-semibold bg-black/60 px-4 py-2 rounded-full">عرض التفاصيل</span>
+                        </div>
+                      </div>
+                    </RouterLink>
                   )}
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="text-xl font-bold">{work.title}</h3>
+                      <RouterLink to={`/portfolio/${work.id}`} className="text-gray-500 hover:text-pink-400 transition-colors">
+                        <Link size={16} />
+                      </RouterLink>
+                    </div>
+                    {work.description && <p className="text-gray-400 mb-4 text-sm">{work.description}</p>}
+                    {/* مشغل MP3 */}
+                    {work.audioUrl && <AudioPlayer url={work.audioUrl} title={work.title} />}
+                    {/* SoundCloud fallback */}
+                    {!work.audioUrl && work.soundcloudUrl && (
+                      <iframe width="100%" height="120" scrolling="no" frameBorder="no" allow="autoplay"
+                        src={getSoundCloudEmbed(work.soundcloudUrl)}
+                        className="rounded-lg" loading="lazy" />
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -133,7 +196,7 @@ export function PortfolioVoicePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">هل تحتاج تعليق صوتي احترافي؟</h2>
           <p className="text-gray-400 text-lg mb-8">دعني أضيف صوتاً مميزاً يعزز رسالتك ويجذب جمهورك</p>
-          <a href="mailto:info@example.com" className="inline-block px-8 py-3 bg-gradient-to-r from-pink-500 to-red-600 rounded-lg hover:from-pink-600 hover:to-red-700 transition-all font-semibold">
+          <a href="mailto:djo-mustapha@gmail.com" className="inline-block px-8 py-3 bg-gradient-to-r from-pink-500 to-red-600 rounded-lg hover:from-pink-600 hover:to-red-700 transition-all font-semibold">
             اطلب عينة صوتية
           </a>
         </div>
