@@ -332,28 +332,36 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
 export function AdminPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("works");
-  const [works, setWorks] = useState<Work[]>([]);
-  const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [mediaOutputs, setMediaOutputs] = useState<MediaOutput[]>([]);
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
-  const [saving, setSaving] = useState(false);
+	  const [activeTab, setActiveTab] = useState("works");
+	  const [works, setWorks] = useState<Work[]>([]);
+	  const [experiences, setExperiences] = useState<Experience[]>([]);
+	  const [mediaOutputs, setMediaOutputs] = useState<MediaOutput[]>([]);
+	  const [articles, setArticles] = useState<Article[]>([]);
+	  const [clients, setClients] = useState<Client[]>([]);
+	  const [courses, setCourses] = useState<Course[]>([]);
+	  const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
+	  const [saving, setSaving] = useState(false);
+	
+	  // Forms state
+	  const [newWork, setNewWork] = useState<Partial<Work>>({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category: "design" });
+	  const [editingWork, setEditingWork] = useState<Work | null>(null);
+	  const [showAddWork, setShowAddWork] = useState(false);
+	
+	  const [newExp, setNewExp] = useState<Partial<Experience>>({ title: "", period: "", location: "", tasks: "" });
+	  const [editingExp, setEditingExp] = useState<Experience | null>(null);
+	  const [showAddExp, setShowAddExp] = useState(false);
+	
+	  const [newMedia, setNewMedia] = useState<Partial<MediaOutput>>({ title: "", channel: "", type: "تلفزيون", date: "", description: "", url: "" });
+	  const [editingMedia, setEditingMedia] = useState<MediaOutput | null>(null);
+	  const [showAddMedia, setShowAddMedia] = useState(false);
 
-  // Forms state
-  const [newWork, setNewWork] = useState<Partial<Work>>({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category: "design" });
-  const [editingWork, setEditingWork] = useState<Work | null>(null);
-  const [showAddWork, setShowAddWork] = useState(false);
+	  const [newArticle, setNewArticle] = useState<Partial<Article>>({ title: "", content: "", coverImage: "", coverAlt: "", date: new Date().toISOString().split('T')[0], tags: [], category: "" });
+	  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+	  const [showAddArticle, setShowAddArticle] = useState(false);
 
-  const [newExp, setNewExp] = useState<Partial<Experience>>({ title: "", period: "", location: "", tasks: "" });
-  const [editingExp, setEditingExp] = useState<Experience | null>(null);
-  const [showAddExp, setShowAddExp] = useState(false);
-
-  const [newMedia, setNewMedia] = useState<Partial<MediaOutput>>({ title: "", channel: "", type: "تلفزيون", date: "", description: "", url: "" });
-  const [editingMedia, setEditingMedia] = useState<MediaOutput | null>(null);
-  const [showAddMedia, setShowAddMedia] = useState(false);
+	  const [newCourse, setNewCourse] = useState<Partial<Course>>({ title: "", description: "", image: "", duration: "", students: "", level: "", modules: "", email: "" });
+	  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+	  const [showAddCourse, setShowAddCourse] = useState(false);
 
   const sc = "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-all text-sm";
   const mediaTypes = ["تلفزيون", "إذاعة", "صحافة", "بودكاست", "يوتيوب", "أخرى"];
@@ -385,10 +393,18 @@ export function AdminPage() {
   const deleteExp = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "experiences", id)); };
 
   const addMedia = async () => { setSaving(true); try { await addDoc(collection(db, "mediaOutputs"), newMedia); setShowAddMedia(false); setNewMedia({ title: "", channel: "", type: "تلفزيون", date: "", description: "", url: "" }); } catch (e) { console.error(e); } setSaving(false); };
-  const saveMedia = async () => { if (!editingMedia) return; setSaving(true); try { await updateDoc(doc(db, "mediaOutputs", editingMedia.id), editingMedia); setEditingMedia(null); } catch (e) { console.error(e); } setSaving(false); };
-  const deleteMedia = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "mediaOutputs", id)); };
+	  const saveMedia = async () => { if (!editingMedia) return; setSaving(true); try { await updateDoc(doc(db, "mediaOutputs", editingMedia.id), editingMedia); setEditingMedia(null); } catch (e) { console.error(e); } setSaving(false); };
+	  const deleteMedia = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "mediaOutputs", id)); };
 
-  const saveInfo = async () => { if (!siteInfo) return; setSaving(true); try { await updateDoc(doc(db, "siteInfo", siteInfo.id), siteInfo as any); alert("تم الحفظ بنجاح"); } catch (e) { console.error(e); } setSaving(false); };
+	  const addArticle = async () => { setSaving(true); try { await addDoc(collection(db, "articles"), newArticle); setShowAddArticle(false); setNewArticle({ title: "", content: "", coverImage: "", coverAlt: "", date: new Date().toISOString().split('T')[0], tags: [], category: "" }); } catch (e) { console.error(e); } setSaving(false); };
+	  const saveArticle = async () => { if (!editingArticle) return; setSaving(true); try { await updateDoc(doc(db, "articles", editingArticle.id), editingArticle); setEditingArticle(null); } catch (e) { console.error(e); } setSaving(false); };
+	  const deleteArticle = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "articles", id)); };
+
+	  const addCourse = async () => { setSaving(true); try { await addDoc(collection(db, "courses"), newCourse); setShowAddCourse(false); setNewCourse({ title: "", description: "", image: "", duration: "", students: "", level: "", modules: "", email: "" }); } catch (e) { console.error(e); } setSaving(false); };
+	  const saveCourse = async () => { if (!editingCourse) return; setSaving(true); try { await updateDoc(doc(db, "courses", editingCourse.id), editingCourse); setEditingCourse(null); } catch (e) { console.error(e); } setSaving(false); };
+	  const deleteCourse = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "courses", id)); };
+	
+	  const saveInfo = async () => { if (!siteInfo) return; setSaving(true); try { await updateDoc(doc(db, "siteInfo", siteInfo.id), siteInfo as any); alert("تم الحفظ بنجاح"); } catch (e) { console.error(e); } setSaving(false); };
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><Loader className="animate-spin text-blue-500" /></div>;
   if (!user) return <LoginForm onLogin={signInWithEmailAndPassword} />;
@@ -402,10 +418,12 @@ export function AdminPage() {
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center font-bold">M</div>
             <nav className="hidden md:flex items-center gap-1">
               {[
-                { id: "works", label: "الأعمال" },
-                { id: "experience", label: "الخبرات" },
-                { id: "media", label: "المخرجات" },
-                { id: "info", label: "الإعدادات" },
+	                { id: "works", label: "الأعمال" },
+	                { id: "experience", label: "الخبرات" },
+	                { id: "media", label: "المخرجات" },
+	                { id: "articles", label: "المقالات" },
+	                { id: "courses", label: "الدورات" },
+	                { id: "info", label: "الإعدادات" },
               ].map(tab => (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? "bg-gray-800 text-blue-400" : "text-gray-400 hover:text-white hover:bg-gray-800/50"}`}>
                   {tab.label}
@@ -420,10 +438,12 @@ export function AdminPage() {
         {/* Mobile Navigation */}
         <div className="md:hidden flex overflow-x-auto border-t border-gray-800 px-2 py-1 scrollbar-hide">
           {[
-            { id: "works", label: "الأعمال" },
-            { id: "experience", label: "الخبرات" },
-            { id: "media", label: "المخرجات" },
-            { id: "info", label: "الإعدادات" },
+	            { id: "works", label: "الأعمال" },
+	            { id: "experience", label: "الخبرات" },
+	            { id: "media", label: "المخرجات" },
+	            { id: "articles", label: "المقالات" },
+	            { id: "courses", label: "الدورات" },
+	            { id: "info", label: "الإعدادات" },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-shrink-0 px-4 py-2 text-sm whitespace-nowrap ${activeTab === tab.id ? "text-blue-400 border-b-2 border-blue-400" : "text-gray-400"}`}>
               {tab.label}
@@ -598,8 +618,130 @@ export function AdminPage() {
             </div>
           )}
 
-          {activeTab === "info" && siteInfo && (
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+	          {activeTab === "articles" && (
+	            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+	              <div className="flex items-center justify-between mb-6">
+	                <h2 className="text-xl font-bold">المقالات ({articles.length})</h2>
+	                <button onClick={() => setShowAddArticle(true)} className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة مقال</button>
+	              </div>
+	              {showAddArticle && (
+	                <div className="bg-gray-800 border border-orange-700 rounded-xl p-5 mb-6 space-y-3">
+	                  <div className="flex justify-between"><h3 className="text-orange-400 font-bold">مقال جديد</h3><button onClick={() => setShowAddArticle(false)}><X size={16} className="text-gray-400" /></button></div>
+	                  <div className="grid md:grid-cols-2 gap-3">
+	                    <input value={newArticle.title} onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })} placeholder="عنوان المقال" className={sc} />
+	                    <input value={newArticle.category} onChange={(e) => setNewArticle({ ...newArticle, category: e.target.value })} placeholder="الفئة" className={sc} />
+	                    <input value={newArticle.date} onChange={(e) => setNewArticle({ ...newArticle, date: e.target.value })} type="date" className={sc} />
+	                    <input value={newArticle.coverAlt} onChange={(e) => setNewArticle({ ...newArticle, coverAlt: e.target.value })} placeholder="نص بديل للصورة" className={sc} />
+	                  </div>
+	                  <textarea value={newArticle.content} onChange={(e) => setNewArticle({ ...newArticle, content: e.target.value })} placeholder="محتوى المقال (Markdown)" rows={6} className={`${sc} resize-none`} />
+	                  <div className="space-y-2">
+	                    <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
+	                    <SingleImageUploader url={newArticle.coverImage || ""} onChange={(url) => setNewArticle(prev => ({ ...prev, coverImage: url }))} folder="articles" label="رفع صورة الغلاف" />
+	                  </div>
+	                  <button onClick={addArticle} disabled={saving} className="flex items-center gap-2 bg-orange-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-orange-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+	                </div>
+	              )}
+	              <div className="space-y-3">
+	                {articles.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد مقالات</p>}
+	                {articles.map((article) => (
+	                  <div key={article.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+	                    {editingArticle?.id === article.id ? (
+	                      <div className="space-y-3">
+	                        <div className="grid md:grid-cols-2 gap-3">
+	                          <input value={editingArticle.title} onChange={(e) => setEditingArticle({ ...editingArticle, title: e.target.value })} className={sc} />
+	                          <input value={editingArticle.category} onChange={(e) => setEditingArticle({ ...editingArticle, category: e.target.value })} className={sc} />
+	                          <input value={editingArticle.date} onChange={(e) => setEditingArticle({ ...editingArticle, date: e.target.value })} type="date" className={sc} />
+	                        </div>
+	                        <textarea value={editingArticle.content} onChange={(e) => setEditingArticle({ ...editingArticle, content: e.target.value })} rows={6} className={`${sc} resize-none`} />
+	                        <SingleImageUploader url={editingArticle.coverImage} onChange={(url) => setEditingArticle(prev => prev ? ({ ...prev, coverImage: url }) : null)} folder="articles" label="تغيير الغلاف" />
+	                        <div className="flex gap-2">
+	                          <button onClick={saveArticle} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
+	                          <button onClick={() => setEditingArticle(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
+	                        </div>
+	                      </div>
+	                    ) : (
+	                      <div className="flex items-start justify-between gap-4">
+	                        {article.coverImage && <img src={article.coverImage} alt={article.title} className="w-16 h-16 rounded-lg object-cover border border-gray-600 flex-shrink-0" />}
+	                        <div className="flex-1 min-w-0">
+	                          <p className="font-bold text-white text-sm truncate">{article.title}</p>
+	                          <p className="text-gray-400 text-xs">{article.date} — {article.category}</p>
+	                        </div>
+	                        <div className="flex gap-1">
+	                          <button onClick={() => setEditingArticle(article)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+	                          <button onClick={() => deleteArticle(article.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+	                        </div>
+	                      </div>
+	                    )}
+	                  </div>
+	                ))}
+	              </div>
+	            </div>
+	          )}
+	
+	          {activeTab === "courses" && (
+	            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+	              <div className="flex items-center justify-between mb-6">
+	                <h2 className="text-xl font-bold">الدورات التدريبية ({courses.length})</h2>
+	                <button onClick={() => setShowAddCourse(true)} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة دورة</button>
+	              </div>
+	              {showAddCourse && (
+	                <div className="bg-gray-800 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
+	                  <div className="flex justify-between"><h3 className="text-blue-400 font-bold">دورة جديدة</h3><button onClick={() => setShowAddCourse(false)}><X size={16} className="text-gray-400" /></button></div>
+	                  <div className="grid md:grid-cols-2 gap-3">
+	                    <input value={newCourse.title} onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })} placeholder="عنوان الدورة" className={sc} />
+	                    <input value={newCourse.duration} onChange={(e) => setNewCourse({ ...newCourse, duration: e.target.value })} placeholder="المدة" className={sc} />
+	                    <input value={newCourse.students} onChange={(e) => setNewCourse({ ...newCourse, students: e.target.value })} placeholder="عدد الطلاب" className={sc} />
+	                    <input value={newCourse.level} onChange={(e) => setNewCourse({ ...newCourse, level: e.target.value })} placeholder="المستوى" className={sc} />
+	                    <input value={newCourse.email} onChange={(e) => setNewCourse({ ...newCourse, email: e.target.value })} placeholder="بريد التسجيل" className={sc} />
+	                    <input value={newCourse.modules} onChange={(e) => setNewCourse({ ...newCourse, modules: e.target.value })} placeholder="عدد المحاور" className={sc} />
+	                  </div>
+	                  <textarea value={newCourse.description} onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })} placeholder="وصف الدورة" rows={3} className={`${sc} resize-none`} />
+	                  <div className="space-y-2">
+	                    <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الدورة</p>
+	                    <SingleImageUploader url={newCourse.image || ""} onChange={(url) => setNewCourse(prev => ({ ...prev, image: url }))} folder="courses" label="رفع صورة" />
+	                  </div>
+	                  <button onClick={addCourse} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+	                </div>
+	              )}
+	              <div className="space-y-3">
+	                {courses.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد دورات</p>}
+	                {courses.map((course) => (
+	                  <div key={course.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+	                    {editingCourse?.id === course.id ? (
+	                      <div className="space-y-3">
+	                        <div className="grid md:grid-cols-2 gap-3">
+	                          <input value={editingCourse.title} onChange={(e) => setEditingCourse({ ...editingCourse, title: e.target.value })} className={sc} />
+	                          <input value={editingCourse.duration} onChange={(e) => setEditingCourse({ ...editingCourse, duration: e.target.value })} className={sc} />
+	                          <input value={editingCourse.level} onChange={(e) => setEditingCourse({ ...editingCourse, level: e.target.value })} className={sc} />
+	                        </div>
+	                        <textarea value={editingCourse.description} onChange={(e) => setEditingCourse({ ...editingCourse, description: e.target.value })} rows={3} className={`${sc} resize-none`} />
+	                        <SingleImageUploader url={editingCourse.image} onChange={(url) => setEditingCourse(prev => prev ? ({ ...prev, image: url }) : null)} folder="courses" label="تغيير الصورة" />
+	                        <div className="flex gap-2">
+	                          <button onClick={saveCourse} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
+	                          <button onClick={() => setEditingCourse(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
+	                        </div>
+	                      </div>
+	                    ) : (
+	                      <div className="flex items-start justify-between gap-4">
+	                        {course.image && <img src={course.image} alt={course.title} className="w-16 h-16 rounded-lg object-cover border border-gray-600 flex-shrink-0" />}
+	                        <div className="flex-1 min-w-0">
+	                          <p className="font-bold text-white text-sm truncate">{course.title}</p>
+	                          <p className="text-gray-400 text-xs">{course.duration} — {course.level}</p>
+	                        </div>
+	                        <div className="flex gap-1">
+	                          <button onClick={() => setEditingCourse(course)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+	                          <button onClick={() => deleteCourse(course.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+	                        </div>
+	                      </div>
+	                    )}
+	                  </div>
+	                ))}
+	              </div>
+	            </div>
+	          )}
+	
+	          {activeTab === "info" && siteInfo && (
+	            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-xl font-bold">إعدادات الموقع</h2>
                 <button onClick={saveInfo} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button>
