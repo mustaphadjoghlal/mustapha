@@ -419,19 +419,45 @@ export function AdminPage() {
       <div className="max-w-7xl mx-auto px-4 mt-8">
         <div className="w-full">
           {activeTab === "works" && (
-            <div className="grid grid-cols-1 gap-8">
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-blue-400"><span className="w-2 h-2 bg-blue-500 rounded-full"></span> التصميم الجرافيكي</h2>
-                <WorksList works={works} category="design" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+              <div className="flex flex-wrap items-center gap-2 mb-8 bg-black/40 p-1.5 rounded-xl w-fit">
+                {[
+                  { id: "design", label: "التصميم الجرافيكي", color: "blue" },
+                  { id: "voice", label: "التعليق الصوتي", color: "purple" },
+                  { id: "photography", label: "التصوير الفوتوغرافي", color: "cyan" },
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setNewWork({ ...newWork, category: cat.id as any })}
+                    className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${
+                      newWork.category === cat.id
+                        ? `bg-${cat.color}-600 text-white shadow-lg`
+                        : "text-gray-400 hover:text-white hover:bg-gray-800"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
               </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-purple-400"><span className="w-2 h-2 bg-purple-500 rounded-full"></span> التعليق الصوتي</h2>
-                <WorksList works={works} category="voice" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
-              </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-cyan-400"><span className="w-2 h-2 bg-cyan-500 rounded-full"></span> التصوير الفوتوغرافي</h2>
-                <WorksList works={works} category="photography" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
-              </div>
+
+              {newWork.category === "design" && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2 text-blue-400"><span className="w-2 h-2 bg-blue-500 rounded-full"></span> التصميم الجرافيكي</h2>
+                  <WorksList works={works} category="design" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
+                </div>
+              )}
+              {newWork.category === "voice" && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2 text-purple-400"><span className="w-2 h-2 bg-purple-500 rounded-full"></span> التعليق الصوتي</h2>
+                  <WorksList works={works} category="voice" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
+                </div>
+              )}
+              {newWork.category === "photography" && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2 text-cyan-400"><span className="w-2 h-2 bg-cyan-500 rounded-full"></span> التصوير الفوتوغرافي</h2>
+                  <WorksList works={works} category="photography" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
+                </div>
+              )}
             </div>
           )}
 
