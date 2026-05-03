@@ -245,15 +245,15 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
           </div>
           <div className="space-y-2">
             <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف (تظهر في القائمة)</p>
-            <SingleImageUploader url={newWork.coverImage || ""} onChange={(url) => setNewWork({ ...newWork, coverImage: url })} folder="works" label="رفع صورة الغلاف" />
+            <SingleImageUploader url={newWork.coverImage || ""} onChange={(url) => setNewWork(prev => ({ ...prev, coverImage: url }))} folder="works" label="رفع صورة الغلاف" />
           </div>
           {isVoice && (
           <div className="space-y-2">
             <p className="text-gray-400 text-sm font-semibold">🎵 ملف صوتي MP3 (اختياري - بدلاً من SoundCloud)</p>
             <AudioUploader 
               url={newWork.audioUrl || ""} 
-              onChange={(url) => setNewWork({ ...newWork, audioUrl: url })} 
-              onFileName={(name) => !newWork.title && setNewWork({ ...newWork, title: name })}
+              onChange={(url) => setNewWork(prev => ({ ...prev, audioUrl: url }))} 
+              onFileName={(name) => setNewWork(prev => ({ ...prev, title: prev.title || name }))}
               folder="works/audio" 
               label="رفع ملف صوتي" 
             />
@@ -262,7 +262,7 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
           {!isVoice && (
             <div className="space-y-2">
               <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى (تظهر في الصفحة التفصيلية)</p>
-              <ImageUploader images={newWork.images} onChange={(imgs: string[]) => setNewWork({ ...newWork, images: imgs })} />
+              <ImageUploader images={newWork.images || []} onChange={(imgs: string[]) => setNewWork(prev => ({ ...prev, images: imgs }))} />
             </div>
           )}
           <button onClick={onAdd} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50"><Plus size={16} /> {saving ? "جارٍ الإضافة..." : "إضافة"}</button>
@@ -282,15 +282,15 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                 </div>
                 <div className="space-y-2">
                   <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
-                  <SingleImageUploader url={editingWork.coverImage || ""} onChange={(url) => setEditingWork({ ...editingWork, coverImage: url })} folder="works" label="رفع صورة الغلاف" />
+                  <SingleImageUploader url={editingWork.coverImage || ""} onChange={(url) => setEditingWork(prev => prev ? ({ ...prev, coverImage: url }) : null)} folder="works" label="رفع صورة الغلاف" />
                 </div>
                 {isVoice && (
                 <div className="space-y-2">
                   <p className="text-gray-400 text-sm font-semibold">🎵 ملف صوتي MP3</p>
                   <AudioUploader 
                     url={editingWork.audioUrl || ""} 
-                    onChange={(url) => setEditingWork({ ...editingWork, audioUrl: url })} 
-                    onFileName={(name) => !editingWork.title && setEditingWork({ ...editingWork, title: name })}
+                    onChange={(url) => setEditingWork(prev => prev ? ({ ...prev, audioUrl: url }) : null)} 
+                    onFileName={(name) => setEditingWork(prev => prev ? ({ ...prev, title: prev.title || name }) : null)}
                     folder="works/audio" 
                     label="تغيير الملف الصوتي" 
                   />
@@ -299,7 +299,7 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                 {!isVoice && (
                 <div className="space-y-2">
                   <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى</p>
-                  <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork({ ...editingWork, images: imgs })} />
+                  <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork(prev => prev ? ({ ...prev, images: imgs }) : null)} />
                 </div>
                 )}
                 <div className="flex gap-3">
