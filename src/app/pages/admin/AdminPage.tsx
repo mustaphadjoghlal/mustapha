@@ -53,8 +53,8 @@ function SingleImageUploader({ url, onChange, folder = "images", label = "رفع
   );
 }
 
-function AudioUploader({ url, onChange, folder = "audio", label = "رفع ملف صوتي أو فيديو" }: {
-  url: string; onChange: (url: string) => void; folder?: string; label?: string;
+function AudioUploader({ url, onChange, onFileName, folder = "audio", label = "رفع ملف صوتي أو فيديو" }: {
+  url: string; onChange: (url: string) => void; onFileName?: (name: string) => void; folder?: string; label?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -129,6 +129,10 @@ function AudioUploader({ url, onChange, folder = "audio", label = "رفع ملف
     setUploading(true);
     let fileToUpload: File | Blob = file;
     let fileName = file.name;
+
+    if (onFileName) {
+      onFileName(file.name.replace(/\.[^/.]+$/, ""));
+    }
 
     if (file.type.startsWith("video/")) {
       try {
@@ -244,10 +248,16 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
             <SingleImageUploader url={newWork.coverImage || ""} onChange={(url) => setNewWork({ ...newWork, coverImage: url })} folder="works" label="رفع صورة الغلاف" />
           </div>
           {isVoice && (
-            <div className="space-y-2">
-              <p className="text-gray-400 text-sm font-semibold">🎵 ملف صوتي MP3 (اختياري - بدلاً من SoundCloud)</p>
-              <AudioUploader url={newWork.audioUrl || ""} onChange={(url) => setNewWork({ ...newWork, audioUrl: url })} folder="works/audio" label="رفع ملف صوتي" />
-            </div>
+          <div className="space-y-2">
+            <p className="text-gray-400 text-sm font-semibold">🎵 ملف صوتي MP3 (اختياري - بدلاً من SoundCloud)</p>
+            <AudioUploader 
+              url={newWork.audioUrl || ""} 
+              onChange={(url) => setNewWork({ ...newWork, audioUrl: url })} 
+              onFileName={(name) => !newWork.title && setNewWork({ ...newWork, title: name })}
+              folder="works/audio" 
+              label="رفع ملف صوتي" 
+            />
+          </div>
           )}
           {!isVoice && (
             <div className="space-y-2">
@@ -277,7 +287,13 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                 {isVoice && (
                 <div className="space-y-2">
                   <p className="text-gray-400 text-sm font-semibold">🎵 ملف صوتي MP3</p>
-                  <AudioUploader url={editingWork.audioUrl || ""} onChange={(url) => setEditingWork({ ...editingWork, audioUrl: url })} folder="works/audio" label="تغيير الملف الصوتي" />
+                  <AudioUploader 
+                    url={editingWork.audioUrl || ""} 
+                    onChange={(url) => setEditingWork({ ...editingWork, audioUrl: url })} 
+                    onFileName={(name) => !editingWork.title && setEditingWork({ ...editingWork, title: name })}
+                    folder="works/audio" 
+                    label="تغيير الملف الصوتي" 
+                  />
                 </div>
                 )}
                 {!isVoice && (
