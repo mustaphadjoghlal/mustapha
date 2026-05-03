@@ -174,7 +174,7 @@ function AudioUploader({ url, onChange, onFileName, folder = "audio", label = "Ø
               <span>{label}</span>
             </div>
           )}
-          <input fileInputRef={fileInputRef} type="file" accept="audio/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+          <input ref={fileInputRef} type="file" accept="audio/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
         </div>
       </div>
       {status && <p className="text-xs text-purple-400 text-center">{status}</p>}
