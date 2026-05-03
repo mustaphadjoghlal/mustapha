@@ -76,13 +76,13 @@ export function PortfolioDesignPage() {
           {works.length === 0 ? (
             <p className="text-center text-gray-500 py-16">قريباً — سيتم إضافة الأعمال</p>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 gap-8">
               {works.map((work) => {
                 const cover = work.coverImage || work.images?.[0];
                 return (
                   <Link key={work.id} to={`/portfolio/${work.id}`}
-                    className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/20">
-                    <div className="relative h-56 overflow-hidden bg-gray-800">
+                    className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/20 flex flex-col sm:flex-row h-auto sm:h-48">
+                    <div className="relative w-full sm:w-2/5 h-48 sm:h-full overflow-hidden bg-gray-800 flex-shrink-0">
                       {cover ? (
                         <img src={cover} alt={work.altText || work.title} loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />

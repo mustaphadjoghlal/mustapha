@@ -152,37 +152,34 @@ export function PortfolioVoicePage() {
           {works.length === 0 ? (
             <p className="text-center text-gray-500 py-16">قريباً — سيتم إضافة الأعمال الصوتية</p>
           ) : (
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {works.map((work) => (
-                <div key={work.id} className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-pink-500 transition-all hover:shadow-xl hover:shadow-pink-500/20">
+                <div key={work.id} className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-pink-500 transition-all hover:shadow-xl hover:shadow-pink-500/20 flex flex-col md:flex-row">
                   {/* صورة الغلاف */}
                   {work.coverImage && (
-                    <RouterLink to={`/portfolio/${work.id}`}>
-                      <div className="relative h-48 overflow-hidden">
-                        <img src={work.coverImage} alt={work.title} loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <span className="text-white text-sm font-semibold bg-black/60 px-4 py-2 rounded-full">عرض التفاصيل</span>
-                        </div>
-                      </div>
+                    <RouterLink to={`/portfolio/${work.id}`} className="md:w-1/4 h-48 md:h-auto overflow-hidden flex-shrink-0">
+                      <img src={work.coverImage} alt={work.title} loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     </RouterLink>
                   )}
-                  <div className="p-6">
+                  <div className="p-6 flex-1 flex flex-col justify-center">
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-xl font-bold">{work.title}</h3>
+                      <h3 className="text-xl font-bold group-hover:text-pink-400 transition-colors">{work.title}</h3>
                       <RouterLink to={`/portfolio/${work.id}`} className="text-gray-500 hover:text-pink-400 transition-colors">
                         <Link size={16} />
                       </RouterLink>
                     </div>
-                    {work.description && <p className="text-gray-400 mb-4 text-sm">{work.description}</p>}
-                    {/* مشغل MP3 */}
-                    {work.audioUrl && <AudioPlayer url={work.audioUrl} title={work.title} />}
-                    {/* SoundCloud fallback */}
-                    {!work.audioUrl && work.soundcloudUrl && (
-                      <iframe width="100%" height="120" scrolling="no" frameBorder="no" allow="autoplay"
-                        src={getSoundCloudEmbed(work.soundcloudUrl)}
-                        className="rounded-lg" loading="lazy" />
-                    )}
+                    {work.description && <p className="text-gray-400 mb-4 text-sm line-clamp-1">{work.description}</p>}
+                    <div className="mt-auto">
+                      {/* مشغل MP3 */}
+                      {work.audioUrl && <AudioPlayer url={work.audioUrl} title={work.title} />}
+                      {/* SoundCloud fallback */}
+                      {!work.audioUrl && work.soundcloudUrl && (
+                        <iframe width="100%" height="120" scrolling="no" frameBorder="no" allow="autoplay"
+                          src={getSoundCloudEmbed(work.soundcloudUrl)}
+                          className="rounded-lg" loading="lazy" />
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
