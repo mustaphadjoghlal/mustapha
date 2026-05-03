@@ -170,7 +170,7 @@ function AudioUploader({ url, onChange, folder = "audio", label = "رفع ملف
               <span>{label}</span>
             </div>
           )}
-          <input ref={fileInputRef} type="file" accept="audio/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+          <input fileInputRef={fileInputRef} type="file" accept="audio/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
         </div>
       </div>
       {status && <p className="text-xs text-purple-400 text-center">{status}</p>}
@@ -379,199 +379,206 @@ export function AdminPage() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans pb-20" dir="rtl">
-      {/* Header */}
+      {/* Header with Horizontal Navigation */}
       <div className="bg-gray-900 border-b border-gray-800 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center font-bold">M</div>
-            <h1 className="font-bold hidden md:block">لوحة التحكم</h1>
+            <nav className="hidden md:flex items-center gap-1">
+              {[
+                { id: "works", label: "الأعمال" },
+                { id: "experience", label: "الخبرات" },
+                { id: "media", label: "المخرجات" },
+                { id: "info", label: "الإعدادات" },
+              ].map(tab => (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? "bg-gray-800 text-blue-400" : "text-gray-400 hover:text-white hover:bg-gray-800/50"}`}>
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
           </div>
           <div className="flex items-center gap-4">
             <button onClick={() => signOut(auth)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"><LogOut size={16} /> خروج</button>
           </div>
         </div>
+        {/* Mobile Navigation */}
+        <div className="md:hidden flex overflow-x-auto border-t border-gray-800 px-2 py-1 scrollbar-hide">
+          {[
+            { id: "works", label: "الأعمال" },
+            { id: "experience", label: "الخبرات" },
+            { id: "media", label: "المخرجات" },
+            { id: "info", label: "الإعدادات" },
+          ].map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-shrink-0 px-4 py-2 text-sm whitespace-nowrap ${activeTab === tab.id ? "text-blue-400 border-b-2 border-blue-400" : "text-gray-400"}`}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 mt-8">
-        <div className="grid lg:grid-cols-12 gap-8">
-          {/* Sidebar */}
-          <div className="lg:col-span-3 space-y-1">
-            {[
-              { id: "works", label: "💼 الأعمال", color: "blue" },
-              { id: "experience", label: "🎓 الخبرات", color: "green" },
-              { id: "media", label: "📺 المخرجات", color: "pink" },
-              { id: "info", label: "⚙️ الإعدادات", color: "gray" },
-            ].map(tab => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === tab.id ? "bg-gray-800 text-white shadow-lg" : "text-gray-400 hover:bg-gray-900"}`}>
-                <span className="text-lg">{tab.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Content */}
-          <div className="lg:col-span-9">
-            {activeTab === "works" && (
-              <div className="space-y-8">
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-blue-400"><span className="w-2 h-2 bg-blue-500 rounded-full"></span> التصميم الجرافيكي</h2>
-                  <WorksList works={works} category="design" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
-                </div>
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-purple-400"><span className="w-2 h-2 bg-purple-500 rounded-full"></span> التعليق الصوتي</h2>
-                  <WorksList works={works} category="voice" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
-                </div>
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-cyan-400"><span className="w-2 h-2 bg-cyan-500 rounded-full"></span> التصوير الفوتوغرافي</h2>
-                  <WorksList works={works} category="photography" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
-                </div>
-              </div>
-            )}
-
-            {activeTab === "experience" && (
+        <div className="w-full">
+          {activeTab === "works" && (
+            <div className="grid grid-cols-1 gap-8">
               <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold">الخبرات والتعليم ({experiences.length})</h2>
-                  <button onClick={() => setShowAddExp(true)} className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة خبرة</button>
-                </div>
-                {showAddExp && (
-                  <div className="bg-gray-800 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
-                    <div className="flex justify-between"><h3 className="text-blue-400 font-bold">تجربة جديدة</h3><button onClick={() => setShowAddExp(false)}><X size={16} className="text-gray-400" /></button></div>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      <input value={newExp.title} onChange={(e) => setNewExp({ ...newExp, title: e.target.value })} placeholder="المسمى الوظيفي" className={sc} />
-                      <input value={newExp.period} onChange={(e) => setNewExp({ ...newExp, period: e.target.value })} placeholder="الفترة" className={sc} />
-                      <input value={newExp.location} onChange={(e) => setNewExp({ ...newExp, location: e.target.value })} placeholder="الموقع" className={sc} />
-                    </div>
-                    <textarea value={newExp.tasks} onChange={(e) => setNewExp({ ...newExp, tasks: e.target.value })} placeholder="المهام (سطر لكل مهمة)" rows={3} className={`${sc} resize-none`} />
-                    <button onClick={addExp} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
-                  </div>
-                )}
-                <div className="space-y-3">
-                  {experiences.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد تجارب</p>}
-                  {experiences.map((exp) => (
-                    <div key={exp.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-                      {editingExp?.id === exp.id ? (
-                        <div className="space-y-3">
-                          <div className="grid md:grid-cols-2 gap-3">
-                            <input value={editingExp.title} onChange={(e) => setEditingExp({ ...editingExp, title: e.target.value })} className={sc} />
-                            <input value={editingExp.period} onChange={(e) => setEditingExp({ ...editingExp, period: e.target.value })} className={sc} />
-                            <input value={editingExp.location} onChange={(e) => setEditingExp({ ...editingExp, location: e.target.value })} className={sc} />
-                          </div>
-                          <textarea value={editingExp.tasks} onChange={(e) => setEditingExp({ ...editingExp, tasks: e.target.value })} rows={3} className={`${sc} resize-none`} />
-                          <div className="flex gap-2">
-                            <button onClick={saveExp} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
-                            <button onClick={() => setEditingExp(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-start justify-between gap-4">
-                          <div><p className="font-bold text-white text-sm">{exp.title}</p><p className="text-blue-400 text-xs">{exp.period} — {exp.location}</p></div>
-                          <div className="flex gap-1">
-                            <button onClick={() => setEditingExp(exp)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
-                            <button onClick={() => deleteExp(exp.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-blue-400"><span className="w-2 h-2 bg-blue-500 rounded-full"></span> التصميم الجرافيكي</h2>
+                <WorksList works={works} category="design" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
               </div>
-            )}
-
-            {activeTab === "media" && (
               <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold">المخرجات الإعلامية ({mediaOutputs.length})</h2>
-                  <button onClick={() => setShowAddMedia(true)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-red-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة ظهور</button>
-                </div>
-                {showAddMedia && (
-                  <div className="bg-gray-800 border border-pink-700 rounded-xl p-5 mb-6 space-y-3">
-                    <div className="flex justify-between"><h3 className="text-pink-400 font-bold">ظهور إعلامي جديد</h3><button onClick={() => setShowAddMedia(false)}><X size={16} className="text-gray-400" /></button></div>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      <input value={newMedia.title} onChange={(e) => setNewMedia({ ...newMedia, title: e.target.value })} placeholder="عنوان الظهور" className={sc} />
-                      <input value={newMedia.channel} onChange={(e) => setNewMedia({ ...newMedia, channel: e.target.value })} placeholder="اسم القناة" className={sc} />
-                      <select value={newMedia.type} onChange={(e) => setNewMedia({ ...newMedia, type: e.target.value as any })} className={sc}>{mediaTypes.map(t => <option key={t} value={t}>{t}</option>)}</select>
-                      <input value={newMedia.date} onChange={(e) => setNewMedia({ ...newMedia, date: e.target.value })} placeholder="التاريخ" className={sc} />
-                      <input value={newMedia.url} onChange={(e) => setNewMedia({ ...newMedia, url: e.target.value })} placeholder="رابط (اختياري)" className={`${sc} md:col-span-2`} />
-                      <textarea value={newMedia.description} onChange={(e) => setNewMedia({ ...newMedia, description: e.target.value })} placeholder="وصف مختصر" rows={2} className={`${sc} resize-none md:col-span-2`} />
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف (اختياري)</p>
-                      <SingleImageUploader url={newMedia.coverImage || ""} onChange={(url) => setNewMedia({ ...newMedia, coverImage: url })} folder="media-outputs" label="رفع صورة الغلاف" />
-                    </div>
-                    <button onClick={addMedia} disabled={saving} className="flex items-center gap-2 bg-pink-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-pink-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
-                  </div>
-                )}
-                <div className="space-y-3">
-                  {mediaOutputs.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد مخرجات بعد</p>}
-                  {mediaOutputs.map((media) => (
-                    <div key={media.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-                      {editingMedia?.id === media.id ? (
-                        <div className="space-y-3">
-                          <div className="grid md:grid-cols-2 gap-3">
-                            <input value={editingMedia.title} onChange={(e) => setEditingMedia({ ...editingMedia, title: e.target.value })} className={sc} />
-                            <input value={editingMedia.channel} onChange={(e) => setEditingMedia({ ...editingMedia, channel: e.target.value })} className={sc} />
-                            <select value={editingMedia.type} onChange={(e) => setEditingMedia({ ...editingMedia, type: e.target.value as any })} className={sc}>{mediaTypes.map(t => <option key={t} value={t}>{t}</option>)}</select>
-                            <input value={editingMedia.date} onChange={(e) => setEditingMedia({ ...editingMedia, date: e.target.value })} className={sc} />
-                            <input value={editingMedia.url} onChange={(e) => setEditingMedia({ ...editingMedia, url: e.target.value })} className={`${sc} md:col-span-2`} />
-                            <textarea value={editingMedia.description} onChange={(e) => setEditingMedia({ ...editingMedia, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
-                          </div>
-                          <div className="space-y-2">
-                            <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
-                            <SingleImageUploader url={editingMedia.coverImage || ""} onChange={(url) => setEditingMedia({ ...editingMedia, coverImage: url })} folder="media-outputs" label="تغيير الصورة" />
-                          </div>
-                          <div className="flex gap-2">
-                            <button onClick={saveMedia} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
-                            <button onClick={() => setEditingMedia(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-start justify-between gap-4">
-                          {media.coverImage && <img src={media.coverImage} alt={media.title} className="w-16 h-16 rounded-lg object-cover border border-gray-600 flex-shrink-0" />}
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${media.type === "تلفزيون" ? "bg-blue-900 text-blue-300" : media.type === "إذاعة" ? "bg-orange-900 text-orange-300" : media.type === "صحافة" ? "bg-green-900 text-green-300" : "bg-purple-900 text-purple-300"}`}>{media.type}</span>
-                              <span className="text-gray-500 text-xs">{media.date}</span>
-                            </div>
-                            <p className="font-bold text-white text-sm">{media.title}</p>
-                            <p className="text-gray-400 text-xs">{media.channel}</p>
-                            {media.url && <a href={media.url} target="_blank" rel="noopener noreferrer" className="text-pink-400 text-xs hover:underline">🔗 مشاهدة</a>}
-                          </div>
-                          <div className="flex gap-1">
-                            <button onClick={() => setEditingMedia(media)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
-                            <button onClick={() => deleteMedia(media.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-purple-400"><span className="w-2 h-2 bg-purple-500 rounded-full"></span> التعليق الصوتي</h2>
+                <WorksList works={works} category="voice" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
               </div>
-            )}
-
-            {activeTab === "info" && siteInfo && (
               <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-xl font-bold">إعدادات الموقع</h2>
-                  <button onClick={saveInfo} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button>
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-cyan-400"><span className="w-2 h-2 bg-cyan-500 rounded-full"></span> التصوير الفوتوغرافي</h2>
+                <WorksList works={works} category="photography" saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === "experience" && (
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">الخبرات والتعليم ({experiences.length})</h2>
+                <button onClick={() => setShowAddExp(true)} className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة خبرة</button>
+              </div>
+              {showAddExp && (
+                <div className="bg-gray-800 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
+                  <div className="flex justify-between"><h3 className="text-blue-400 font-bold">تجربة جديدة</h3><button onClick={() => setShowAddExp(false)}><X size={16} className="text-gray-400" /></button></div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <input value={newExp.title} onChange={(e) => setNewExp({ ...newExp, title: e.target.value })} placeholder="المسمى الوظيفي" className={sc} />
+                    <input value={newExp.period} onChange={(e) => setNewExp({ ...newExp, period: e.target.value })} placeholder="الفترة" className={sc} />
+                    <input value={newExp.location} onChange={(e) => setNewExp({ ...newExp, location: e.target.value })} placeholder="الموقع" className={sc} />
+                  </div>
+                  <textarea value={newExp.tasks} onChange={(e) => setNewExp({ ...newExp, tasks: e.target.value })} placeholder="المهام (سطر لكل مهمة)" rows={3} className={`${sc} resize-none`} />
+                  <button onClick={addExp} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
                 </div>
-                <div className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><label className="text-sm text-gray-400">الاسم الظاهر</label><input value={siteInfo.heroName} onChange={(e) => setSiteInfo({ ...siteInfo, heroName: e.target.value })} className={sc} /></div>
-                    <div className="space-y-2"><label className="text-sm text-gray-400">الوصف الرئيسي</label><input value={siteInfo.heroDescription} onChange={(e) => setSiteInfo({ ...siteInfo, heroDescription: e.target.value })} className={sc} /></div>
-                    <div className="space-y-2"><label className="text-sm text-gray-400">البريد الإلكتروني</label><input value={siteInfo.email} onChange={(e) => setSiteInfo({ ...siteInfo, email: e.target.value })} className={sc} /></div>
-                    <div className="space-y-2"><label className="text-sm text-gray-400">رقم الهاتف (واتساب)</label><input value={siteInfo.phone} onChange={(e) => setSiteInfo({ ...siteInfo, phone: e.target.value })} className={sc} /></div>
+              )}
+              <div className="space-y-3">
+                {experiences.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد تجارب</p>}
+                {experiences.map((exp) => (
+                  <div key={exp.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                    {editingExp?.id === exp.id ? (
+                      <div className="space-y-3">
+                        <div className="grid md:grid-cols-2 gap-3">
+                          <input value={editingExp.title} onChange={(e) => setEditingExp({ ...editingExp, title: e.target.value })} className={sc} />
+                          <input value={editingExp.period} onChange={(e) => setEditingExp({ ...editingExp, period: e.target.value })} className={sc} />
+                          <input value={editingExp.location} onChange={(e) => setEditingExp({ ...editingExp, location: e.target.value })} className={sc} />
+                        </div>
+                        <textarea value={editingExp.tasks} onChange={(e) => setEditingExp({ ...editingExp, tasks: e.target.value })} rows={3} className={`${sc} resize-none`} />
+                        <div className="flex gap-2">
+                          <button onClick={saveExp} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
+                          <button onClick={() => setEditingExp(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-4">
+                        <div><p className="font-bold text-white text-sm">{exp.title}</p><p className="text-blue-400 text-xs">{exp.period} — {exp.location}</p></div>
+                        <div className="flex gap-1">
+                          <button onClick={() => setEditingExp(exp)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                          <button onClick={() => deleteExp(exp.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="space-y-2"><label className="text-sm text-gray-400">نبذة "عني"</label><textarea value={siteInfo.aboutBio} onChange={(e) => setSiteInfo({ ...siteInfo, aboutBio: e.target.value })} rows={4} className={`${sc} resize-none`} /></div>
-                  <div className="space-y-2"><label className="text-sm text-gray-400">صورة الملف الشخصي</label><SingleImageUploader url={siteInfo.profileImageUrl} onChange={(url) => setSiteInfo({ ...siteInfo, profileImageUrl: url })} folder="profile" rounded /></div>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="space-y-2"><label className="text-sm text-gray-400">LinkedIn</label><input value={siteInfo.linkedinUrl} onChange={(e) => setSiteInfo({ ...siteInfo, linkedinUrl: e.target.value })} className={sc} /></div>
-                    <div className="space-y-2"><label className="text-sm text-gray-400">Instagram</label><input value={siteInfo.instagramUrl} onChange={(e) => setSiteInfo({ ...siteInfo, instagramUrl: e.target.value })} className={sc} /></div>
-                    <div className="space-y-2"><label className="text-sm text-gray-400">Twitter/X</label><input value={siteInfo.twitterUrl} onChange={(e) => setSiteInfo({ ...siteInfo, twitterUrl: e.target.value })} className={sc} /></div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "media" && (
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">المخرجات الإعلامية ({mediaOutputs.length})</h2>
+                <button onClick={() => setShowAddMedia(true)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-red-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة ظهور</button>
+              </div>
+              {showAddMedia && (
+                <div className="bg-gray-800 border border-pink-700 rounded-xl p-5 mb-6 space-y-3">
+                  <div className="flex justify-between"><h3 className="text-pink-400 font-bold">ظهور إعلامي جديد</h3><button onClick={() => setShowAddMedia(false)}><X size={16} className="text-gray-400" /></button></div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <input value={newMedia.title} onChange={(e) => setNewMedia({ ...newMedia, title: e.target.value })} placeholder="عنوان الظهور" className={sc} />
+                    <input value={newMedia.channel} onChange={(e) => setNewMedia({ ...newMedia, channel: e.target.value })} placeholder="اسم القناة" className={sc} />
+                    <select value={newMedia.type} onChange={(e) => setNewMedia({ ...newMedia, type: e.target.value as any })} className={sc}>{mediaTypes.map(t => <option key={t} value={t}>{t}</option>)}</select>
+                    <input value={newMedia.date} onChange={(e) => setNewMedia({ ...newMedia, date: e.target.value })} placeholder="التاريخ" className={sc} />
+                    <input value={newMedia.url} onChange={(e) => setNewMedia({ ...newMedia, url: e.target.value })} placeholder="رابط (اختياري)" className={`${sc} md:col-span-2`} />
+                    <textarea value={newMedia.description} onChange={(e) => setNewMedia({ ...newMedia, description: e.target.value })} placeholder="وصف مختصر" rows={2} className={`${sc} resize-none md:col-span-2`} />
                   </div>
+                  <div className="space-y-2">
+                    <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف (اختياري)</p>
+                    <SingleImageUploader url={newMedia.coverImage || ""} onChange={(url) => setNewMedia({ ...newMedia, coverImage: url })} folder="media-outputs" label="رفع صورة الغلاف" />
+                  </div>
+                  <button onClick={addMedia} disabled={saving} className="flex items-center gap-2 bg-pink-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-pink-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+                </div>
+              )}
+              <div className="space-y-3">
+                {mediaOutputs.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد مخرجات بعد</p>}
+                {mediaOutputs.map((media) => (
+                  <div key={media.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                    {editingMedia?.id === media.id ? (
+                      <div className="space-y-3">
+                        <div className="grid md:grid-cols-2 gap-3">
+                          <input value={editingMedia.title} onChange={(e) => setEditingMedia({ ...editingMedia, title: e.target.value })} className={sc} />
+                          <input value={editingMedia.channel} onChange={(e) => setEditingMedia({ ...editingMedia, channel: e.target.value })} className={sc} />
+                          <select value={editingMedia.type} onChange={(e) => setEditingMedia({ ...editingMedia, type: e.target.value as any })} className={sc}>{mediaTypes.map(t => <option key={t} value={t}>{t}</option>)}</select>
+                          <input value={editingMedia.date} onChange={(e) => setEditingMedia({ ...editingMedia, date: e.target.value })} className={sc} />
+                          <input value={editingMedia.url} onChange={(e) => setEditingMedia({ ...editingMedia, url: e.target.value })} className={`${sc} md:col-span-2`} />
+                          <textarea value={editingMedia.description} onChange={(e) => setEditingMedia({ ...editingMedia, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
+                          <SingleImageUploader url={editingMedia.coverImage || ""} onChange={(url) => setEditingMedia({ ...editingMedia, coverImage: url })} folder="media-outputs" label="تغيير الصورة" />
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={saveMedia} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
+                          <button onClick={() => setEditingMedia(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-4">
+                        {media.coverImage && <img src={media.coverImage} alt={media.title} className="w-16 h-16 rounded-lg object-cover border border-gray-600 flex-shrink-0" />}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${media.type === "تلفزيون" ? "bg-blue-900 text-blue-300" : media.type === "إذاعة" ? "bg-orange-900 text-orange-300" : media.type === "صحافة" ? "bg-green-900 text-green-300" : "bg-purple-900 text-purple-300"}`}>{media.type}</span>
+                            <span className="text-gray-500 text-xs">{media.date}</span>
+                          </div>
+                          <p className="font-bold text-white text-sm">{media.title}</p>
+                          <p className="text-gray-400 text-xs">{media.channel}</p>
+                          {media.url && <a href={media.url} target="_blank" rel="noopener noreferrer" className="text-pink-400 text-xs hover:underline">🔗 مشاهدة</a>}
+                        </div>
+                        <div className="flex gap-1">
+                          <button onClick={() => setEditingMedia(media)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                          <button onClick={() => deleteMedia(media.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "info" && siteInfo && (
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-xl font-bold">إعدادات الموقع</h2>
+                <button onClick={saveInfo} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button>
+              </div>
+              <div className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2"><label className="text-sm text-gray-400">الاسم الظاهر</label><input value={siteInfo.heroName} onChange={(e) => setSiteInfo({ ...siteInfo, heroName: e.target.value })} className={sc} /></div>
+                  <div className="space-y-2"><label className="text-sm text-gray-400">الوصف الرئيسي</label><input value={siteInfo.heroDescription} onChange={(e) => setSiteInfo({ ...siteInfo, heroDescription: e.target.value })} className={sc} /></div>
+                  <div className="space-y-2"><label className="text-sm text-gray-400">البريد الإلكتروني</label><input value={siteInfo.email} onChange={(e) => setSiteInfo({ ...siteInfo, email: e.target.value })} className={sc} /></div>
+                  <div className="space-y-2"><label className="text-sm text-gray-400">رقم الهاتف (واتساب)</label><input value={siteInfo.phone} onChange={(e) => setSiteInfo({ ...siteInfo, phone: e.target.value })} className={sc} /></div>
+                </div>
+                <div className="space-y-2"><label className="text-sm text-gray-400">نبذة "عني"</label><textarea value={siteInfo.aboutBio} onChange={(e) => setSiteInfo({ ...siteInfo, aboutBio: e.target.value })} rows={4} className={`${sc} resize-none`} /></div>
+                <div className="space-y-2"><label className="text-sm text-gray-400">صورة الملف الشخصي</label><SingleImageUploader url={siteInfo.profileImageUrl} onChange={(url) => setSiteInfo({ ...siteInfo, profileImageUrl: url })} folder="profile" rounded /></div>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="space-y-2"><label className="text-sm text-gray-400">LinkedIn</label><input value={siteInfo.linkedinUrl} onChange={(e) => setSiteInfo({ ...siteInfo, linkedinUrl: e.target.value })} className={sc} /></div>
+                  <div className="space-y-2"><label className="text-sm text-gray-400">Instagram</label><input value={siteInfo.instagramUrl} onChange={(e) => setSiteInfo({ ...siteInfo, instagramUrl: e.target.value })} className={sc} /></div>
+                  <div className="space-y-2"><label className="text-sm text-gray-400">Twitter/X</label><input value={siteInfo.twitterUrl} onChange={(e) => setSiteInfo({ ...siteInfo, twitterUrl: e.target.value })} className={sc} /></div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
