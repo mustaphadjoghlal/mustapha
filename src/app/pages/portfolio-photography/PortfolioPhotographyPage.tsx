@@ -38,7 +38,6 @@ export function PortfolioPhotographyPage() {
 
   return (
     <div className="bg-black text-white min-h-screen">
-      {/* Hero */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-teal-900/20 to-black"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -54,7 +53,6 @@ export function PortfolioPhotographyPage() {
         </div>
       </section>
 
-      {/* Services */}
       <section className="py-20 bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">الخدمات المقدمة</h2>
@@ -69,14 +67,12 @@ export function PortfolioPhotographyPage() {
         </div>
       </section>
 
-      {/* Works */}
       <section className="py-20 bg-gradient-to-b from-gray-900 to-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">مشاريع فوتوغرافية مميزة</h2>
             <p className="text-gray-400 text-lg">نماذج من أعمالي في التصوير الفوتوغرافي</p>
           </div>
-
           {works.length === 0 ? (
             <p className="text-center text-gray-500 py-16">قريباً — سيتم إضافة الأعمال</p>
           ) : (
@@ -88,8 +84,8 @@ export function PortfolioPhotographyPage() {
                     className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-cyan-500 transition-all hover:shadow-xl hover:shadow-cyan-500/20">
                     <div className="relative h-56 overflow-hidden bg-gray-800">
                       {cover ? (
-                        <img src={cover} alt={work.altText || work.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+                        <img src={cover} alt={work.altText || work.title} loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-600">
                           <Camera size={40} />
@@ -116,12 +112,11 @@ export function PortfolioPhotographyPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-20 bg-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">هل تحتاج خدمات تصوير فوتوغرافي؟</h2>
           <p className="text-gray-400 text-lg mb-8">دعنا نعمل معاً لتوثيق اللحظات المهمة وإنشاء صور تعكس رؤيتك</p>
-          <a href="mailto:info@example.com" className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-lg hover:from-cyan-600 hover:to-teal-700 transition-all font-semibold">
+          <a href="mailto:djo-mustapha@gmail.com" className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-lg hover:from-cyan-600 hover:to-teal-700 transition-all font-semibold">
             اطلب خدمة التصوير
           </a>
         </div>
