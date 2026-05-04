@@ -47,8 +47,9 @@ export function ArticlePage() {
 
   return (
     <div className="bg-black text-white min-h-screen" dir="rtl">
+
       {/* Breadcrumb */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <Link to="/articles" className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors text-sm">
           <ArrowRight size={16} />
           العودة للمقالات
@@ -57,7 +58,7 @@ export function ArticlePage() {
 
       {/* الغلاف */}
       {article.coverImage && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <div className="rounded-2xl overflow-hidden h-64 md:h-96">
             <img src={article.coverImage} alt={article.coverAlt || article.title}
               className="w-full h-full object-cover" />
@@ -66,7 +67,8 @@ export function ArticlePage() {
       )}
 
       {/* المحتوى */}
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
         {/* الوسوم */}
         {article.tags?.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-4">
@@ -77,35 +79,132 @@ export function ArticlePage() {
         )}
 
         {/* العنوان */}
-        <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">{article.title}</h1>
+        <h1 className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight text-white">
+          {article.title}
+        </h1>
 
         {/* التاريخ والتصنيف */}
         <div className="flex items-center gap-4 text-gray-500 text-sm mb-10 border-b border-gray-800 pb-6">
           {article.category && (
-            <span className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-xs font-semibold">{article.category}</span>
+            <span className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-xs font-semibold">
+              {article.category}
+            </span>
           )}
           <span>{article.date}</span>
           <span>بقلم مصطفى جغلال</span>
         </div>
 
-        {/* النص */}
+        {/* ===== النص الرئيسي ===== */}
+        <style>{`
+          .article-body {
+            font-size: 1.15rem;
+            line-height: 2;
+            color: #d1d5db;
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+          }
+          .article-body h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid #3b82f6;
+          }
+          .article-body h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #e5e7eb;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+          }
+          .article-body p {
+            margin-bottom: 1.4rem;
+            font-weight: 400;
+          }
+          .article-body strong {
+            font-weight: 700;
+            color: #ffffff;
+          }
+          .article-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 1.2rem 0;
+          }
+          .article-body ul li {
+            padding: 0.4rem 0 0.4rem 0;
+            padding-right: 1.5rem;
+            position: relative;
+            margin-bottom: 0.5rem;
+            color: #d1d5db;
+          }
+          .article-body ul li::before {
+            content: "◈";
+            position: absolute;
+            right: 0;
+            color: #3b82f6;
+            font-size: 0.8rem;
+            top: 0.55rem;
+          }
+          .article-body ol {
+            padding-right: 1.5rem;
+            margin: 1.2rem 0;
+            counter-reset: item;
+            list-style: none;
+          }
+          .article-body ol li {
+            counter-increment: item;
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding-right: 2rem;
+            color: #d1d5db;
+          }
+          .article-body ol li::before {
+            content: counter(item);
+            position: absolute;
+            right: 0;
+            background: #3b82f6;
+            color: white;
+            width: 1.4rem;
+            height: 1.4rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            top: 0.2rem;
+          }
+          .article-body blockquote {
+            border-right: 4px solid #3b82f6;
+            padding-right: 1.2rem;
+            margin: 1.5rem 0;
+            color: #9ca3af;
+            font-style: italic;
+            background: #111827;
+            border-radius: 0 0.5rem 0.5rem 0;
+            padding: 1rem 1.2rem;
+          }
+          .article-body a {
+            color: #60a5fa;
+            text-decoration: none;
+          }
+          .article-body a:hover {
+            text-decoration: underline;
+          }
+        `}</style>
+
         <div
-          className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed
-            prose-headings:text-white prose-headings:font-bold
-            prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-            prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-            prose-p:mb-6 prose-p:leading-8
-            prose-strong:text-white
-            prose-ul:my-4 prose-li:mb-2
-            prose-blockquote:border-r-4 prose-blockquote:border-blue-500 prose-blockquote:pr-4 prose-blockquote:text-gray-400 prose-blockquote:italic
-            prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline"
+          className="article-body"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
         {/* نهاية المقال */}
         <div className="mt-16 pt-8 border-t border-gray-800">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-lg">م</div>
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-lg">
+              م
+            </div>
             <div>
               <p className="font-bold text-white">مصطفى جغلال</p>
               <p className="text-gray-400 text-sm">معلّق صوتي ومصمّم محتوى بصري</p>
