@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { ImageWithFallback } from "../../shared/ImageWithFallback";
 import { Camera, Mic, Palette, GraduationCap, ArrowLeft } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
+import profileImg from "../../assets/profile.jpg";
 
 interface SiteInfo {
   heroName: string;
@@ -47,33 +47,11 @@ const defaults: SiteInfo = {
   phone: "+968",
 };
 
-// تحميل الصورة في الذاكرة مسبقاً
-function preloadImage(url: string) {
-  if (!url || typeof window === "undefined") return;
-  const img = new window.Image();
-  img.fetchPriority = "high";
-  img.src = url;
-}
-
 export function HomePage() {
   const cached = getCached();
-
-  // ✅ نبدأ بالبيانات المحفوظة فوراً — بدون انتظار Firebase
   const [siteInfo, setSiteInfo] = useState<SiteInfo>(cached || defaults);
-  const [imgReady, setImgReady] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
 
-  // ✅ نحمّل الصورة مسبقاً من الـ cache فور فتح الصفحة
-  useEffect(() => {
-    const cachedData = getCached();
-    if (cachedData?.profileImageUrl) {
-      const img = new window.Image();
-      img.onload = () => setImgReady(true);
-      img.src = cachedData.profileImageUrl;
-    }
-  }, []);
-
-  // ✅ Firebase يُحدّث البيانات في الخلفية
   useEffect(() => {
     const u1 = onSnapshot(collection(db, "siteInfo"), (snap) => {
       if (!snap.empty) {
@@ -81,22 +59,31 @@ export function HomePage() {
         const merged = { ...defaults, ...data };
         setSiteInfo(merged);
         setCache(merged);
-
-        // إذا تغيرت الصورة نحمّلها مسبقاً
-        if (merged.profileImageUrl) {
-          const img = new window.Image();
-          img.onload = () => setImgReady(true);
-          img.src = merged.profileImageUrl;
-        }
       }
     });
-
     const u2 = onSnapshot(collection(db, "clients"), (snap) => {
       setClients(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Client)));
     });
-
     return () => { u1(); u2(); };
   }, []);
+
+  // JSON-LD Schema.org
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "مصطفى جغلال",
+    "alternateName": "Mustapha Djoghlal",
+    "url": "https://mustaphadjoghlal.com",
+    "image": "https://mustaphadjoghlal.com/og-image.jpg",
+    "jobTitle": "معلق صوتي ومصمم محتوى بصري",
+    "description": siteInfo.heroDescription,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "مسقط",
+      "addressCountry": "OM"
+    },
+    "sameAs": ["https://mustaphadjoghlal.com"]
+  };
 
   const services = [
     { icon: <Palette className="w-12 h-12 text-blue-400" />, title: "التصميم الجرافيكي", description: "تصاميم احترافية تعبر عن هويتك البصرية بأعلى جودة", link: "/portfolio-design" },
@@ -107,6 +94,12 @@ export function HomePage() {
 
   return (
     <div className="bg-black text-white">
+
+      {/* JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* Hero */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
@@ -135,39 +128,20 @@ export function HomePage() {
               </div>
             </div>
 
-            {/* الصورة */}
+            {/* الصورة — ثابتة من assets تظهر فوراً */}
             <div className="order-1 lg:order-2 flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full blur-3xl opacity-30" />
-
-                {/* ✅ الصورة تظهر فوراً إذا كانت جاهزة، وإلا دائرة نبض بسيطة */}
-                {siteInfo.profileImageUrl && imgReady ? (
-                  <img
-                    src={siteInfo.profileImageUrl}
-                    alt={`${siteInfo.heroName} - معلق صوتي ومصمم بصري`}
-                    className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-cover border-4 border-gray-800 shadow-2xl"
-                    loading="eager"
-                  />
-                ) : siteInfo.profileImageUrl && !imgReady ? (
-                  // الصورة تتحمل في الخلفية — نعرض دائرة نبض بسيطة
-                  <div className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 border-4 border-gray-800 bg-gray-900 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 animate-pulse" />
-                    {/* الصورة تتحمل في الخلفية وتظهر حين تجهز */}
-                    <img
-                      src={siteInfo.profileImageUrl}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover opacity-0"
-                      onLoad={(e) => {
-                        (e.target as HTMLImageElement).style.opacity = "1";
-                        (e.target as HTMLImageElement).style.transition = "opacity 0.3s ease";
-                        setImgReady(true);
-                      }}
-                    />
-                  </div>
-                ) : (
-                  // لا توجد صورة بعد
-                  <div className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 border-4 border-gray-800 bg-gray-900 animate-pulse" />
-                )}
+                <img
+                  src={profileImg}
+                  alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
+                  title="مصطفى جغلال"
+                  className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-cover border-4 border-gray-800 shadow-2xl"
+                  loading="eager"
+                  fetchPriority="high"
+                  width={384}
+                  height={384}
+                />
               </div>
             </div>
 
@@ -212,8 +186,15 @@ export function HomePage() {
                 <div key={client.id}
                   className="bg-gray-800 border border-gray-700 rounded-xl p-6 flex flex-col items-center justify-center gap-3 hover:border-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/10 group">
                   {client.logoUrl ? (
-                    <img src={client.logoUrl} alt={client.logoAlt || client.name}
-                      className="w-16 h-16 object-contain filter brightness-75 group-hover:brightness-100 transition-all" />
+                    <img
+                      src={client.logoUrl}
+                      alt={client.logoAlt || `شعار ${client.name} — عميل مصطفى جغلال`}
+                      title={client.name}
+                      className="w-16 h-16 object-contain filter brightness-75 group-hover:brightness-100 transition-all"
+                      loading="lazy"
+                      width={64}
+                      height={64}
+                    />
                   ) : (
                     <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center text-2xl font-bold text-gray-400 group-hover:text-white transition-all">
                       {client.name.charAt(0)}
