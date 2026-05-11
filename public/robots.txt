@@ -3,4 +3,6 @@ Allow: /
 Disallow: /admin
 Disallow: /wp-admin/
 Disallow: /elementor-hf/
+
 Sitemap: https://mustaphadjoghlal.com/sitemap.xml
+Sitemap: https://mustaphadjoghlal.com/image-sitemap.xml
