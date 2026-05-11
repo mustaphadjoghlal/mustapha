@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- الصفحة الرئيسية -->
+  <url>
+    <loc>https://mustaphadjoghlal.com/</loc>
+    <image:image>
+      <image:loc>https://mustaphadjoghlal.com/og-image.jpg</image:loc>
+      <image:caption>مصطفى جغلال — معلق صوتي ومصمم محتوى بصري مقيم في مسقط، سلطنة عُمان</image:caption>
+      <image:title>مصطفى جغلال</image:title>
+    </image:image>
+  </url>
+
+  <!-- صفحة عني -->
+  <url>
+    <loc>https://mustaphadjoghlal.com/about</loc>
+    <image:image>
+      <image:loc>https://mustaphadjoghlal.com/og-image.jpg</image:loc>
+      <image:caption>مصطفى جغلال — معلق صوتي ومصمم بصري، نبذة شخصية ومهنية</image:caption>
+      <image:title>عن مصطفى جغلال</image:title>
+    </image:image>
+  </url>
+
+  <!-- صفحة التصميم الجرافيكي -->
+  <url>
+    <loc>https://mustaphadjoghlal.com/portfolio-design</loc>
+    <image:image>
+      <image:loc>https://mustaphadjoghlal.com/og-image.jpg</image:loc>
+      <image:caption>أعمال التصميم الجرافيكي — مصطفى جغلال</image:caption>
+      <image:title>بورتفوليو التصميم — مصطفى جغلال</image:title>
+    </image:image>
+  </url>
+
+  <!-- صفحة التصوير الفوتوغرافي -->
+  <url>
+    <loc>https://mustaphadjoghlal.com/portfolio-photography</loc>
+    <image:image>
+      <image:loc>https://mustaphadjoghlal.com/og-image.jpg</image:loc>
+      <image:caption>أعمال التصوير الفوتوغرافي — مصطفى جغلال</image:caption>
+      <image:title>بورتفوليو التصوير — مصطفى جغلال</image:title>
+    </image:image>
+  </url>
+
+  <!-- صفحة التعليق الصوتي -->
+  <url>
+    <loc>https://mustaphadjoghlal.com/portfolio-voice</loc>
+    <image:image>
+      <image:loc>https://mustaphadjoghlal.com/og-image.jpg</image:loc>
+      <image:caption>أعمال التعليق الصوتي — مصطفى جغلال</image:caption>
+      <image:title>بورتفوليو التعليق الصوتي — مصطفى جغلال</image:title>
+    </image:image>
+  </url>
+
+  <!-- صفحة الدورات -->
+  <url>
+    <loc>https://mustaphadjoghlal.com/courses</loc>
+    <image:image>
+      <image:loc>https://mustaphadjoghlal.com/og-image.jpg</image:loc>
+      <image:caption>الدورات التدريبية في الإلقاء والتعليق الصوتي — مصطفى جغلال</image:caption>
+      <image:title>دورات مصطفى جغلال</image:title>
+    </image:image>
+  </url>
+
+  <!-- صفحة المقالات -->
+  <url>
+    <loc>https://mustaphadjoghlal.com/articles</loc>
+    <image:image>
+      <image:loc>https://mustaphadjoghlal.com/og-image.jpg</image:loc>
+      <image:caption>مقالات في التعليق الصوتي وصناعة المحتوى — مصطفى جغلال</image:caption>
+      <image:title>مقالات مصطفى جغلال</image:title>
+    </image:image>
+  </url>
+
+</urlset>
