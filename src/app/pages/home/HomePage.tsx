@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { Camera, Mic, Palette, GraduationCap, ArrowLeft } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
-import profileImg from "../../assets/profile.jpg";
+import profileImg from "../../../assets/profile.jpg";
 
 interface SiteInfo {
   heroName: string;
@@ -67,7 +67,6 @@ export function HomePage() {
     return () => { u1(); u2(); };
   }, []);
 
-  // JSON-LD Schema.org
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -138,7 +137,6 @@ export function HomePage() {
                   title="مصطفى جغلال"
                   className="relative rounded-full w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 object-cover border-4 border-gray-800 shadow-2xl"
                   loading="eager"
-                  fetchPriority="high"
                   width={384}
                   height={384}
                 />
