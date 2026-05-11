@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /admin
-
+Disallow: /wp-admin/
+Disallow: /elementor-hf/
 Sitemap: https://mustaphadjoghlal.com/sitemap.xml
