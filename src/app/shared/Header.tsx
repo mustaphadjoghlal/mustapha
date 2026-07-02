@@ -14,6 +14,7 @@ export function Header() {
     { path: "/portfolio-voice", label: "التعليق الصوتي" },
     { path: "/courses", label: "الدورات التدريبية" },
     { path: "/articles", label: "المقالات" },
+    { path: "/hakawati", label: "الحكواتي" },
   ];
 
   return (
