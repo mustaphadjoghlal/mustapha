@@ -56,6 +56,10 @@ export function HakawatiHomePage() {
             alt="الحكواتي — حيث تعود أحداث الماضي للحياة"
             className="w-full h-auto max-h-[420px] object-cover object-top"
           />
+          <div
+            className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+            style={{ background: "linear-gradient(to bottom, transparent, #120b07)" }}
+          />
         </section>
 
         <section className="relative px-4 pb-4 pt-12">

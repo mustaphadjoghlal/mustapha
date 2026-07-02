@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { db } from "../../../firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import { ArrowRight } from "lucide-react";
 
 interface HakawatiStory {
   id: string;
@@ -51,11 +50,6 @@ export function HakawatiStoriesPage() {
         {/* البطل */}
         <section className="py-16 px-4 text-center">
           <div className="max-w-3xl mx-auto">
-            <Link to="/hakawati" className="inline-flex items-center gap-2 text-[#a8763f] hover:text-[#c9853f] transition-colors text-sm mb-6">
-              <ArrowRight size={16} />
-              العودة لركن الحكواتي
-            </Link>
-            <img src="/hakawati/logo.jpg" alt="الحكواتي" className="mx-auto w-40 sm:w-48 mb-6 rounded-lg" />
             <h1 className="hk-display text-4xl lg:text-5xl text-[#c9853f]">كل الحكايات</h1>
           </div>
         </section>

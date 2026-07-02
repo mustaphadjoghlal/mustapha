@@ -11,6 +11,7 @@ import { AdminPage } from "./pages/admin/AdminPage";
 import { ArticlesPage } from "./pages/articles/ArticlesPage";
 import { ArticlePage } from "./pages/articles/ArticlePage";
 import { WorkDetailPage } from "./pages/portfolio/WorkDetailPage";
+import { HakawatiLayout } from "./pages/hakawati/HakawatiLayout";
 import { HakawatiHomePage } from "./pages/hakawati/HakawatiHomePage";
 import { HakawatiStoriesPage } from "./pages/hakawati/HakawatiStoriesPage";
 import { HakawatiStoryPage } from "./pages/hakawati/HakawatiStoryPage";
@@ -18,6 +19,16 @@ import HakawatiGamePage from "./pages/hakawati/HakawatiGamePage";
 
 export const router = createBrowserRouter([
   { path: "/admin", Component: AdminPage },
+  {
+    path: "/hakawati",
+    Component: HakawatiLayout,
+    children: [
+      { index: true, Component: HakawatiHomePage },
+      { path: "stories", Component: HakawatiStoriesPage },
+      { path: "stories/:id", Component: HakawatiStoryPage },
+      { path: "game", Component: HakawatiGamePage },
+    ],
+  },
   {
     path: "/",
     Component: Layout,
@@ -31,10 +42,6 @@ export const router = createBrowserRouter([
       { path: "articles", Component: ArticlesPage },
       { path: "articles/:id", Component: ArticlePage },
       { path: "portfolio/:id", Component: WorkDetailPage },
-      { path: "hakawati", Component: HakawatiHomePage },
-      { path: "hakawati/stories", Component: HakawatiStoriesPage },
-      { path: "hakawati/stories/:id", Component: HakawatiStoryPage },
-      { path: "hakawati/game", Component: HakawatiGamePage },
       { path: "*", Component: NotFoundPage },
     ],
   },

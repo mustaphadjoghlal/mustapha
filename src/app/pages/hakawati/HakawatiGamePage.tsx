@@ -207,7 +207,7 @@ const HakawatiGamePage: React.FC = () => {
       {screen === "start" && (
         <div style={{ ...S.card, textAlign: "center", marginTop: 26, animation: "fadeUp .7s" }}>
           <div style={{ fontSize: 15, letterSpacing: 2, color: "#a8763f", marginBottom: 10 }}>حيث تعود أحداث الماضي للحياة</div>
-          <img src="/hakawati/logo.jpg" alt="الحكواتي" style={{ width: 220, maxWidth: "80%", margin: "0 auto 4px", borderRadius: 10, animation: "glowPulse 4s infinite" }} />
+          <img src="/hakawati/logo.png" alt="الحكواتي" style={{ width: 260, maxWidth: "85%", margin: "0 auto 4px", animation: "glowPulse 4s infinite" }} />
           <div style={{ width: 90, height: 1, background: "linear-gradient(90deg, transparent, #a8763f, transparent)", margin: "10px auto 18px" }} />
           <p style={{ fontSize: 17, lineHeight: 1.9, color: "#d9c9b0", margin: "0 0 6px" }}>
             كان يا ما كان، في قديم الزمان..<br />
