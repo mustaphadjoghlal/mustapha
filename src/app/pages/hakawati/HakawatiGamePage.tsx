@@ -61,11 +61,11 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 const Fanous: React.FC<{ lit: boolean; size?: number }> = ({ lit, size = 34 }) => (
-  <svg width={size} height={size * 1.5} viewBox="0 0 40 60" style={{ filter: lit ? "drop-shadow(0 0 8px rgba(232,180,90,0.8))" : "none", opacity: lit ? 1 : 0.25, transition: "all .5s" }}>
+  <svg width={size} height={size * 1.5} viewBox="0 0 40 60" style={{ filter: lit ? "drop-shadow(0 0 8px rgba(201,133,63,0.8))" : "none", opacity: lit ? 1 : 0.25, transition: "all .5s" }}>
     <line x1="20" y1="0" x2="20" y2="6" stroke="#8a6d3b" strokeWidth="2" />
     <rect x="14" y="6" width="12" height="4" rx="1" fill="#b08d46" />
-    <path d="M10 12 L30 12 L33 40 L7 40 Z" fill={lit ? "#e8b45a" : "#3a3325"} stroke="#8a6d3b" strokeWidth="1.5" />
-    <path d="M13 15 L27 15 L29 37 L11 37 Z" fill={lit ? "#ffdf9e" : "#241f14"} />
+    <path d="M10 12 L30 12 L33 40 L7 40 Z" fill={lit ? "#c9853f" : "#3a3325"} stroke="#8a6d3b" strokeWidth="1.5" />
+    <path d="M13 15 L27 15 L29 37 L11 37 Z" fill={lit ? "#f0c98a" : "#241f14"} />
     <line x1="20" y1="15" x2="20" y2="37" stroke="#8a6d3b" strokeWidth="1" />
     <line x1="16.5" y1="15" x2="15" y2="37" stroke="#8a6d3b" strokeWidth=".7" />
     <line x1="23.5" y1="15" x2="25" y2="37" stroke="#8a6d3b" strokeWidth=".7" />
@@ -79,12 +79,12 @@ const MoonProgress: React.FC<{ step: number; total: number }> = ({ step, total }
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <svg width="30" height="30" viewBox="0 0 30 30">
-        <circle cx="15" cy="15" r="12" fill="none" stroke="rgba(232,180,90,0.25)" strokeWidth="2.5" />
-        <circle cx="15" cy="15" r="12" fill="none" stroke="#e8b45a" strokeWidth="2.5"
+        <circle cx="15" cy="15" r="12" fill="none" stroke="rgba(201,133,63,0.25)" strokeWidth="2.5" />
+        <circle cx="15" cy="15" r="12" fill="none" stroke="#c9853f" strokeWidth="2.5"
           strokeDasharray={`${pct * 75.4} 75.4`} strokeLinecap="round" transform="rotate(-90 15 15)" style={{ transition: "stroke-dasharray .6s" }} />
-        <path d="M18 8 A8 8 0 1 0 18 22 A6.5 6.5 0 1 1 18 8" fill="#e8b45a" opacity={0.35 + pct * 0.65} />
+        <path d="M18 8 A8 8 0 1 0 18 22 A6.5 6.5 0 1 1 18 8" fill="#c9853f" opacity={0.35 + pct * 0.65} />
       </svg>
-      <span style={{ fontSize: 14, color: "#c9a96a", fontFamily: "'Tajawal', sans-serif" }}>الليلة {step} من {total}</span>
+      <span style={{ fontSize: 14, color: "#a8763f", fontFamily: "'Tajawal', sans-serif" }}>الليلة {step} من {total}</span>
     </div>
   );
 };
@@ -165,10 +165,10 @@ const HakawatiGamePage: React.FC = () => {
   const q = pool[idx];
 
   const S: Record<string, React.CSSProperties> = {
-    root: { minHeight: "100vh", background: "radial-gradient(ellipse at 50% -20%, #1d2f4e 0%, #0e1626 55%, #080d18 100%)", direction: "rtl", fontFamily: "'Tajawal', sans-serif", color: "#f0e6d2", display: "flex", flexDirection: "column", alignItems: "center", padding: "0 16px 40px", position: "relative", overflow: "hidden" },
+    root: { minHeight: "100vh", background: "radial-gradient(ellipse at 50% -20%, #2b1a10 0%, #120b07 55%, #050302 100%)", direction: "rtl", fontFamily: "'Tajawal', sans-serif", color: "#f2e9da", display: "flex", flexDirection: "column", alignItems: "center", padding: "0 16px 40px", position: "relative", overflow: "hidden" },
     display: { fontFamily: "'Aref Ruqaa', serif" },
-    card: { background: "linear-gradient(160deg, rgba(30,42,66,0.85), rgba(16,24,42,0.9))", border: "1px solid rgba(200,160,90,0.35)", borderRadius: 18, padding: "26px 22px", maxWidth: 560, width: "100%", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" },
-    btn: { background: "linear-gradient(160deg, #d9a94f, #b08035)", color: "#1a1206", border: "none", borderRadius: 12, padding: "14px 38px", fontSize: 19, fontWeight: 700, cursor: "pointer", fontFamily: "'Tajawal', sans-serif", boxShadow: "0 4px 18px rgba(217,169,79,0.35)" },
+    card: { background: "linear-gradient(160deg, rgba(58,36,20,0.85), rgba(18,11,7,0.9))", border: "1px solid rgba(168,99,46,0.35)", borderRadius: 18, padding: "26px 22px", maxWidth: 560, width: "100%", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" },
+    btn: { background: "linear-gradient(160deg, #c9853f, #8b5a2b)", color: "#1a1206", border: "none", borderRadius: 12, padding: "14px 38px", fontSize: 19, fontWeight: 700, cursor: "pointer", fontFamily: "'Tajawal', sans-serif", boxShadow: "0 4px 18px rgba(217,169,79,0.35)" },
   };
 
   const stars = Array.from({ length: 40 }, (_, i) => (
@@ -182,7 +182,7 @@ const HakawatiGamePage: React.FC = () => {
         @keyframes twinkle { 0%,100%{opacity:.15} 50%{opacity:.8} }
         @keyframes sway { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
         @keyframes fadeUp { from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:translateY(0)} }
-        @keyframes glowPulse { 0%,100%{filter:drop-shadow(0 0 10px rgba(232,180,90,.6))} 50%{filter:drop-shadow(0 0 22px rgba(232,180,90,.95))} }
+        @keyframes glowPulse { 0%,100%{filter:drop-shadow(0 0 10px rgba(201,133,63,.6))} 50%{filter:drop-shadow(0 0 22px rgba(201,133,63,.95))} }
         .hakawati-btn:hover { transform: translateY(-2px); }
         .hakawati-btn { transition: transform .15s; }
         @media (prefers-reduced-motion: reduce) { .hakawati-anim { animation: none !important; } }
@@ -192,7 +192,7 @@ const HakawatiGamePage: React.FC = () => {
       <div style={{ display: "flex", gap: 40 }}>
         {[0, 1, 2].map(i => (
           <div key={i} className="hakawati-anim" style={{ animation: `sway ${3.5 + i}s ease-in-out infinite`, transformOrigin: "top center" }}>
-            <div style={{ width: 2, height: 24 + i * 10, background: "rgba(200,160,90,.5)", margin: "0 auto" }} />
+            <div style={{ width: 2, height: 24 + i * 10, background: "rgba(168,99,46,.5)", margin: "0 auto" }} />
             <Fanous lit={screen !== "play" || i < lives} size={i === 1 ? 30 : 24} />
           </div>
         ))}
@@ -200,22 +200,22 @@ const HakawatiGamePage: React.FC = () => {
 
       {screen === "loading" && (
         <div style={{ ...S.card, textAlign: "center", marginTop: 40 }}>
-          <div style={{ ...S.display, fontSize: 24, color: "#e8b45a" }}>يجهّز الحكواتي مجلسه...</div>
+          <div style={{ ...S.display, fontSize: 24, color: "#c9853f" }}>يجهّز الحكواتي مجلسه...</div>
         </div>
       )}
 
       {screen === "start" && (
         <div style={{ ...S.card, textAlign: "center", marginTop: 26, animation: "fadeUp .7s" }}>
-          <div style={{ fontSize: 15, letterSpacing: 2, color: "#c9a96a", marginBottom: 6 }}>ليالي رمضان مع</div>
-          <h1 style={{ ...S.display, fontSize: 46, margin: "0 0 4px", color: "#e8b45a", animation: "glowPulse 4s infinite" }}>الحكواتي</h1>
-          <div style={{ width: 90, height: 1, background: "linear-gradient(90deg, transparent, #c9a96a, transparent)", margin: "10px auto 18px" }} />
-          <p style={{ fontSize: 17, lineHeight: 1.9, color: "#d8cbb0", margin: "0 0 6px" }}>
+          <div style={{ fontSize: 15, letterSpacing: 2, color: "#a8763f", marginBottom: 10 }}>حيث تعود أحداث الماضي للحياة</div>
+          <img src="/hakawati/logo.jpg" alt="الحكواتي" style={{ width: 220, maxWidth: "80%", margin: "0 auto 4px", borderRadius: 10, animation: "glowPulse 4s infinite" }} />
+          <div style={{ width: 90, height: 1, background: "linear-gradient(90deg, transparent, #a8763f, transparent)", margin: "10px auto 18px" }} />
+          <p style={{ fontSize: 17, lineHeight: 1.9, color: "#d9c9b0", margin: "0 0 6px" }}>
             كان يا ما كان، في قديم الزمان..<br />
             {effectiveTotal} ليالٍ، و{effectiveTotal} حكايات من تاريخ أمّةٍ عظيمة.<br />
             في كل ليلة سؤال، ولك {settings.lives} فوانيس..<br />
-            <b style={{ color: "#e8b45a" }}>فإن انطفأت كلها، انفضّ المجلس.</b>
+            <b style={{ color: "#c9853f" }}>فإن انطفأت كلها، انفضّ المجلس.</b>
           </p>
-          <div style={{ fontSize: 14, color: "#9a8b6c", marginBottom: 22 }}>⏳ لكل سؤال {settings.time} ثانية</div>
+          <div style={{ fontSize: 14, color: "#8a7660", marginBottom: 22 }}>⏳ لكل سؤال {settings.time} ثانية</div>
           <button className="hakawati-btn" style={S.btn} onClick={startGame}>افتح المجلس 🏮</button>
         </div>
       )}
@@ -224,20 +224,20 @@ const HakawatiGamePage: React.FC = () => {
         <div style={{ maxWidth: 560, width: "100%", marginTop: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <MoonProgress step={idx + 1} total={effectiveTotal} />
-            <div style={{ fontSize: 15, color: "#c9a96a" }}>الحكايات المحفوظة: <b style={{ color: "#e8b45a" }}>{score}</b></div>
+            <div style={{ fontSize: 15, color: "#a8763f" }}>الحكايات المحفوظة: <b style={{ color: "#c9853f" }}>{score}</b></div>
           </div>
 
           <div style={{ height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 3, marginBottom: 18, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${(timeLeft / settings.time) * 100}%`, background: timeLeft <= 8 ? "#c0503f" : "#e8b45a", borderRadius: 3, transition: "width 1s linear, background .4s" }} />
+            <div style={{ height: "100%", width: `${(timeLeft / settings.time) * 100}%`, background: timeLeft <= 8 ? "#c0503f" : "#c9853f", borderRadius: 3, transition: "width 1s linear, background .4s" }} />
           </div>
 
           <div key={idx} style={{ ...S.card, animation: "fadeUp .5s" }}>
-            <div style={{ ...S.display, fontSize: 15, color: "#c9a96a", marginBottom: 10 }}>يحكى أنّ الحكواتي سأل أهل المجلس:</div>
+            <div style={{ ...S.display, fontSize: 15, color: "#a8763f", marginBottom: 10 }}>يحكى أنّ الحكواتي سأل أهل المجلس:</div>
             <h2 style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.7, margin: "0 0 20px" }}>{q.q}</h2>
 
             <div style={{ display: "grid", gap: 10 }}>
               {q.options.map((opt, i) => {
-                let bg = "rgba(255,255,255,0.05)", border = "rgba(200,160,90,0.25)", color = "#f0e6d2";
+                let bg = "rgba(255,255,255,0.05)", border = "rgba(168,99,46,0.25)", color = "#f2e9da";
                 if (revealed) {
                   if (i === q.answer) { bg = "rgba(62,124,89,0.35)"; border = "#3e7c59"; }
                   else if (i === selected) { bg = "rgba(169,59,59,0.3)"; border = "#a93b3b"; color = "#e8c9c9"; }
@@ -253,8 +253,8 @@ const HakawatiGamePage: React.FC = () => {
             </div>
 
             {revealed && (
-              <div style={{ marginTop: 18, padding: "14px 16px", background: "rgba(232,180,90,0.08)", borderRight: "3px solid #e8b45a", borderRadius: 8, animation: "fadeUp .4s" }}>
-                <div style={{ ...S.display, fontSize: 14, color: "#c9a96a", marginBottom: 4 }}>
+              <div style={{ marginTop: 18, padding: "14px 16px", background: "rgba(201,133,63,0.08)", borderRight: "3px solid #c9853f", borderRadius: 8, animation: "fadeUp .4s" }}>
+                <div style={{ ...S.display, fontSize: 14, color: "#a8763f", marginBottom: 4 }}>
                   {selected === q.answer ? "أحسنت يا صاحب الفطنة! وتقول الحكاية:" : selected === -1 ? "انقضى الوقت يا صاحبي! والحكاية تقول:" : "لا بأس.. فاسمع الحكاية:"}
                 </div>
                 <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.9, color: "#e5d9bf" }}>{q.story}</p>
@@ -269,14 +269,14 @@ const HakawatiGamePage: React.FC = () => {
 
       {screen === "end" && (
         <div style={{ ...S.card, textAlign: "center", marginTop: 26, animation: "fadeUp .7s" }}>
-          <div style={{ fontSize: 15, color: "#c9a96a", marginBottom: 8 }}>وهنا انفضّ المجلس..</div>
+          <div style={{ fontSize: 15, color: "#a8763f", marginBottom: 8 }}>وهنا انفضّ المجلس..</div>
           <div style={{ fontSize: 52, margin: "6px 0" }}>{ratio >= 0.8 ? "🌕" : ratio >= 0.5 ? "🌗" : "🌑"}</div>
-          <div style={{ fontSize: 17, color: "#d8cbb0" }}>حفظت من الحكايات</div>
-          <div style={{ ...S.display, fontSize: 44, color: "#e8b45a", margin: "2px 0 14px" }}>{score} / {effectiveTotal}</div>
-          <div style={{ width: 90, height: 1, background: "linear-gradient(90deg, transparent, #c9a96a, transparent)", margin: "0 auto 14px" }} />
-          <div style={{ fontSize: 15, color: "#c9a96a" }}>لقبك في المجلس:</div>
-          <h2 style={{ ...S.display, fontSize: 32, color: "#f0e6d2", margin: "4px 0 6px" }}>{rank.title}</h2>
-          <p style={{ fontSize: 15.5, color: "#b5a582", margin: "0 0 24px" }}>{rank.desc}</p>
+          <div style={{ fontSize: 17, color: "#d9c9b0" }}>حفظت من الحكايات</div>
+          <div style={{ ...S.display, fontSize: 44, color: "#c9853f", margin: "2px 0 14px" }}>{score} / {effectiveTotal}</div>
+          <div style={{ width: 90, height: 1, background: "linear-gradient(90deg, transparent, #a8763f, transparent)", margin: "0 auto 14px" }} />
+          <div style={{ fontSize: 15, color: "#a8763f" }}>لقبك في المجلس:</div>
+          <h2 style={{ ...S.display, fontSize: 32, color: "#f2e9da", margin: "4px 0 6px" }}>{rank.title}</h2>
+          <p style={{ fontSize: 15.5, color: "#b39d7c", margin: "0 0 24px" }}>{rank.desc}</p>
           <button className="hakawati-btn" style={S.btn} onClick={startGame}>مجلس جديد 🏮</button>
         </div>
       )}

@@ -40,7 +40,7 @@ export function HakawatiStoriesPage() {
   const published = stories.filter((s) => s.published);
 
   return (
-    <div className="min-h-screen text-[#f0e6d2]" dir="rtl" style={{ background: "radial-gradient(ellipse at 50% -20%, #1d2f4e 0%, #0e1626 55%, #080d18 100%)" }}>
+    <div className="min-h-screen text-[#f2e9da]" dir="rtl" style={{ background: "radial-gradient(ellipse at 50% -20%, #2b1a10 0%, #120b07 55%, #050302 100%)" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap');
         .hk-body { font-family: 'Tajawal', sans-serif; }
@@ -51,12 +51,12 @@ export function HakawatiStoriesPage() {
         {/* البطل */}
         <section className="py-16 px-4 text-center">
           <div className="max-w-3xl mx-auto">
-            <Link to="/hakawati" className="inline-flex items-center gap-2 text-[#c9a96a] hover:text-[#e8b45a] transition-colors text-sm mb-6">
+            <Link to="/hakawati" className="inline-flex items-center gap-2 text-[#a8763f] hover:text-[#c9853f] transition-colors text-sm mb-6">
               <ArrowRight size={16} />
               العودة لركن الحكواتي
             </Link>
-            <p className="text-[#c9a96a] font-semibold mb-3 tracking-widest text-sm uppercase">مجلس الحكايات</p>
-            <h1 className="hk-display text-4xl lg:text-5xl text-[#e8b45a]">كل الحكايات</h1>
+            <img src="/hakawati/logo.jpg" alt="الحكواتي" className="mx-auto w-40 sm:w-48 mb-6 rounded-lg" />
+            <h1 className="hk-display text-4xl lg:text-5xl text-[#c9853f]">كل الحكايات</h1>
           </div>
         </section>
 
@@ -66,11 +66,11 @@ export function HakawatiStoriesPage() {
             {!loaded && (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="rounded-2xl overflow-hidden animate-pulse" style={{ background: "rgba(30,42,66,0.5)", border: "1px solid rgba(200,160,90,0.15)" }}>
-                    <div className="h-40" style={{ background: "rgba(200,160,90,0.1)" }} />
+                  <div key={i} className="rounded-2xl overflow-hidden animate-pulse" style={{ background: "rgba(58,36,20,0.5)", border: "1px solid rgba(168,99,46,0.15)" }}>
+                    <div className="h-40" style={{ background: "rgba(168,99,46,0.1)" }} />
                     <div className="p-5 space-y-3">
-                      <div className="h-4 rounded w-3/4" style={{ background: "rgba(200,160,90,0.15)" }} />
-                      <div className="h-3 rounded w-full" style={{ background: "rgba(200,160,90,0.1)" }} />
+                      <div className="h-4 rounded w-3/4" style={{ background: "rgba(168,99,46,0.15)" }} />
+                      <div className="h-3 rounded w-full" style={{ background: "rgba(168,99,46,0.1)" }} />
                     </div>
                   </div>
                 ))}
@@ -78,10 +78,10 @@ export function HakawatiStoriesPage() {
             )}
 
             {loaded && published.length === 0 && (
-              <div className="text-center py-20 rounded-2xl" style={{ border: "1px dashed rgba(200,160,90,0.3)" }}>
+              <div className="text-center py-20 rounded-2xl" style={{ border: "1px dashed rgba(168,99,46,0.3)" }}>
                 <p className="text-5xl mb-4">📜</p>
-                <p className="text-xl text-[#c9a96a]">لا توجد حكايات بعد</p>
-                <p className="text-[#8a7d61] mt-2">ترقّبوا أول مجلس قريبًا</p>
+                <p className="text-xl text-[#a8763f]">لا توجد حكايات بعد</p>
+                <p className="text-[#7a6650] mt-2">ترقّبوا أول مجلس قريبًا</p>
               </div>
             )}
 
@@ -92,9 +92,9 @@ export function HakawatiStoriesPage() {
                     key={story.id}
                     to={`/hakawati/stories/${story.id}`}
                     className="group rounded-2xl overflow-hidden transition-all hover:-translate-y-1"
-                    style={{ background: "linear-gradient(160deg, rgba(30,42,66,0.85), rgba(16,24,42,0.9))", border: "1px solid rgba(200,160,90,0.25)" }}
+                    style={{ background: "linear-gradient(160deg, rgba(58,36,20,0.85), rgba(18,11,7,0.9))", border: "1px solid rgba(168,99,46,0.25)" }}
                   >
-                    <div className="relative h-44 overflow-hidden" style={{ background: "rgba(200,160,90,0.08)" }}>
+                    <div className="relative h-44 overflow-hidden" style={{ background: "rgba(168,99,46,0.08)" }}>
                       {story.coverImage ? (
                         <img src={story.coverImage} alt={story.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
@@ -102,9 +102,9 @@ export function HakawatiStoriesPage() {
                       )}
                     </div>
                     <div className="p-5">
-                      <h2 className="font-bold text-[#f0e6d2] mb-2 group-hover:text-[#e8b45a] transition-colors line-clamp-2">{story.title}</h2>
-                      <p className="text-[#b5a582] text-sm leading-relaxed line-clamp-3 mb-3">{story.excerpt}</p>
-                      <span className="text-[#e8b45a] text-xs font-semibold">اقرأ الحكاية ←</span>
+                      <h2 className="font-bold text-[#f2e9da] mb-2 group-hover:text-[#c9853f] transition-colors line-clamp-2">{story.title}</h2>
+                      <p className="text-[#b39d7c] text-sm leading-relaxed line-clamp-3 mb-3">{story.excerpt}</p>
+                      <span className="text-[#c9853f] text-xs font-semibold">اقرأ الحكاية ←</span>
                     </div>
                   </Link>
                 ))}

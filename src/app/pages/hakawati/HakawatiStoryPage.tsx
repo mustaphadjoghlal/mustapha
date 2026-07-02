@@ -65,18 +65,18 @@ export function HakawatiStoryPage() {
   );
 
   if (!loaded) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#0e1626" }}>
-      <div className="w-8 h-8 border-2 border-[#e8b45a] border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "#120b07" }}>
+      <div className="w-8 h-8 border-2 border-[#c9853f] border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   if (!visible) return (
-    <div className="min-h-screen text-[#f0e6d2] flex items-center justify-center" dir="rtl" style={{ background: "radial-gradient(ellipse at 50% -20%, #1d2f4e 0%, #0e1626 55%, #080d18 100%)" }}>
+    <div className="min-h-screen text-[#f2e9da] flex items-center justify-center" dir="rtl" style={{ background: "radial-gradient(ellipse at 50% -20%, #2b1a10 0%, #120b07 55%, #050302 100%)" }}>
       {fontImport}
       <div className="text-center hk-body">
         <p className="text-5xl mb-4">📜</p>
-        <h2 className="hk-display text-2xl text-[#e8b45a] mb-4">الحكاية غير موجودة</h2>
-        <Link to="/hakawati/stories" className="text-[#e8b45a] hover:underline">← العودة للحكايات</Link>
+        <h2 className="hk-display text-2xl text-[#c9853f] mb-4">الحكاية غير موجودة</h2>
+        <Link to="/hakawati/stories" className="text-[#c9853f] hover:underline">← العودة للحكايات</Link>
       </div>
     </div>
   );
@@ -106,7 +106,7 @@ export function HakawatiStoryPage() {
   };
 
   return (
-    <div className="min-h-screen text-[#f0e6d2]" dir="rtl" style={{ background: "radial-gradient(ellipse at 50% -20%, #1d2f4e 0%, #0e1626 55%, #080d18 100%)" }}>
+    <div className="min-h-screen text-[#f2e9da]" dir="rtl" style={{ background: "radial-gradient(ellipse at 50% -20%, #2b1a10 0%, #120b07 55%, #050302 100%)" }}>
       {fontImport}
 
       {/* Schema.org JSON-LD */}
@@ -115,7 +115,7 @@ export function HakawatiStoryPage() {
       <div className="hk-body">
         {/* Breadcrumb */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          <Link to="/hakawati/stories" className="flex items-center gap-2 text-[#c9a96a] hover:text-[#e8b45a] transition-colors text-sm w-fit">
+          <Link to="/hakawati/stories" className="flex items-center gap-2 text-[#a8763f] hover:text-[#c9853f] transition-colors text-sm w-fit">
             <ArrowRight size={16} />
             العودة للحكايات
           </Link>
@@ -124,7 +124,7 @@ export function HakawatiStoryPage() {
         {/* الغلاف */}
         {story!.coverImage && (
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-            <div className="rounded-2xl overflow-hidden h-64 md:h-96" style={{ border: "1px solid rgba(200,160,90,0.3)" }}>
+            <div className="rounded-2xl overflow-hidden h-64 md:h-96" style={{ border: "1px solid rgba(168,99,46,0.3)" }}>
               <img src={story!.coverImage} alt={story!.title} className="w-full h-full object-cover" loading="lazy" />
             </div>
           </div>
@@ -132,9 +132,9 @@ export function HakawatiStoryPage() {
 
         {/* المحتوى */}
         <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="hk-display text-3xl md:text-5xl mb-4 leading-tight text-[#e8b45a]">{story!.title}</h1>
+          <h1 className="hk-display text-3xl md:text-5xl mb-4 leading-tight text-[#c9853f]">{story!.title}</h1>
 
-          <div className="flex items-center gap-4 text-[#8a7d61] text-sm mb-10 pb-6" style={{ borderBottom: "1px solid rgba(200,160,90,0.2)" }}>
+          <div className="flex items-center gap-4 text-[#7a6650] text-sm mb-10 pb-6" style={{ borderBottom: "1px solid rgba(168,99,46,0.2)" }}>
             <span>{story!.publishedAt}</span>
             <span>بقلم مصطفى جغلال</span>
           </div>
@@ -143,7 +143,7 @@ export function HakawatiStoryPage() {
           {story!.videoUrl && (
             <div className="mb-10">
               {embedUrl ? (
-                <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "16 / 9", border: "1px solid rgba(200,160,90,0.3)" }}>
+                <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "16 / 9", border: "1px solid rgba(168,99,46,0.3)" }}>
                   <iframe
                     src={embedUrl}
                     title={story!.title}
@@ -158,7 +158,7 @@ export function HakawatiStoryPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-xl px-5 py-3 font-semibold transition-all"
-                  style={{ background: "linear-gradient(160deg, #d9a94f, #b08035)", color: "#1a1206" }}
+                  style={{ background: "linear-gradient(160deg, #c9853f, #8b5a2b)", color: "#1a1206" }}
                 >
                   شاهد المقطع المرفق ↗
                 </a>
@@ -167,27 +167,27 @@ export function HakawatiStoryPage() {
           )}
 
           <style>{`
-            .hk-story-body { font-size:1.1rem; line-height:2; color:#d8cbb0; }
-            .hk-story-body h2 { font-family:'Aref Ruqaa', serif; font-size:1.6rem; color:#e8b45a; margin-top:2.2rem; margin-bottom:1rem; padding-bottom:0.4rem; border-bottom:2px solid rgba(232,180,90,0.4); }
-            .hk-story-body h3 { font-family:'Aref Ruqaa', serif; font-size:1.3rem; color:#f0e6d2; margin-top:1.8rem; margin-bottom:0.75rem; }
+            .hk-story-body { font-size:1.1rem; line-height:2; color:#d9c9b0; }
+            .hk-story-body h2 { font-family:'Aref Ruqaa', serif; font-size:1.6rem; color:#c9853f; margin-top:2.2rem; margin-bottom:1rem; padding-bottom:0.4rem; border-bottom:2px solid rgba(201,133,63,0.4); }
+            .hk-story-body h3 { font-family:'Aref Ruqaa', serif; font-size:1.3rem; color:#f2e9da; margin-top:1.8rem; margin-bottom:0.75rem; }
             .hk-story-body p { margin-bottom:1.3rem; }
-            .hk-story-body strong { font-weight:700; color:#f0e6d2; }
+            .hk-story-body strong { font-weight:700; color:#f2e9da; }
             .hk-story-body ul { list-style:none; padding:0; margin:1.2rem 0; }
             .hk-story-body ul li { padding-right:1.5rem; position:relative; margin-bottom:0.5rem; }
-            .hk-story-body ul li::before { content:"◈"; position:absolute; right:0; color:#e8b45a; font-size:0.8rem; top:0.5rem; }
+            .hk-story-body ul li::before { content:"◈"; position:absolute; right:0; color:#c9853f; font-size:0.8rem; top:0.5rem; }
             .hk-story-body ol { padding-right:1.5rem; margin:1.2rem 0; counter-reset:item; list-style:none; }
             .hk-story-body ol li { counter-increment:item; margin-bottom:0.8rem; position:relative; padding-right:2rem; }
-            .hk-story-body ol li::before { content:counter(item); position:absolute; right:0; background:#b08035; color:#1a1206; width:1.4rem; height:1.4rem; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; top:0.15rem; }
-            .hk-story-body blockquote { border-right:4px solid #e8b45a; padding:1rem 1.2rem; margin:1.5rem 0; color:#b5a582; font-style:italic; background:rgba(0,0,0,0.2); border-radius:0 0.5rem 0.5rem 0; }
-            .hk-story-body a { color:#e8b45a; text-decoration:none; }
+            .hk-story-body ol li::before { content:counter(item); position:absolute; right:0; background:#8b5a2b; color:#f2e9da; width:1.4rem; height:1.4rem; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; top:0.15rem; }
+            .hk-story-body blockquote { border-right:4px solid #c9853f; padding:1rem 1.2rem; margin:1.5rem 0; color:#b39d7c; font-style:italic; background:rgba(0,0,0,0.25); border-radius:0 0.5rem 0.5rem 0; }
+            .hk-story-body a { color:#c9853f; text-decoration:none; }
             .hk-story-body a:hover { text-decoration:underline; }
           `}</style>
 
           <div className="hk-story-body" dangerouslySetInnerHTML={{ __html: story!.content }} />
 
           {/* رجوع */}
-          <div className="mt-12 pt-8" style={{ borderTop: "1px solid rgba(200,160,90,0.2)" }}>
-            <Link to="/hakawati/stories" className="inline-flex items-center gap-2 text-[#e8b45a] hover:text-[#f0e6d2] transition-colors font-semibold">
+          <div className="mt-12 pt-8" style={{ borderTop: "1px solid rgba(168,99,46,0.2)" }}>
+            <Link to="/hakawati/stories" className="inline-flex items-center gap-2 text-[#c9853f] hover:text-[#f2e9da] transition-colors font-semibold">
               <ArrowRight size={18} />
               العودة لجميع الحكايات
             </Link>
