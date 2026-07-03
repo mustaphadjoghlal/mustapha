@@ -93,12 +93,6 @@ const HakawatiGamePage: React.FC = () => {
   const [revealed, setRevealed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const revealRef = useRef<HTMLDivElement>(null);
-
-  // ─── تمرير تلقائي لإظهار زر «الليلة التالية» عند كشف الإجابة ───
-  useEffect(() => {
-    if (revealed) revealRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [revealed]);
 
   // ─── جلب البيانات من Firestore ───
   useEffect(() => {
@@ -170,9 +164,10 @@ const HakawatiGamePage: React.FC = () => {
   const q = pool[idx];
 
   const S: Record<string, React.CSSProperties> = {
-    root: { minHeight: "100vh", background: "radial-gradient(ellipse at 50% -20%, #2b1a10 0%, #120b07 55%, #050302 100%)", direction: "rtl", fontFamily: "'Tajawal', sans-serif", color: "#f2e9da", display: "flex", flexDirection: "column", alignItems: "center", padding: "0 16px 40px", position: "relative", overflow: "hidden" },
+    root: { minHeight: "100vh", background: "radial-gradient(ellipse at 50% -20%, #2b1a10 0%, #120b07 55%, #050302 100%)", direction: "rtl", fontFamily: "'Tajawal', sans-serif", color: "#f2e9da", display: "flex", flexDirection: "column", alignItems: "center", padding: "0 16px 24px", position: "relative", overflow: "hidden" },
     display: { fontFamily: "'Aref Ruqaa', serif" },
     card: { background: "linear-gradient(160deg, rgba(58,36,20,0.85), rgba(18,11,7,0.9))", border: "1px solid rgba(168,99,46,0.35)", borderRadius: 18, padding: "26px 22px", maxWidth: 560, width: "100%", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" },
+    cardPlay: { background: "linear-gradient(160deg, rgba(58,36,20,0.85), rgba(18,11,7,0.9))", border: "1px solid rgba(168,99,46,0.35)", borderRadius: 18, padding: "18px 18px", maxWidth: 560, width: "100%", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" },
     btn: { background: "linear-gradient(160deg, #c9853f, #8b5a2b)", color: "#1a1206", border: "none", borderRadius: 12, padding: "14px 38px", fontSize: 19, fontWeight: 700, cursor: "pointer", fontFamily: "'Tajawal', sans-serif", boxShadow: "0 4px 18px rgba(217,169,79,0.35)" },
   };
 
@@ -195,11 +190,11 @@ const HakawatiGamePage: React.FC = () => {
       `}</style>
       {stars}
 
-      <div style={{ display: "flex", gap: 40 }}>
+      <div style={{ display: "flex", gap: 40, marginBottom: screen === "play" ? 4 : 0 }}>
         {[0, 1, 2].map(i => (
           <div key={i} className="hakawati-anim" style={{ animation: `sway ${3.5 + i}s ease-in-out infinite`, transformOrigin: "top center" }}>
-            <div style={{ width: 2, height: 24 + i * 10, background: "rgba(168,99,46,.5)", margin: "0 auto" }} />
-            <Fanous lit={screen !== "play" || i < lives} size={i === 1 ? 30 : 24} />
+            <div style={{ width: 2, height: (screen === "play" ? 10 : 24) + i * (screen === "play" ? 5 : 10), background: "rgba(168,99,46,.5)", margin: "0 auto" }} />
+            <Fanous lit={screen !== "play" || i < lives} size={screen === "play" ? (i === 1 ? 22 : 18) : (i === 1 ? 30 : 24)} />
           </div>
         ))}
       </div>
@@ -262,21 +257,21 @@ const HakawatiGamePage: React.FC = () => {
       )}
 
       {screen === "play" && q && (
-        <div style={{ maxWidth: 560, width: "100%", marginTop: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <div style={{ maxWidth: 560, width: "100%", marginTop: 8 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <MoonProgress step={idx + 1} total={effectiveTotal} />
             <div style={{ fontSize: 15, color: "#a8763f" }}>الحكايات المحفوظة: <b style={{ color: "#c9853f" }}>{score}</b></div>
           </div>
 
-          <div style={{ height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 3, marginBottom: 18, overflow: "hidden" }}>
+          <div style={{ height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 3, marginBottom: 10, overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${(timeLeft / settings.time) * 100}%`, background: timeLeft <= 8 ? "#c0503f" : "#c9853f", borderRadius: 3, transition: "width 1s linear, background .4s" }} />
           </div>
 
-          <div key={idx} style={{ ...S.card, animation: "fadeUp .5s" }}>
-            <div style={{ ...S.display, fontSize: 15, color: "#a8763f", marginBottom: 10 }}>يحكى أنّ الحكواتي سأل أهل المجلس:</div>
-            <h2 style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.7, margin: "0 0 20px" }}>{q.q}</h2>
+          <div key={idx} style={{ ...S.cardPlay, animation: "fadeUp .5s" }}>
+            <div style={{ ...S.display, fontSize: 15, color: "#a8763f", marginBottom: 6 }}>يحكى أنّ الحكواتي سأل أهل المجلس:</div>
+            <h2 style={{ fontSize: 21, fontWeight: 800, lineHeight: 1.5, margin: "0 0 12px" }}>{q.q}</h2>
 
-            <div style={{ display: "grid", gap: 10 }}>
+            <div style={{ display: "grid", gap: 8 }}>
               {q.options.map((opt, i) => {
                 let bg = "rgba(255,255,255,0.05)", border = "rgba(168,99,46,0.25)", color = "#f2e9da";
                 if (revealed) {
@@ -286,7 +281,7 @@ const HakawatiGamePage: React.FC = () => {
                 }
                 return (
                   <button key={i} onClick={() => handleAnswer(i)} disabled={revealed}
-                    style={{ background: bg, border: `1.5px solid ${border}`, color, borderRadius: 12, padding: "13px 16px", fontSize: 17, fontWeight: 500, textAlign: "right", cursor: revealed ? "default" : "pointer", fontFamily: "'Tajawal', sans-serif" }}>
+                    style={{ background: bg, border: `1.5px solid ${border}`, color, borderRadius: 12, padding: "10px 16px", fontSize: 16, fontWeight: 500, textAlign: "right", cursor: revealed ? "default" : "pointer", fontFamily: "'Tajawal', sans-serif" }}>
                     {opt} {revealed && i === q.answer && " ✓"} {revealed && i === selected && i !== q.answer && " ✗"}
                   </button>
                 );
@@ -294,12 +289,12 @@ const HakawatiGamePage: React.FC = () => {
             </div>
 
             {revealed && (
-              <div ref={revealRef} style={{ marginTop: 18, padding: "14px 16px", background: "rgba(201,133,63,0.08)", borderRight: "3px solid #c9853f", borderRadius: 8, animation: "fadeUp .4s" }}>
+              <div style={{ marginTop: 12, padding: "12px 14px", background: "rgba(201,133,63,0.08)", borderRight: "3px solid #c9853f", borderRadius: 8, animation: "fadeUp .4s" }}>
                 <div style={{ ...S.display, fontSize: 14, color: "#a8763f", marginBottom: 4 }}>
                   {selected === q.answer ? "أحسنت يا صاحب الفطنة! وتقول الحكاية:" : selected === -1 ? "انقضى الوقت يا صاحبي! والحكاية تقول:" : "لا بأس.. فاسمع الحكاية:"}
                 </div>
-                <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.9, color: "#e5d9bf" }}>{q.story}</p>
-                <button className="hakawati-btn" onClick={next} style={{ ...S.btn, padding: "10px 26px", fontSize: 16, marginTop: 14 }}>
+                <p style={{ margin: 0, fontSize: 15, lineHeight: 1.7, color: "#e5d9bf" }}>{q.story}</p>
+                <button className="hakawati-btn" onClick={next} style={{ ...S.btn, padding: "9px 24px", fontSize: 15, marginTop: 10 }}>
                   {lives <= 0 || idx + 1 >= effectiveTotal ? "أنهِ المجلس" : "الليلة التالية ←"}
                 </button>
               </div>
