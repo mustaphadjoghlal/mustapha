@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { db } from "../../../firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import { BookOpen, Sparkles } from "lucide-react";
+import { BookOpen, Sparkles, ChevronDown } from "lucide-react";
 
 interface HakawatiStory {
   id: string;
@@ -54,22 +54,22 @@ export function HakawatiHomePage() {
           <img
             src="/hakawati/banner.jpg"
             alt="الحكواتي — حيث تعود أحداث الماضي للحياة"
-            className="w-full h-auto max-h-[190px] sm:max-h-[420px] object-cover object-top"
+            className="w-full h-auto max-h-[230px] sm:max-h-[420px] object-cover object-top"
           />
           <div
-            className="absolute inset-x-0 bottom-0 h-14 sm:h-32 pointer-events-none"
+            className="absolute inset-x-0 bottom-0 h-16 sm:h-32 pointer-events-none"
             style={{ background: "linear-gradient(to bottom, transparent, #120b07)" }}
           />
         </section>
 
-        <section className="relative px-4 pb-2 pt-4 sm:pb-4 sm:pt-12">
+        <section className="relative px-4 pb-2 pt-5 sm:pb-4 sm:pt-12">
           <div className="max-w-3xl mx-auto text-center relative z-10">
-            <div className="w-24 h-px mx-auto mb-3 sm:mb-8" style={{ background: "linear-gradient(90deg, transparent, #a8763f, transparent)" }} />
-            <p className="text-[#d9c9b0] text-sm sm:text-lg leading-relaxed sm:leading-loose">
+            <div className="w-24 h-px mx-auto mb-4 sm:mb-8" style={{ background: "linear-gradient(90deg, transparent, #a8763f, transparent)" }} />
+            <p className="text-[#d9c9b0] text-base sm:text-lg leading-relaxed sm:leading-loose">
               منذ أن كان الحكواتي يجلس في صدر المقهى، وفانوسه إلى جانبه، والناس تتحلّق حوله لتسمع سيرة فارسٍ
               أو فتحَ مدينةٍ أو حكمة خليفة.. كانت الحكاية هي الذاكرة التي تنتقل من مجلسٍ إلى مجلس، ومن جيلٍ إلى جيل.
             </p>
-            <p className="text-[#b39d7c] text-xs sm:text-base leading-relaxed sm:leading-loose mt-2 sm:mt-4">
+            <p className="text-[#b39d7c] text-sm sm:text-base leading-relaxed sm:leading-loose mt-3 sm:mt-4">
               هذا الركن امتداد لذلك المجلس القديم: حكايات من تاريخ أمّةٍ عظيمة، ولعبة أسئلة تختبر
               كم حفظت من سِيَر الأولين.
             </p>
@@ -77,17 +77,17 @@ export function HakawatiHomePage() {
         </section>
 
         {/* بطاقة اللعبة */}
-        <section className="px-4 pb-[340px] pt-3 sm:pb-16 sm:pt-8">
+        <section className="px-4 pb-4 pt-4 sm:pb-16 sm:pt-8">
           <div className="max-w-3xl mx-auto">
             <Link
               to="/hakawati/game"
-              className="group flex flex-col sm:flex-row items-center gap-3 sm:gap-6 rounded-2xl p-4 sm:p-8 transition-all hover:-translate-y-0.5"
+              className="group flex flex-col sm:flex-row items-center gap-4 sm:gap-6 rounded-2xl p-5 sm:p-8 transition-all hover:-translate-y-0.5"
               style={{ background: "linear-gradient(160deg, rgba(58,36,20,0.85), rgba(18,11,7,0.9))", border: "1px solid rgba(168,99,46,0.35)" }}
             >
-              <div className="text-3xl sm:text-5xl">🏮</div>
+              <div className="text-4xl sm:text-5xl">🏮</div>
               <div className="flex-1 text-center sm:text-right">
-                <h2 className="hk-display text-lg sm:text-2xl text-[#c9853f] mb-1 sm:mb-2">افتح مجلس الأسئلة</h2>
-                <p className="text-[#a8763f] text-xs sm:text-sm leading-relaxed">
+                <h2 className="hk-display text-xl sm:text-2xl text-[#c9853f] mb-1.5 sm:mb-2">افتح مجلس الأسئلة</h2>
+                <p className="text-[#a8763f] text-sm leading-relaxed">
                   عشر ليالٍ، عشر حكايات، وثلاثة فوانيس.. هل تستحق لقب «حكواتي الزمان»؟
                 </p>
               </div>
@@ -95,6 +95,12 @@ export function HakawatiHomePage() {
             </Link>
           </div>
         </section>
+
+        {/* مؤشر تمرير */}
+        <div className="flex flex-col items-center gap-2 pb-28 pt-3 sm:pb-8">
+          <span className="text-xs tracking-widest" style={{ color: "#7a6650" }}>اكتشف المزيد من الحكايات</span>
+          <ChevronDown className="animate-bounce" size={20} style={{ color: "#a8763f" }} />
+        </div>
 
         {/* أحدث الحكايات */}
         <section className="px-4 pb-24">
