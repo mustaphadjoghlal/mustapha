@@ -93,6 +93,12 @@ const HakawatiGamePage: React.FC = () => {
   const [revealed, setRevealed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const revealRef = useRef<HTMLDivElement>(null);
+
+  // ─── تمرير تلقائي لإظهار زر «الليلة التالية» عند كشف الإجابة ───
+  useEffect(() => {
+    if (revealed) revealRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [revealed]);
 
   // ─── جلب البيانات من Firestore ───
   useEffect(() => {
@@ -288,7 +294,7 @@ const HakawatiGamePage: React.FC = () => {
             </div>
 
             {revealed && (
-              <div style={{ marginTop: 18, padding: "14px 16px", background: "rgba(201,133,63,0.08)", borderRight: "3px solid #c9853f", borderRadius: 8, animation: "fadeUp .4s" }}>
+              <div ref={revealRef} style={{ marginTop: 18, padding: "14px 16px", background: "rgba(201,133,63,0.08)", borderRight: "3px solid #c9853f", borderRadius: 8, animation: "fadeUp .4s" }}>
                 <div style={{ ...S.display, fontSize: 14, color: "#a8763f", marginBottom: 4 }}>
                   {selected === q.answer ? "أحسنت يا صاحب الفطنة! وتقول الحكاية:" : selected === -1 ? "انقضى الوقت يا صاحبي! والحكاية تقول:" : "لا بأس.. فاسمع الحكاية:"}
                 </div>
