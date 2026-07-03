@@ -3,8 +3,16 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc 
 import { db } from "../../../firebase";
 import { DEFAULT_QUESTIONS } from "./HakawatiGamePage";
 import type { HakawatiQuestion, HakawatiSettings } from "./HakawatiGamePage";
+import { CATEGORY_LABELS } from "./hakawatiQuestionsBank";
+import type { HakawatiCategory } from "./hakawatiQuestionsBank";
 
-const emptyQuestion = (): HakawatiQuestion => ({ q: "", options: ["", "", "", ""], answer: 0, story: "" });
+const CATEGORY_ICONS: Record<HakawatiCategory, string> = {
+  islamic: "🕌",
+  algeria: "🇩🇿",
+  world: "🌍",
+};
+
+const emptyQuestion = (): HakawatiQuestion => ({ q: "", options: ["", "", "", ""], answer: 0, story: "", category: "islamic" });
 const DEFAULT_SETTINGS: HakawatiSettings = { total: 10, time: 30, lives: 3 };
 
 /**
@@ -14,12 +22,14 @@ const DEFAULT_SETTINGS: HakawatiSettings = { total: 10, time: 30, lives: 3 };
  */
 const HakawatiAdmin: React.FC = () => {
   const [questions, setQuestions] = useState<HakawatiQuestion[]>([]);
+  const [missingCategoryIds, setMissingCategoryIds] = useState<string[]>([]);
   const [settings, setSettings] = useState<HakawatiSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
   const [editId, setEditId] = useState<string | "new" | null>(null);
   const [draft, setDraft] = useState<HakawatiQuestion | null>(null);
   const [busy, setBusy] = useState(false);
+  const [filterCategory, setFilterCategory] = useState<"all" | HakawatiCategory>("all");
 
   const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 3000); };
 
@@ -27,7 +37,14 @@ const HakawatiAdmin: React.FC = () => {
     setLoading(true);
     try {
       const snap = await getDocs(collection(db, "hakawati_questions"));
-      setQuestions(snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<HakawatiQuestion, "id">) })));
+      const missing: string[] = [];
+      const loaded = snap.docs.map(d => {
+        const data = d.data() as Omit<HakawatiQuestion, "id">;
+        if (!data.category) missing.push(d.id);
+        return { id: d.id, ...data, category: data.category || "islamic" } as HakawatiQuestion;
+      });
+      setQuestions(loaded);
+      setMissingCategoryIds(missing);
       const s = await getDoc(doc(db, "hakawati_settings", "config"));
       if (s.exists()) setSettings({ ...DEFAULT_SETTINGS, ...(s.data() as Partial<HakawatiSettings>) });
     } catch (e) {
@@ -52,7 +69,7 @@ const HakawatiAdmin: React.FC = () => {
     }
     setBusy(true);
     try {
-      const data = { q: draft.q.trim(), options: draft.options.map(o => o.trim()), answer: draft.answer, story: draft.story.trim() };
+      const data = { q: draft.q.trim(), options: draft.options.map(o => o.trim()), answer: draft.answer, story: draft.story.trim(), category: draft.category };
       if (editId === "new") {
         await addDoc(collection(db, "hakawati_questions"), data);
       } else if (editId) {
@@ -100,7 +117,7 @@ const HakawatiAdmin: React.FC = () => {
     setBusy(true);
     try {
       for (const q of DEFAULT_QUESTIONS) {
-        await addDoc(collection(db, "hakawati_questions"), { q: q.q, options: q.options, answer: q.answer, story: q.story });
+        await addDoc(collection(db, "hakawati_questions"), { q: q.q, options: q.options, answer: q.answer, story: q.story, category: q.category });
       }
       flash("✓ استُوردت الأسئلة الافتراضية");
       await load();
@@ -111,8 +128,50 @@ const HakawatiAdmin: React.FC = () => {
     setBusy(false);
   };
 
+  const seedMissing = async () => {
+    const existingTexts = new Set(questions.map(q => q.q.trim()));
+    const missing = DEFAULT_QUESTIONS.filter(q => !existingTexts.has(q.q.trim()));
+    if (missing.length === 0) {
+      flash("✓ كل أسئلة البنك موجودة بالفعل");
+      return;
+    }
+    if (!window.confirm(`استيراد ${missing.length} سؤالًا ناقصًا فقط (بدون تكرار الموجود)؟`)) return;
+    setBusy(true);
+    try {
+      for (const q of missing) {
+        await addDoc(collection(db, "hakawati_questions"), { q: q.q, options: q.options, answer: q.answer, story: q.story, category: q.category });
+      }
+      flash(`✓ استُورد ${missing.length} سؤالًا ناقصًا`);
+      await load();
+    } catch (e) {
+      console.error(e);
+      flash("⚠ تعذّر الاستيراد");
+    }
+    setBusy(false);
+  };
+
+  const fixMissingCategories = async () => {
+    if (missingCategoryIds.length === 0) return;
+    setBusy(true);
+    try {
+      for (const id of missingCategoryIds) {
+        await updateDoc(doc(db, "hakawati_questions", id), { category: "islamic" });
+      }
+      flash(`✓ أُضيف التصنيف لـ ${missingCategoryIds.length} سؤالًا`);
+      await load();
+    } catch (e) {
+      console.error(e);
+      flash("⚠ تعذّر الإصلاح");
+    }
+    setBusy(false);
+  };
+
   const num = (v: string, min: number, max: number) =>
     Math.max(min, Math.min(max, parseInt(v) || min));
+
+  const categoryCounts: Record<HakawatiCategory, number> = { islamic: 0, algeria: 0, world: 0 };
+  questions.forEach(q => { categoryCounts[q.category] = (categoryCounts[q.category] || 0) + 1; });
+  const filteredQuestions = filterCategory === "all" ? questions : questions.filter(q => q.category === filterCategory);
 
   // أنماط بسيطة متوافقة مع أي لوحة تحكم — عدّلها بكلاسات Tailwind الخاصة بموقعك إن أحببت
   const S: Record<string, React.CSSProperties> = {
@@ -125,6 +184,18 @@ const HakawatiAdmin: React.FC = () => {
     btnDanger: { background: "#fff", color: "#b91c1c", border: "1px solid #fca5a5", borderRadius: 8, padding: "7px 16px", fontSize: 14, cursor: "pointer", fontFamily: "inherit" },
   };
 
+  const chipStyle = (active: boolean): React.CSSProperties => ({
+    background: active ? "#b08035" : "#fff",
+    color: active ? "#fff" : "#374151",
+    border: `1px solid ${active ? "#b08035" : "#d1d5db"}`,
+    borderRadius: 999,
+    padding: "6px 14px",
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: "pointer",
+    fontFamily: "inherit",
+  });
+
   if (loading) return <div style={S.wrap}>جاري تحميل بيانات لعبة الحكواتي...</div>;
 
   return (
@@ -133,6 +204,17 @@ const HakawatiAdmin: React.FC = () => {
       <p style={{ fontSize: 14, color: "#6b7280", marginBottom: 16 }}>إدارة أسئلة وإعدادات اللعبة — التغييرات تظهر مباشرة على الموقع.</p>
 
       {msg && <div style={{ ...S.box, background: "#fffbeb", borderColor: "#f6cc6d", fontWeight: 600 }}>{msg}</div>}
+
+      {missingCategoryIds.length > 0 && (
+        <div style={{ ...S.box, background: "#fff7ed", borderColor: "#fdba74" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <p style={{ fontSize: 14, color: "#9a3412", margin: 0 }}>
+              ⚠ يوجد {missingCategoryIds.length} سؤالًا بلا تصنيف (من استيراد سابق) — تُعامل حاليًا كـ«{CATEGORY_LABELS.islamic}».
+            </p>
+            <button style={S.btnGhost} onClick={fixMissingCategories} disabled={busy}>إصلاح الآن</button>
+          </div>
+        </div>
+      )}
 
       {/* الإعدادات */}
       <div style={S.box}>
@@ -161,6 +243,12 @@ const HakawatiAdmin: React.FC = () => {
       {draft ? (
         <div style={S.box}>
           <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{editId === "new" ? "سؤال جديد" : "تعديل السؤال"}</div>
+          <label style={S.label}>التصنيف</label>
+          <select value={draft.category} onChange={e => setDraft({ ...draft, category: e.target.value as HakawatiCategory })} style={{ ...S.input, marginBottom: 10 }}>
+            {(Object.keys(CATEGORY_LABELS) as HakawatiCategory[]).map(cat => (
+              <option key={cat} value={cat}>{CATEGORY_ICONS[cat]} {CATEGORY_LABELS[cat]}</option>
+            ))}
+          </select>
           <label style={S.label}>نص السؤال</label>
           <textarea rows={2} value={draft.q} onChange={e => setDraft({ ...draft, q: e.target.value })} style={{ ...S.input, resize: "vertical", marginBottom: 10 }} />
           {draft.options.map((opt, i) => (
@@ -182,23 +270,47 @@ const HakawatiAdmin: React.FC = () => {
         </div>
       ) : (
         <div style={S.box}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>بنك الأسئلة ({questions.length})</div>
             <button style={S.btn} onClick={() => openEditor()}>+ سؤال جديد</button>
           </div>
+
+          {/* استيراد */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+            <button style={S.btnGhost} onClick={seedDefaults} disabled={busy}>
+              {busy ? "جارٍ الاستيراد..." : `⬇ استيراد الكل (${DEFAULT_QUESTIONS.length} سؤالًا)`}
+            </button>
+            <button style={S.btnGhost} onClick={seedMissing} disabled={busy}>
+              {busy ? "جارٍ الاستيراد..." : "⬇ استيراد الناقص فقط"}
+            </button>
+          </div>
+
           {questions.length === 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 14, color: "#6b7280" }}>
-                لا توجد أسئلة في قاعدة البيانات بعد — اللعبة تعرض حاليًا الأسئلة الاحتياطية المدمجة.
-              </p>
-              <button style={S.btnGhost} onClick={seedDefaults} disabled={busy}>
-                {busy ? "جارٍ الاستيراد..." : `⬇ استيراد الأسئلة الافتراضية (${DEFAULT_QUESTIONS.length} سؤالًا)`}
+            <p style={{ fontSize: 14, color: "#6b7280", marginBottom: 12 }}>
+              لا توجد أسئلة في قاعدة البيانات بعد — اللعبة تعرض حاليًا الأسئلة الاحتياطية المدمجة.
+            </p>
+          )}
+
+          {/* فلترة حسب التصنيف */}
+          {questions.length > 0 && (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+              <button style={chipStyle(filterCategory === "all")} onClick={() => setFilterCategory("all")}>
+                الكل ({questions.length})
               </button>
+              {(Object.keys(CATEGORY_LABELS) as HakawatiCategory[]).map(cat => (
+                <button key={cat} style={chipStyle(filterCategory === cat)} onClick={() => setFilterCategory(cat)}>
+                  {CATEGORY_ICONS[cat]} {CATEGORY_LABELS[cat]} ({categoryCounts[cat]})
+                </button>
+              ))}
             </div>
           )}
+
           <div style={{ display: "grid", gap: 8 }}>
-            {questions.map(qu => (
+            {filteredQuestions.map(qu => (
               <div key={qu.id} style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid #e5e7eb", borderRadius: 8, padding: "10px 12px" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#92400e", background: "#fef3c7", borderRadius: 999, padding: "3px 10px", whiteSpace: "nowrap" }}>
+                  {CATEGORY_ICONS[qu.category]} {CATEGORY_LABELS[qu.category]}
+                </span>
                 <div style={{ flex: 1, fontSize: 14.5, lineHeight: 1.5 }}>{qu.q}</div>
                 <button style={S.btnGhost} onClick={() => openEditor(qu)}>تعديل</button>
                 <button style={S.btnDanger} onClick={() => removeQuestion(qu.id)}>حذف</button>

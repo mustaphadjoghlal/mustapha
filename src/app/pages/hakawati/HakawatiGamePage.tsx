@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
+import { QUESTIONS_BANK, CATEGORY_LABELS } from "./hakawatiQuestionsBank";
+import type { HakawatiCategory } from "./hakawatiQuestionsBank";
 
 // ─── الأنواع ───
 export interface HakawatiQuestion {
@@ -9,6 +11,7 @@ export interface HakawatiQuestion {
   options: string[];
   answer: number;
   story: string;
+  category: HakawatiCategory;
 }
 
 export interface HakawatiSettings {
@@ -18,30 +21,15 @@ export interface HakawatiSettings {
 }
 
 // ─── بنك أسئلة احتياطي (يُستخدم إن كانت قاعدة البيانات فارغة) ───
-export const DEFAULT_QUESTIONS: HakawatiQuestion[] = [
-  { q: "من هو القائد الذي لُقّب بـ«سيف الله المسلول»؟", options: ["عمرو بن العاص", "خالد بن الوليد", "سعد بن أبي وقاص", "أبو عبيدة بن الجراح"], answer: 1, story: "لم يُهزم في معركة قط، لا في جاهلية ولا في إسلام. ومات على فراشه، فبكى وقال: فلا نامت أعين الجبناء." },
-  { q: "من هي المرأة التي حكمت مصر وهزم جيشها الحملة الصليبية السابعة؟", options: ["شجرة الدر", "الخيزران", "زبيدة بنت جعفر", "ست الملك"], answer: 0, story: "أخفت خبر وفاة زوجها الصالح أيوب وأدارت المعركة بنفسها، حتى أُسر ملك فرنسا لويس التاسع في دار ابن لقمان." },
-  { q: "في أي معركة استعاد صلاح الدين الأيوبي زمام القدس؟", options: ["عين جالوت", "اليرموك", "حطين", "الزلاقة"], answer: 2, story: "في تموز 1187 حاصر صلاح الدين الصليبيين عند قرون حطين وقطع عنهم الماء، وبعدها بأشهر دخل القدس دون أن تُسفك الدماء." },
-  { q: "من هو السلطان الذي فتح القسطنطينية عام 1453؟", options: ["سليم الأول", "بايزيد الصاعقة", "محمد الفاتح", "سليمان القانوني"], answer: 2, story: "كان عمره 21 عامًا حين نقل السفن برًّا فوق ألواح الزيت في ليلة واحدة، لتصبح القسطنطينية إسطنبول." },
-  { q: "من كان أول مؤذن في الإسلام؟", options: ["عبد الله بن أم مكتوم", "بلال بن رباح", "أبو محذورة", "سعد القرظ"], answer: 1, story: "من عبدٍ يُعذَّب تحت صخور مكة وهو يقول «أحدٌ أحد» إلى صوتٍ يعلو فوق الكعبة يوم الفتح." },
-  { q: "من هو الخليفة الذي لُقّب بـ«الفاروق»؟", options: ["أبو بكر الصديق", "عثمان بن عفان", "علي بن أبي طالب", "عمر بن الخطاب"], answer: 3, story: "لُقّب بالفاروق لأنه فرّق بين الحق والباطل، وفي عهده فُتحت القدس فدخلها ماشيًا وخادمه على الراحلة." },
-  { q: "في أي شهر وقعت غزوة بدر الكبرى؟", options: ["رمضان", "شوال", "محرم", "رجب"], answer: 0, story: "في السابع عشر من رمضان، السنة الثانية للهجرة، ثلاثمئة وبضعة عشر رجلًا غيّروا وجه التاريخ." },
-  { q: "من هو القائد الذي هزم المغول في عين جالوت؟", options: ["الظاهر بيبرس", "سيف الدين قطز", "نور الدين زنكي", "المعتصم بالله"], answer: 1, story: "بعد سقوط بغداد ظنّ الناس أن المغول لا يُهزمون، حتى صرخ قطز: «وا إسلاماه!» في سهل عين جالوت عام 1260." },
-  { q: "من الذي وحّد المسلمين على مصحف واحد؟", options: ["أبو بكر الصديق", "عمر بن الخطاب", "عثمان بن عفان", "زيد بن ثابت"], answer: 2, story: "جمع أبو بكر الصحف أولًا، ثم نسخ عثمان المصاحف ووزّعها على الأمصار، فسُمّي المصحف العثماني." },
-  { q: "من هو الطبيب المسلم صاحب كتاب «القانون في الطب»؟", options: ["الرازي", "ابن النفيس", "ابن سينا", "الزهراوي"], answer: 2, story: "ظل كتابه يُدرَّس في جامعات أوروبا ستة قرون كاملة، ولقّبوه هناك بـ«أمير الأطباء»." },
-  { q: "من هو القائد الذي عبر بجيشه إلى الأندلس عام 711م؟", options: ["موسى بن نصير", "طارق بن زياد", "عقبة بن نافع", "عبد الرحمن الغافقي"], answer: 1, story: "عبر المضيق الذي حمل اسمه إلى اليوم: جبل طارق، وبدأت حكاية ثمانية قرون من حضارة الأندلس." },
-  { q: "من أسس مدينة القيروان الواقعة في تونس الحالية؟", options: ["طارق بن زياد", "حسان بن النعمان", "عقبة بن نافع", "موسى بن نصير"], answer: 2, story: "أسسها عقبة عام 50هـ لتكون قاعدة المسلمين في إفريقية، ثم وقف على شاطئ الأطلسي قائلًا: «يا رب، لولا هذا البحر لمضيت في البلاد مجاهدًا في سبيلك»." },
-  { q: "من هي مؤسِّسة جامع وجامعة القرويين في فاس؟", options: ["فاطمة الفهري", "زينب النفزاوية", "السيدة نفيسة", "رابعة العدوية"], answer: 0, story: "أنفقت ميراثها كله لبناء القرويين عام 859م، وتُعدّ أقدم جامعة في العالم ما تزال تعمل حتى اليوم." },
-  { q: "في عهد أي خليفة عباسي بلغ «بيت الحكمة» ببغداد ذروته؟", options: ["المأمون", "المعتصم", "المنصور", "المتوكل"], answer: 0, story: "كان المأمون يزن الكتب المترجمة ذهبًا، فتحوّلت بغداد إلى عاصمة العلم في الأرض كلها." },
-  { q: "من هو الرحالة المسلم الذي انطلق من طنجة وجاب العالم ثلاثين عامًا؟", options: ["ابن جبير", "ابن بطوطة", "الإدريسي", "ياقوت الحموي"], answer: 1, story: "خرج للحج وعمره 21 عامًا، فقطع 120 ألف كيلومتر من المغرب إلى الصين، وسمّوه أمير الرحالة المسلمين." },
-  { q: "من هو الجرّاح المسلم الملقب بـ«أبو الجراحة الحديثة»؟", options: ["ابن الهيثم", "الكندي", "الزهراوي", "ابن رشد"], answer: 2, story: "ابتكر أكثر من مئتي أداة جراحية في قرطبة، وبعضها ما يزال يُستخدم بشكله الأساسي إلى اليوم." },
-  { q: "ما اسم العام الذي وُلد فيه الرسول ﷺ؟", options: ["عام الحزن", "عام الفيل", "عام الوفود", "عام الرمادة"], answer: 1, story: "العام الذي جاء فيه أبرهة بجيشه وفيلته لهدم الكعبة، فأرسل الله عليهم طيرًا أبابيل." },
-  { q: "من هو القائد الذي انتصر في معركة الزلاقة بالأندلس؟", options: ["يوسف بن تاشفين", "المعتمد بن عباد", "عبد الرحمن الداخل", "المنصور بن أبي عامر"], answer: 0, story: "جاء أمير المرابطين من صحراء المغرب لنجدة الأندلس عام 1086، فردّ زحف ألفونسو السادس سبعين سنة." },
-  { q: "من هو الصحابي الذي لُقّب بـ«حِبر الأمة» وترجمان القرآن؟", options: ["أبو هريرة", "عبد الله بن مسعود", "عبد الله بن عباس", "أُبي بن كعب"], answer: 2, story: "دعا له النبي ﷺ: «اللهم فقّهه في الدين وعلّمه التأويل»، فصار مرجع الأمة في التفسير وهو شاب." },
-  { q: "من هو مؤسس الدولة الأموية؟", options: ["عبد الملك بن مروان", "معاوية بن أبي سفيان", "الوليد بن عبد الملك", "مروان بن الحكم"], answer: 1, story: "كان يقول: «لا أضع سيفي حيث يكفيني سوطي، ولا سوطي حيث يكفيني لساني»، فحكم عشرين سنة بالدهاء قبل السيف." },
-];
+export const DEFAULT_QUESTIONS: HakawatiQuestion[] = QUESTIONS_BANK;
 
 const DEFAULT_SETTINGS: HakawatiSettings = { total: 10, time: 30, lives: 3 };
+
+const CATEGORY_ICONS: Record<HakawatiCategory, string> = {
+  islamic: "🕌",
+  algeria: "🇩🇿",
+  world: "🌍",
+};
 
 const RANKS = [
   { min: 0, title: "مستمع في المجلس", desc: "ما زلت في أول الحكاية.. عُد واسمع من جديد" },
@@ -89,12 +77,13 @@ const MoonProgress: React.FC<{ step: number; total: number }> = ({ step, total }
   );
 };
 
-type Screen = "loading" | "start" | "play" | "end";
+type Screen = "loading" | "start" | "category" | "play" | "end";
 
 const HakawatiGamePage: React.FC = () => {
   const [screen, setScreen] = useState<Screen>("loading");
   const [questions, setQuestions] = useState<HakawatiQuestion[]>(DEFAULT_QUESTIONS);
   const [settings, setSettings] = useState<HakawatiSettings>(DEFAULT_SETTINGS);
+  const [selectedCategory, setSelectedCategory] = useState<HakawatiCategory | "all">("all");
 
   const [pool, setPool] = useState<HakawatiQuestion[]>([]);
   const [idx, setIdx] = useState(0);
@@ -110,7 +99,10 @@ const HakawatiGamePage: React.FC = () => {
     (async () => {
       try {
         const snap = await getDocs(collection(db, "hakawati_questions"));
-        const fetched: HakawatiQuestion[] = snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<HakawatiQuestion, "id">) }));
+        const fetched: HakawatiQuestion[] = snap.docs.map(d => {
+          const data = d.data() as Omit<HakawatiQuestion, "id">;
+          return { id: d.id, ...data, category: data.category || "islamic" };
+        });
         if (fetched.length > 0) setQuestions(fetched);
 
         const settingsSnap = await getDoc(doc(db, "hakawati_settings", "config"));
@@ -124,10 +116,17 @@ const HakawatiGamePage: React.FC = () => {
     })();
   }, []);
 
-  const effectiveTotal = Math.min(settings.total, questions.length);
+  const categoryCounts: Record<HakawatiCategory, number> = { islamic: 0, algeria: 0, world: 0 };
+  questions.forEach(qq => { categoryCounts[qq.category] = (categoryCounts[qq.category] || 0) + 1; });
 
-  const startGame = () => {
-    setPool(shuffle(questions).slice(0, effectiveTotal));
+  const effectiveTotal = pool.length > 0 ? pool.length : Math.min(settings.total, questions.length);
+
+  const startGame = (cat: HakawatiCategory | "all") => {
+    const filtered = cat === "all" ? questions : questions.filter(qq => qq.category === cat);
+    if (filtered.length === 0) return;
+    const total = Math.min(settings.total, filtered.length);
+    setSelectedCategory(cat);
+    setPool(shuffle(filtered).slice(0, total));
     setIdx(0); setScore(0); setLives(settings.lives);
     setSelected(null); setRevealed(false); setTimeLeft(settings.time);
     setScreen("play");
@@ -185,6 +184,7 @@ const HakawatiGamePage: React.FC = () => {
         @keyframes glowPulse { 0%,100%{filter:drop-shadow(0 0 10px rgba(201,133,63,.6))} 50%{filter:drop-shadow(0 0 22px rgba(201,133,63,.95))} }
         .hakawati-btn:hover { transform: translateY(-2px); }
         .hakawati-btn { transition: transform .15s; }
+        .hakawati-btn:disabled:hover { transform: none; }
         @media (prefers-reduced-motion: reduce) { .hakawati-anim { animation: none !important; } }
       `}</style>
       {stars}
@@ -211,12 +211,47 @@ const HakawatiGamePage: React.FC = () => {
           <div style={{ width: 90, height: 1, background: "linear-gradient(90deg, transparent, #a8763f, transparent)", margin: "10px auto 18px" }} />
           <p style={{ fontSize: 17, lineHeight: 1.9, color: "#d9c9b0", margin: "0 0 6px" }}>
             كان يا ما كان، في قديم الزمان..<br />
-            {effectiveTotal} ليالٍ، و{effectiveTotal} حكايات من تاريخ أمّةٍ عظيمة.<br />
+            {settings.total} ليالٍ، و{settings.total} حكايات من تاريخ أمّةٍ عظيمة.<br />
             في كل ليلة سؤال، ولك {settings.lives} فوانيس..<br />
             <b style={{ color: "#c9853f" }}>فإن انطفأت كلها، انفضّ المجلس.</b>
           </p>
           <div style={{ fontSize: 14, color: "#8a7660", marginBottom: 22 }}>⏳ لكل سؤال {settings.time} ثانية</div>
-          <button className="hakawati-btn" style={S.btn} onClick={startGame}>افتح المجلس 🏮</button>
+          <button className="hakawati-btn" style={S.btn} onClick={() => setScreen("category")}>افتح المجلس 🏮</button>
+        </div>
+      )}
+
+      {screen === "category" && (
+        <div style={{ ...S.card, textAlign: "center", marginTop: 26, animation: "fadeUp .7s" }}>
+          <div style={{ ...S.display, fontSize: 15, color: "#a8763f", marginBottom: 6 }}>يهمس الحكواتي..</div>
+          <h2 style={{ ...S.display, fontSize: 26, color: "#c9853f", marginBottom: 24 }}>من أي ديوانٍ تريد أن أحكي لك الليلة؟</h2>
+          <div style={{ display: "grid", gap: 12 }}>
+            {(Object.keys(CATEGORY_LABELS) as HakawatiCategory[]).map(cat => (
+              <button
+                key={cat}
+                className="hakawati-btn"
+                onClick={() => startGame(cat)}
+                disabled={categoryCounts[cat] === 0}
+                style={{
+                  background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(168,99,46,0.35)", color: "#f2e9da",
+                  borderRadius: 12, padding: "14px 18px", fontSize: 17, fontWeight: 700,
+                  cursor: categoryCounts[cat] === 0 ? "not-allowed" : "pointer", opacity: categoryCounts[cat] === 0 ? 0.4 : 1,
+                  display: "flex", justifyContent: "space-between", alignItems: "center", fontFamily: "'Tajawal', sans-serif",
+                }}
+              >
+                <span>{CATEGORY_ICONS[cat]} {CATEGORY_LABELS[cat]}</span>
+                <span style={{ fontSize: 13, color: "#a8763f" }}>{categoryCounts[cat]} سؤال</span>
+              </button>
+            ))}
+            <button className="hakawati-btn" onClick={() => startGame("all")} disabled={questions.length === 0} style={{ ...S.btn, marginTop: 6 }}>
+              🏮 الكل
+            </button>
+          </div>
+          <button
+            onClick={() => setScreen("start")}
+            style={{ marginTop: 18, background: "none", border: "none", color: "#7a6650", fontSize: 13, cursor: "pointer", fontFamily: "'Tajawal', sans-serif" }}
+          >
+            → رجوع
+          </button>
         </div>
       )}
 
@@ -277,7 +312,15 @@ const HakawatiGamePage: React.FC = () => {
           <div style={{ fontSize: 15, color: "#a8763f" }}>لقبك في المجلس:</div>
           <h2 style={{ ...S.display, fontSize: 32, color: "#f2e9da", margin: "4px 0 6px" }}>{rank.title}</h2>
           <p style={{ fontSize: 15.5, color: "#b39d7c", margin: "0 0 24px" }}>{rank.desc}</p>
-          <button className="hakawati-btn" style={S.btn} onClick={startGame}>مجلس جديد 🏮</button>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+            <button className="hakawati-btn" style={S.btn} onClick={() => startGame(selectedCategory)}>مجلس جديد 🏮</button>
+            <button
+              onClick={() => setScreen("category")}
+              style={{ background: "none", border: "1.5px solid rgba(168,99,46,0.35)", color: "#a8763f", borderRadius: 12, padding: "14px 24px", fontSize: 15, cursor: "pointer", fontFamily: "'Tajawal', sans-serif" }}
+            >
+              تغيير الديوان
+            </button>
+          </div>
         </div>
       )}
     </div>
