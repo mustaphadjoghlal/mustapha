@@ -613,6 +613,9 @@ export function AdminPage() {
   const [newCourse, setNewCourse] = useState<Partial<Course>>({ title: "", description: "", image: "", duration: "", students: "", level: "", modules: "", email: "" });
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [showAddCourse, setShowAddCourse] = useState(false);
+  const [newClient, setNewClient] = useState<Partial<Client>>({ name: "", logoUrl: "", logoAlt: "" });
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [showAddClient, setShowAddClient] = useState(false);
 
   const sc = "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-all text-sm";
   const mediaTypes = ["تلفزيون", "إذاعة", "صحافة", "بودكاست", "يوتيوب", "أخرى"];
@@ -651,6 +654,9 @@ export function AdminPage() {
   const addCourse = async () => { setSaving(true); try { await addDoc(collection(db, "courses"), newCourse); setShowAddCourse(false); setNewCourse({ title: "", description: "", image: "", duration: "", students: "", level: "", modules: "", email: "" }); } catch (e) { console.error(e); } setSaving(false); };
   const saveCourse = async () => { if (!editingCourse) return; setSaving(true); try { await updateDoc(doc(db, "courses", editingCourse.id), editingCourse); setEditingCourse(null); } catch (e) { console.error(e); } setSaving(false); };
   const deleteCourse = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "courses", id)); };
+  const addClient = async () => { setSaving(true); try { await addDoc(collection(db, "clients"), newClient); setShowAddClient(false); setNewClient({ name: "", logoUrl: "", logoAlt: "" }); } catch (e) { console.error(e); } setSaving(false); };
+  const saveClient = async () => { if (!editingClient) return; setSaving(true); try { await updateDoc(doc(db, "clients", editingClient.id), editingClient); setEditingClient(null); } catch (e) { console.error(e); } setSaving(false); };
+  const deleteClient = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "clients", id)); };
   const saveInfo = async () => { if (!siteInfo) return; setSaving(true); try { await updateDoc(doc(db, "siteInfo", siteInfo.id), siteInfo as any); alert("تم الحفظ بنجاح"); } catch (e) { console.error(e); } setSaving(false); };
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><Loader className="animate-spin text-blue-500" /></div>;
@@ -660,7 +666,7 @@ export function AdminPage() {
     { id: "works", label: "الأعمال" }, { id: "experience", label: "الخبرات" },
     { id: "media", label: "المخرجات" }, { id: "articles", label: "المقالات" },
     { id: "hakawati", label: "الحكواتي" },
-    { id: "courses", label: "الدورات" }, { id: "info", label: "الإعدادات" },
+    { id: "courses", label: "الدورات" }, { id: "clients", label: "العملاء" }, { id: "info", label: "الإعدادات" },
   ];
 
   return (
@@ -899,6 +905,58 @@ export function AdminPage() {
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "clients" && (
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">العملاء المميزون ({clients.length})</h2>
+              <button onClick={() => setShowAddClient(true)} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة عميل</button>
+            </div>
+            {showAddClient && (
+              <div className="bg-gray-800 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
+                <div className="flex justify-between"><h3 className="text-blue-400 font-bold">عميل جديد</h3><button onClick={() => setShowAddClient(false)}><X size={16} className="text-gray-400" /></button></div>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <input value={newClient.name} onChange={(e) => setNewClient({ ...newClient, name: e.target.value })} placeholder="اسم العميل" className={sc} />
+                  <input value={newClient.logoAlt} onChange={(e) => setNewClient({ ...newClient, logoAlt: e.target.value })} placeholder="النص البديل للشعار (alt)" className={sc} />
+                </div>
+                <SingleImageUploader url={newClient.logoUrl || ""} onChange={(url) => setNewClient(prev => ({ ...prev, logoUrl: url }))} folder="clients" label="رفع شعار العميل" />
+                <button onClick={addClient} disabled={saving || !newClient.name} className="flex items-center gap-2 bg-blue-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+              </div>
+            )}
+            <div className="space-y-3">
+              {clients.map((client) => (
+                <div key={client.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                  {editingClient?.id === client.id ? (
+                    <div className="space-y-3">
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <input value={editingClient.name} onChange={(e) => setEditingClient({ ...editingClient, name: e.target.value })} placeholder="اسم العميل" className={sc} />
+                        <input value={editingClient.logoAlt} onChange={(e) => setEditingClient({ ...editingClient, logoAlt: e.target.value })} placeholder="النص البديل للشعار (alt)" className={sc} />
+                      </div>
+                      <SingleImageUploader url={editingClient.logoUrl} onChange={(url) => setEditingClient(prev => prev ? ({ ...prev, logoUrl: url }) : null)} folder="clients" label="تغيير الشعار" />
+                      <div className="flex gap-2">
+                        <button onClick={saveClient} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
+                        <button onClick={() => setEditingClient(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-4">
+                      {client.logoUrl && <img src={client.logoUrl} alt={client.logoAlt || client.name} className="w-16 h-16 rounded-lg object-contain bg-white/5 border border-gray-600 flex-shrink-0 p-1" />}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-white text-sm truncate">{client.name}</p>
+                        {client.logoAlt && <p className="text-gray-400 text-xs truncate">{client.logoAlt}</p>}
+                      </div>
+                      <div className="flex gap-1">
+                        <button onClick={() => setEditingClient(client)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                        <button onClick={() => deleteClient(client.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {clients.length === 0 && <p className="text-gray-500 text-sm text-center py-8">لا يوجد عملاء مضافون بعد</p>}
             </div>
           </div>
         )}
