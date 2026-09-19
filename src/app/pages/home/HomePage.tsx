@@ -35,6 +35,8 @@ interface Work {
   audioUrl?: string;
   soundcloudUrl?: string;
   category: "design" | "photography" | "voice";
+  /** يُحدَّد من لوحة التحكم — يظهر في قسم "أعمال مختارة" */
+  featured?: boolean;
 }
 
 const CACHE_KEY = "mustapha_site_info";
@@ -77,24 +79,48 @@ const services = [
 ];
 
 
+/**
+ * صورة البطل — بلا إطار ولا بطاقة: قناع إشعاعي يُذيب الحواف في الخلفية
+ * الداكنة فتبدو الصورة جزءاً من الصفحة لا عنصراً مركّباً فوقها.
+ */
+function HeroPhoto({ src, priority = false }: { src: string; priority?: boolean }) {
+  const fade =
+    "radial-gradient(68% 72% at 50% 42%, #000 34%, rgba(0,0,0,0.55) 66%, transparent 90%)";
+  return (
+    <div className="fade-up relative">
+      <img
+        src={src}
+        alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
+        title="مصطفى جغلال"
+        width={1000}
+        height={1000}
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
+        className="w-full aspect-[4/5] object-cover object-[center_12%]"
+        style={{ maskImage: fade, WebkitMaskImage: fade }}
+      />
+    </div>
+  );
+}
+
+
 interface HeroCopyProps {
   description: string;
   email: string;
   socials: { url: string; Icon: typeof Mic; label: string }[];
 }
 
-/** نصّ البطل — تكوين واحد مشترك بين الجوال والشاشات الكبيرة */
-function HeroCopy({ description, email, socials }: HeroCopyProps) {
+/** العنوان — يجاور الصورة */
+function HeroTitle() {
   return (
-    <div className="max-w-[30rem]">
-      {/* عبارة صغيرة فوق العنوان */}
-      <p className="fade-up flex items-center gap-3 text-[0.72rem] tracking-[0.22em] text-fg-muted">
-        <span className="h-px w-7 bg-royal-500" />
+    <>
+      <p className="fade-up flex items-center gap-3 text-[0.7rem] tracking-[0.2em] text-fg-muted">
+        <span className="h-px w-6 bg-royal-500" />
         كل قصة تستحق أن تُروى
       </p>
 
       <h1
-        className="fade-up mt-5 text-[2.45rem] leading-[1.22] sm:text-[3rem] lg:text-[3.6rem] lg:leading-[1.18] font-bold tracking-[-0.01em]"
+        className="fade-up mt-4 text-[1.95rem] leading-[1.28] sm:text-[2.6rem] lg:text-[3.4rem] lg:leading-[1.18] font-bold tracking-[-0.01em]"
         style={{ animationDelay: "60ms" }}
       >
         أحوّل
@@ -103,9 +129,16 @@ function HeroCopy({ description, email, socials }: HeroCopyProps) {
         <br />
         <span className="text-royal-400">صوت مؤثر</span>
       </h1>
+    </>
+  );
+}
 
+/** بقيّة نصّ البطل: الوصف والأزرار وروابط التواصل */
+function HeroCopy({ description, email, socials }: HeroCopyProps) {
+  return (
+    <div className="max-w-[32rem]">
       <p
-        className="fade-up mt-5 text-[0.95rem] sm:text-base leading-[1.85] text-fg-muted"
+        className="fade-up text-[0.95rem] sm:text-base leading-[1.85] text-fg-muted"
         style={{ animationDelay: "120ms" }}
       >
         {description}
@@ -113,11 +146,11 @@ function HeroCopy({ description, email, socials }: HeroCopyProps) {
 
       <div className="fade-up mt-8 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "180ms" }}>
         <Link
-          to="/portfolio-voice"
+          to="/portfolio-design"
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-royal-500 px-7 py-4 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
         >
-          <Play size={17} />
-          استمع إلى نماذج صوتية
+          <ArrowLeft size={17} />
+          أعمالي
         </Link>
         <a
           href={email ? `mailto:${email}` : "#contact"}
@@ -128,7 +161,7 @@ function HeroCopy({ description, email, socials }: HeroCopyProps) {
       </div>
 
       {socials.length > 0 && (
-        <div className="fade-up mt-9 flex gap-6" style={{ animationDelay: "240ms" }}>
+        <div className="fade-up mt-8 flex gap-6" style={{ animationDelay: "240ms" }}>
           {socials.map(({ url, Icon, label }) => (
             <a
               key={label}
@@ -177,9 +210,14 @@ export function HomePage() {
     return () => { u1(); u2(); u3(); };
   }, []);
 
-  const heroImage = siteInfo.profileImageUrl || profileImg;
+  // الصورة المعتمدة للبطل هي المرفقة بالمشروع (ذات ربطة العنق الزرقاء).
+  // الصورة المرفوعة من لوحة التحكم ما زالت تُستخدم في بقية الموقع.
+  const heroImage = profileImg;
   const voiceSample = works.find((w) => w.category === "voice" && (w.audioUrl || w.soundcloudUrl));
-  const featured = works.filter((w) => w.coverImage).slice(0, 6);
+  const withCover = works.filter((w) => w.coverImage);
+  const picked = withCover.filter((w) => w.featured);
+  // ما لم يُحدَّد شيء من لوحة التحكم، تُعرض أول ستة أعمال حتى لا يفرغ القسم
+  const featured = (picked.length > 0 ? picked : withCover).slice(0, 6);
 
   const socials = [
     { url: siteInfo.linkedinUrl, Icon: Linkedin, label: "لينكدإن" },
@@ -207,83 +245,44 @@ export function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* ═══════════ البطل ═══════════
-          تكوين واحد: صورة تخرج من الظلام، والنص يرتفع داخل منطقة ذوبانها */}
-      <section className="relative -mt-16">
-        {/* ——— الجوال ——— */}
-        <div className="lg:hidden">
-          <div className="relative h-[58svh] min-h-[20rem] max-h-[30rem]">
-            <img
-              src={heroImage}
-              alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
-              title="مصطفى جغلال"
-              width={1000}
-              height={1000}
-              loading="eager"
-              fetchPriority="high"
-              className="h-full w-full object-cover object-[center_10%]"
-            />
-            {/* تعتيم أعلى الصورة ليبقى الهيدر مقروءاً */}
-            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-ink-950 via-ink-950/55 to-transparent" />
-            {/* حواف ناعمة جداً تُخرج الصورة من الظلام */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(128% 88% at 50% 28%, transparent 46%, #08090d 100%)",
-              }}
-            />
-            {/* ذوبان سفلي طويل حتى تندمج الصورة بالخلفية تماماً */}
-            <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-ink-950 via-ink-950/92 to-transparent" />
-          </div>
+          الصورة على يسار العنوان بحجم معتدل، وحوافّها تذوب في الخلفية */}
+      <section className="relative">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:gap-16 pt-10 pb-12 lg:pt-16 lg:pb-16">
 
-          {/* النص يرتفع داخل الذوبان فيصبح التكوين واحداً */}
-          <div className="relative -mt-24 px-5 pb-20">
-            <HeroCopy
-              description={siteInfo.heroDescription}
-              email={siteInfo.email}
-              socials={socials}
-            />
+            {/* النص — يبدأ من اليمين */}
+            <div>
+              {/* على الجوال: العنوان يمين والصورة يساره */}
+              <div className="flex items-center gap-4 sm:gap-6 lg:block">
+                <div className="min-w-0 flex-1">
+                  <HeroTitle />
+                </div>
+                <div className="w-[38%] max-w-[9.5rem] shrink-0 sm:max-w-[12rem] lg:hidden">
+                  <HeroPhoto src={heroImage} priority />
+                </div>
+              </div>
+
+              <div className="mt-7">
+                <HeroCopy
+                  description={siteInfo.heroDescription}
+                  email={siteInfo.email}
+                  socials={socials}
+                />
+              </div>
+            </div>
+
+            {/* الشاشات الكبيرة: الصورة في العمود الأيسر */}
+            <div className="hidden lg:block">
+              <div className="ms-auto w-full max-w-[19rem] xl:max-w-[21rem]">
+                <HeroPhoto src={heroImage} />
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* ——— الشاشات الكبيرة ——— */}
-        <div className="relative hidden lg:block min-h-[100svh]">
-          <div className="pointer-events-none absolute inset-y-0 start-0 w-[47%] xl:w-[44%]">
-            <img src={heroImage} alt="" aria-hidden="true" className="h-full w-full object-cover object-top" />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(115% 100% at 70% 36%, transparent 42%, #08090d 100%)",
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-ink-950/35 to-ink-950" />
-            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-ink-950 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-ink-950 to-transparent" />
-          </div>
-
-          <div className="relative mx-auto grid min-h-[100svh] max-w-7xl grid-cols-2 items-center px-8">
-            <div aria-hidden="true" />
-            <HeroCopy
-              description={siteInfo.heroDescription}
-              email={siteInfo.email}
-              socials={socials}
-            />
-          </div>
-        </div>
-
-        {/* إضاءة زرقاء خافتة جداً فوق التكوين كله — تمنع ظهور حافة عند طرف الصورة */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(62% 40% at 76% 14%, rgba(49,87,213,0.11), transparent 72%)",
-          }}
-        />
       </section>
 
       {/* ═══════════ مجالات العمل ═══════════ */}
-      <section id="services" className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <section id="services" className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-4 pb-16 sm:pt-8 sm:pb-24">
         <h2 className="text-2xl sm:text-3xl font-bold">ماذا أقدم</h2>
         <span className="rule-accent mt-4" />
 

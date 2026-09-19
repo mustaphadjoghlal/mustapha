@@ -4,7 +4,7 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "fireb
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader,
-  Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff } from "lucide-react";
+  Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff, Star } from "lucide-react";
 import HakawatiAdmin from "../hakawati/HakawatiAdmin";
 import { useSeo } from "../../shared/useSeo";
 
@@ -114,6 +114,8 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
 interface Work {
   id: string; title: string; description: string; coverImage: string; images: string[];
   altText: string; soundcloudUrl: string; audioUrl?: string; category: "design" | "photography" | "voice";
+  /** يظهر في قسم "أعمال مختارة" بالصفحة الرئيسية */
+  featured?: boolean;
 }
 interface Experience { id: string; period: string; title: string; location: string; tasks: string; }
 interface MediaOutput {
@@ -239,7 +241,7 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
   );
 }
 
-function WorksList({ works, category, saving, editingWork, setEditingWork, onSave, onDelete, showAdd, setShowAdd, newWork, setNewWork, onAdd, sc }: any) {
+function WorksList({ works, category, saving, editingWork, setEditingWork, onSave, onDelete, onToggleFeatured, showAdd, setShowAdd, newWork, setNewWork, onAdd, sc }: any) {
   const filtered = works.filter((w: Work) => w.category === category);
   const isVoice = category === "voice";
   return (
@@ -304,8 +306,16 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                   <p className="text-gray-400 text-sm truncate">{work.description}</p>
                   {work.images?.length > 0 && <span className="text-xs text-gray-500">{work.images.length} صور</span>}
                   {(work.soundcloudUrl || work.audioUrl) && <span className="text-xs text-orange-400 mr-2">صوت ✓</span>}
+                  {work.featured && <span className="text-xs text-amber-400 mr-2">★ في الصفحة الرئيسية</span>}
                 </div>
                 <div className="flex gap-2">
+                  <button
+                    onClick={() => onToggleFeatured(work)}
+                    title={work.featured ? "إخفاء من «أعمال مختارة»" : "إظهار في «أعمال مختارة»"}
+                    className={`p-2 rounded-lg hover:bg-ink-850 ${work.featured ? "text-amber-400" : "text-gray-500 hover:text-amber-400"}`}
+                  >
+                    <Star size={16} fill={work.featured ? "currentColor" : "none"} />
+                  </button>
                   <button onClick={() => setEditingWork(work)} className="p-2 text-gray-400 hover:text-royal-300 hover:bg-ink-850 rounded-lg"><Pencil size={16} /></button>
                   <button onClick={() => onDelete(work.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-ink-850 rounded-lg"><Trash2 size={16} /></button>
                 </div>
@@ -641,6 +651,10 @@ export function AdminPage() {
   const addWork = async () => { setSaving(true); try { await addDoc(collection(db, "works"), newWork); setShowAddWork(false); setNewWork({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category: newWork.category }); } catch (e) { console.error(e); } setSaving(false); };
   const saveWork = async () => { if (!editingWork) return; setSaving(true); try { await updateDoc(doc(db, "works", editingWork.id), editingWork); setEditingWork(null); } catch (e) { console.error(e); } setSaving(false); };
   const deleteWork = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "works", id)); };
+  /** إظهار/إخفاء العمل في قسم "أعمال مختارة" بالصفحة الرئيسية */
+  const toggleWorkFeatured = async (work: Work) => {
+    try { await updateDoc(doc(db, "works", work.id), { featured: !work.featured }); } catch (e) { console.error(e); }
+  };
   const addExp = async () => { setSaving(true); try { await addDoc(collection(db, "experiences"), newExp); setShowAddExp(false); setNewExp({ title: "", period: "", location: "", tasks: "" }); } catch (e) { console.error(e); } setSaving(false); };
   const saveExp = async () => { if (!editingExp) return; setSaving(true); try { await updateDoc(doc(db, "experiences", editingExp.id), editingExp); setEditingExp(null); } catch (e) { console.error(e); } setSaving(false); };
   const deleteExp = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "experiences", id)); };
@@ -701,7 +715,7 @@ export function AdminPage() {
                 <button key={cat.id} onClick={() => setNewWork({ ...newWork, category: cat.id as any })} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${newWork.category === cat.id ? "bg-royal-600 text-white shadow-lg" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>{cat.label}</button>
               ))}
             </div>
-            <WorksList works={works} category={newWork.category || "design"} saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
+            <WorksList works={works} category={newWork.category || "design"} saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} onToggleFeatured={toggleWorkFeatured} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
           </div>
         )}
 
