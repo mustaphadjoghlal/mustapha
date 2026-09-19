@@ -114,13 +114,13 @@ interface HeroCopyProps {
 function HeroTitle() {
   return (
     <>
-      <p className="fade-up flex items-center gap-3 text-[0.7rem] tracking-[0.2em] text-fg-muted">
-        <span className="h-px w-6 bg-royal-500" />
+      <p className="fade-up flex items-center gap-3 text-[0.7rem] tracking-[0.2em] lg:text-[0.72rem] lg:tracking-[0.22em] text-fg-muted">
+        <span className="h-px w-6 lg:w-7 bg-royal-500" />
         كل قصة تستحق أن تُروى
       </p>
 
       <h1
-        className="fade-up mt-4 text-[1.95rem] leading-[1.28] sm:text-[2.6rem] lg:text-[3.4rem] lg:leading-[1.18] font-bold tracking-[-0.01em]"
+        className="fade-up mt-4 lg:mt-5 text-[1.95rem] leading-[1.28] sm:text-[2.6rem] lg:text-[3.6rem] lg:leading-[1.18] font-bold tracking-[-0.01em]"
         style={{ animationDelay: "60ms" }}
       >
         أحوّل
@@ -161,7 +161,7 @@ function HeroCopy({ description, email, socials }: HeroCopyProps) {
       </div>
 
       {socials.length > 0 && (
-        <div className="fade-up mt-8 flex gap-6" style={{ animationDelay: "240ms" }}>
+        <div className="fade-up mt-8 lg:mt-9 flex gap-6" style={{ animationDelay: "240ms" }}>
           {socials.map(({ url, Icon, label }) => (
             <a
               key={label}
@@ -245,24 +245,53 @@ export function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* ═══════════ البطل ═══════════
-          الصورة على يسار العنوان بحجم معتدل، وحوافّها تذوب في الخلفية */}
-      <section className="relative">
-        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:gap-16 pt-10 pb-12 lg:pt-16 lg:pb-16">
+          الجوال: الصورة على يسار العنوان بحجم معتدل
+          الشاشات الكبيرة: التكوين السينمائي كما كان — صورة ممتدة تذوب في الخلفية */}
+      <section className="relative lg:-mt-16">
 
-            {/* النص — يبدأ من اليمين */}
-            <div>
-              {/* على الجوال: العنوان يمين والصورة يساره */}
-              <div className="flex items-center gap-4 sm:gap-6 lg:block">
-                <div className="min-w-0 flex-1">
-                  <HeroTitle />
-                </div>
-                <div className="w-[38%] max-w-[9.5rem] shrink-0 sm:max-w-[12rem] lg:hidden">
-                  <HeroPhoto src={heroImage} priority />
-                </div>
+        {/* ——— الجوال ——— */}
+        <div className="lg:hidden">
+          <div className="px-5 pt-10 pb-12">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <div className="min-w-0 flex-1">
+                <HeroTitle />
               </div>
+              <div className="w-[38%] max-w-[9.5rem] shrink-0 sm:max-w-[12rem]">
+                <HeroPhoto src={heroImage} priority />
+              </div>
+            </div>
 
-              <div className="mt-7">
+            <div className="mt-7">
+              <HeroCopy
+                description={siteInfo.heroDescription}
+                email={siteInfo.email}
+                socials={socials}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ——— الشاشات الكبيرة ——— */}
+        <div className="relative hidden lg:block min-h-[100svh]">
+          <div className="pointer-events-none absolute inset-y-0 start-0 w-[47%] xl:w-[44%]">
+            <img src={heroImage} alt="" aria-hidden="true" className="h-full w-full object-cover object-top" />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(115% 100% at 70% 36%, transparent 42%, #08090d 100%)",
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-ink-950/35 to-ink-950" />
+            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-ink-950 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-ink-950 to-transparent" />
+          </div>
+
+          <div className="relative mx-auto grid min-h-[100svh] max-w-7xl grid-cols-2 items-center px-8">
+            <div aria-hidden="true" />
+            <div className="max-w-[30rem]">
+              <HeroTitle />
+              <div className="mt-5">
                 <HeroCopy
                   description={siteInfo.heroDescription}
                   email={siteInfo.email}
@@ -270,19 +299,21 @@ export function HomePage() {
                 />
               </div>
             </div>
-
-            {/* الشاشات الكبيرة: الصورة في العمود الأيسر */}
-            <div className="hidden lg:block">
-              <div className="ms-auto w-full max-w-[19rem] xl:max-w-[21rem]">
-                <HeroPhoto src={heroImage} />
-              </div>
-            </div>
           </div>
+
+          {/* إضاءة زرقاء خافتة جداً فوق التكوين — تمنع ظهور حافة عند طرف الصورة */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(62% 40% at 76% 14%, rgba(49,87,213,0.11), transparent 72%)",
+            }}
+          />
         </div>
       </section>
 
       {/* ═══════════ مجالات العمل ═══════════ */}
-      <section id="services" className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-4 pb-16 sm:pt-8 sm:pb-24">
+      <section id="services" className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-4 pb-16 sm:pt-8 sm:pb-24 lg:pt-24">
         <h2 className="text-2xl sm:text-3xl font-bold">ماذا أقدم</h2>
         <span className="rule-accent mt-4" />
 
