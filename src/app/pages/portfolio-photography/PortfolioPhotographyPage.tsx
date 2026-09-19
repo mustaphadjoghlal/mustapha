@@ -42,7 +42,7 @@ export function PortfolioPhotographyPage() {
   ];
 
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className="bg-ink-950 text-white min-h-screen">
       <section className="relative py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-teal-900/20 to-black"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -58,12 +58,12 @@ export function PortfolioPhotographyPage() {
         </div>
       </section>
 
-      <section className="py-20 bg-gray-900">
+      <section className="py-20 bg-ink-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">الخدمات المقدمة</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service, index) => (
-              <div key={index} className="flex items-start gap-3 bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-cyan-500 transition-all">
+              <div key={index} className="flex items-start gap-3 bg-ink-850 border border-ink-700 rounded-lg p-6 hover:border-cyan-500 transition-all">
                 <CheckCircle className="w-6 h-6 text-cyan-400 flex-shrink-0 mt-1" />
                 <p className="text-gray-200">{service}</p>
               </div>
@@ -72,7 +72,7 @@ export function PortfolioPhotographyPage() {
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-b from-gray-900 to-black">
+      <section className="py-20 bg-gradient-to-b from-ink-900 to-ink-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">مشاريع فوتوغرافية مميزة</h2>
@@ -86,8 +86,8 @@ export function PortfolioPhotographyPage() {
                 const cover = work.coverImage || work.images?.[0];
                 return (
                   <Link key={work.id} to={`/portfolio/${work.id}`}
-                    className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-cyan-500 transition-all hover:shadow-xl hover:shadow-cyan-500/20">
-                    <div className="relative h-56 overflow-hidden bg-gray-800">
+                    className="group bg-ink-900 border border-ink-700 rounded-xl overflow-hidden hover:border-cyan-500 transition-all hover:shadow-xl hover:shadow-cyan-500/20">
+                    <div className="relative h-56 overflow-hidden bg-ink-850">
                       {cover ? (
                         <img src={cover} alt={work.altText || work.title} loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -97,12 +97,12 @@ export function PortfolioPhotographyPage() {
                         </div>
                       )}
                       {work.images?.length > 0 && (
-                        <div className="absolute bottom-3 left-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                        <div className="absolute bottom-3 left-3 bg-ink-950/60 text-white text-xs px-2 py-1 rounded-full">
                           {work.images.length} صور
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="text-white text-sm font-semibold bg-black/60 px-4 py-2 rounded-full">عرض المشروع</span>
+                      <div className="absolute inset-0 bg-ink-950/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-white text-sm font-semibold bg-ink-950/60 px-4 py-2 rounded-full">عرض المشروع</span>
                       </div>
                     </div>
                     <div className="p-5">
@@ -117,7 +117,7 @@ export function PortfolioPhotographyPage() {
         </div>
       </section>
 
-      <section className="py-20 bg-black">
+      <section className="py-20 bg-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">هل تحتاج خدمات تصوير فوتوغرافي؟</h2>
           <p className="text-gray-400 text-lg mb-8">دعنا نعمل معاً لتوثيق اللحظات المهمة وإنشاء صور تعكس رؤيتك</p>

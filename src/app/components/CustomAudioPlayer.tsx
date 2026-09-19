@@ -81,7 +81,7 @@ export function CustomAudioPlayer({ src, title, coverImage }: CustomAudioPlayerP
   const progressPercent = duration ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="w-full bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700 rounded-xl p-6 shadow-lg">
+    <div className="w-full bg-gradient-to-r from-ink-850 to-ink-800 border border-ink-700 rounded-xl p-6 shadow-lg">
       <audio ref={audioRef} src={src} crossOrigin="anonymous" />
 
       <div className="flex gap-6">
@@ -91,7 +91,7 @@ export function CustomAudioPlayer({ src, title, coverImage }: CustomAudioPlayerP
             <img
               src={coverImage}
               alt={title}
-              className="w-24 h-24 rounded-lg object-cover border border-gray-600 shadow-md"
+              className="w-24 h-24 rounded-lg object-cover border border-ink-600 shadow-md"
             />
           </div>
         )}
@@ -114,9 +114,9 @@ export function CustomAudioPlayer({ src, title, coverImage }: CustomAudioPlayerP
               max={duration || 0}
               value={currentTime}
               onChange={handleProgressChange}
-              className="w-full h-1.5 bg-gray-700 rounded-full appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400"
+              className="w-full h-1.5 bg-ink-600 rounded-full appearance-none cursor-pointer accent-royal-500 hover:accent-royal-400"
               style={{
-                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progressPercent}%, #374151 ${progressPercent}%, #374151 100%)`,
+                background: `linear-gradient(to right, #4169e1 0%, #4169e1 ${progressPercent}%, #2a3450 ${progressPercent}%, #2a3450 100%)`,
               }}
             />
           </div>
@@ -127,7 +127,7 @@ export function CustomAudioPlayer({ src, title, coverImage }: CustomAudioPlayerP
             <button
               onClick={togglePlay}
               disabled={isLoading}
-              className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 shadow-lg hover:shadow-blue-500/50"
+              className="flex items-center justify-center w-12 h-12 rounded-full bg-royal-500 hover:bg-royal-600 transition-all disabled:opacity-50 shadow-lg hover:shadow-royal-500/50"
               aria-label={isPlaying ? "إيقاف" : "تشغيل"}
             >
               {isLoading ? (
@@ -149,7 +149,7 @@ export function CustomAudioPlayer({ src, title, coverImage }: CustomAudioPlayerP
                 step="0.1"
                 value={volume}
                 onChange={handleVolumeChange}
-                className="w-20 h-1 bg-gray-700 rounded-full appearance-none cursor-pointer accent-purple-500"
+                className="w-20 h-1 bg-ink-600 rounded-full appearance-none cursor-pointer accent-royal-400"
               />
             </div>
 
@@ -158,7 +158,7 @@ export function CustomAudioPlayer({ src, title, coverImage }: CustomAudioPlayerP
               <a
                 href={src}
                 download
-                className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-700 transition-colors text-gray-400 hover:text-white"
+                className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-700 transition-colors text-gray-400 hover:text-white"
                 aria-label="تحميل"
               >
                 <Download size={16} />

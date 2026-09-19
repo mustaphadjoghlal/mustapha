@@ -101,22 +101,22 @@ export function AboutPage() {
       case "إذاعة": return "bg-orange-900 text-orange-300";
       case "صحافة": return "bg-green-900 text-green-300";
       case "يوتيوب": return "bg-red-900 text-red-300";
-      default: return "bg-purple-900 text-purple-300";
+      default: return "bg-royal-900 text-royal-300";
     }
   };
 
   return (
-    <div className="bg-black text-white min-h-screen" dir="rtl">
+    <div className="bg-ink-950 text-white min-h-screen" dir="rtl">
 
       {/* Hero */}
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-br from-royal-900/30 via-royal-800/15 to-black" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-blue-400 font-semibold mb-3 tracking-widest text-sm uppercase">تعرّف عليّ</p>
+              <p className="text-royal-400 font-semibold mb-3 tracking-widest text-sm uppercase">تعرّف عليّ</p>
               <h1 className="text-5xl lg:text-6xl font-bold mb-6">
-                <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="text-royal-400">
                   {info.heroName}
                 </span>
               </h1>
@@ -130,12 +130,12 @@ export function AboutPage() {
             <div className="flex justify-center">
               {loaded && info.aboutImages?.[0]?.url ? (
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-3xl opacity-20" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-royal-500 to-royal-600 rounded-2xl blur-3xl opacity-20" />
                   <img src={info.aboutImages[0].url} alt={info.aboutImages[0].alt || "مصطفى جغلال"}
-                    className="relative rounded-2xl w-full max-w-sm object-cover border-2 border-gray-800 shadow-2xl" />
+                    className="relative rounded-2xl w-full max-w-sm object-cover border-2 border-ink-700 shadow-2xl" />
                 </div>
               ) : (
-                <div className="w-80 h-96 bg-gray-900 border border-gray-800 rounded-2xl animate-pulse" />
+                <div className="w-80 h-96 bg-ink-900 border border-ink-700 rounded-2xl animate-pulse" />
               )}
             </div>
           </div>
@@ -151,7 +151,7 @@ export function AboutPage() {
               { emoji: "🎨", title: "إبداع بصري", desc: "تصاميم جرافيكية ومحتوى مرئي يعبّر عن هوية العلامة التجارية بدقة" },
               { emoji: "📱", title: "إدارة مجتمع", desc: "استراتيجيات تسويقية رقمية تبني حضوراً قوياً على السوشيال ميديا" },
             ].map((item, i) => (
-              <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition-all">
+              <div key={i} className="bg-ink-900 border border-ink-700 rounded-xl p-6 hover:border-royal-500 transition-all">
                 <div className="text-4xl mb-4">{item.emoji}</div>
                 <h3 className="text-xl font-bold mb-2">{item.title}</h3>
                 <p className="text-gray-400">{item.desc}</p>
@@ -162,25 +162,25 @@ export function AboutPage() {
       </section>
 
       {/* المسيرة المهنية */}
-      <section className="py-20 bg-black">
+      <section className="py-20 bg-ink-950">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold mb-12 text-center">
-            <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">المسيرة المهنية</span>
+            <span className="text-royal-400">المسيرة المهنية</span>
           </h2>
           <div className="space-y-6">
             {experiences.map((exp) => (
-              <div key={exp.id} className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition-all">
+              <div key={exp.id} className="bg-ink-900 border border-ink-700 rounded-xl p-6 hover:border-royal-500 transition-all">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-3 gap-2">
                   <div>
                     <h3 className="text-lg font-bold text-white">{exp.title}</h3>
                     <p className="text-gray-500 text-sm">{exp.location}</p>
                   </div>
-                  <span className="text-blue-400 text-sm font-semibold whitespace-nowrap">{exp.period}</span>
+                  <span className="text-royal-400 text-sm font-semibold whitespace-nowrap">{exp.period}</span>
                 </div>
                 <ul className="space-y-1">
                   {exp.tasks.split("\n").filter(t => t.trim()).map((task, j) => (
                     <li key={j} className="text-gray-400 text-sm flex items-start gap-2">
-                      <span className="text-blue-500 mt-1">•</span>{task.trim()}
+                      <span className="text-royal-500 mt-1">•</span>{task.trim()}
                     </li>
                   ))}
                 </ul>
@@ -196,19 +196,19 @@ export function AboutPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <img src={info.aboutImages[1].url} alt={info.aboutImages[1].alt || "مصطفى جغلال"}
-                className="rounded-2xl w-full object-cover border-2 border-gray-800 shadow-xl" />
+                className="rounded-2xl w-full object-cover border-2 border-ink-700 shadow-xl" />
               <div>
                 <h2 className="text-3xl font-bold mb-6">
-                  <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">المهارات</span>
+                  <span className="bg-gradient-to-r from-royal-500 to-royal-400 bg-clip-text text-transparent">المهارات</span>
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   {skills.map((skill, i) => (
-                    <div key={i} className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-                      <h4 className="text-purple-400 font-semibold mb-2 text-sm">{skill.category}</h4>
+                    <div key={i} className="bg-ink-900 border border-ink-700 rounded-lg p-4">
+                      <h4 className="text-royal-300 font-semibold mb-2 text-sm">{skill.category}</h4>
                       <ul className="space-y-1">
                         {skill.items.map((item, j) => (
                           <li key={j} className="text-gray-400 text-xs flex items-center gap-1">
-                            <span className="w-1 h-1 bg-purple-400 rounded-full inline-block" />{item}
+                            <span className="w-1 h-1 bg-royal-400 rounded-full inline-block" />{item}
                           </li>
                         ))}
                       </ul>
@@ -223,27 +223,27 @@ export function AboutPage() {
 
       {/* المخرجات الإعلامية */}
       {mediaOutputs.length > 0 && (
-        <section className="py-20 bg-black">
+        <section className="py-20 bg-ink-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold mb-12 text-center">
-              <span className="bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent">المخرجات الإعلامية</span>
+              <span className="bg-gradient-to-r from-royal-500 to-red-500 bg-clip-text text-transparent">المخرجات الإعلامية</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {mediaOutputs.map((item) => (
-                <div key={item.id} className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-pink-500 transition-all">
+                <div key={item.id} className="bg-ink-900 border border-ink-700 rounded-xl p-6 hover:border-royal-500 transition-all">
                   {item.coverImage && (
-                    <img src={item.coverImage} alt={item.title} className="w-full h-40 object-cover rounded-lg mb-4 border border-gray-700" loading="lazy" />
+                    <img src={item.coverImage} alt={item.title} className="w-full h-40 object-cover rounded-lg mb-4 border border-ink-700" loading="lazy" />
                   )}
                   <div className="flex items-center gap-2 mb-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${typeColor(item.type)}`}>{item.type}</span>
                     {item.date && <span className="text-gray-500 text-xs">{item.date}</span>}
                   </div>
                   <h3 className="font-bold text-white mb-1">{item.title}</h3>
-                  <p className="text-pink-400 text-sm mb-2">{item.channel}</p>
+                  <p className="text-royal-200 text-sm mb-2">{item.channel}</p>
                   {item.description && <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>}
                   {item.url && (
                     <a href={item.url} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 mt-3 text-pink-400 text-sm hover:underline">
+                      className="inline-flex items-center gap-1 mt-3 text-royal-200 text-sm hover:underline">
                       🔗 مشاهدة
                     </a>
                   )}
@@ -259,7 +259,7 @@ export function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-10">
             <div>
-              <h3 className="text-xl font-bold mb-6 text-blue-400">📚 التعليم</h3>
+              <h3 className="text-xl font-bold mb-6 text-royal-400">📚 التعليم</h3>
               <div className="space-y-4">
                 {education.map((edu, i) => (
                   <div key={i} className="border-r-2 border-blue-600 pr-4">
@@ -270,10 +270,10 @@ export function AboutPage() {
               </div>
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-6 text-purple-400">🏅 الشهادات</h3>
+              <h3 className="text-xl font-bold mb-6 text-royal-300">🏅 الشهادات</h3>
               <div className="space-y-4">
                 {certificates.map((cert, i) => (
-                  <div key={i} className="border-r-2 border-purple-600 pr-4">
+                  <div key={i} className="border-r-2 border-royal-600 pr-4">
                     <p className="text-gray-500 text-sm">{cert.year}</p>
                     <p className="text-white font-semibold">{cert.title}</p>
                   </div>
@@ -281,7 +281,7 @@ export function AboutPage() {
               </div>
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-6 text-pink-400">🌐 اللغات</h3>
+              <h3 className="text-xl font-bold mb-6 text-royal-200">🌐 اللغات</h3>
               <div className="space-y-5">
                 {languages.map((lang, i) => (
                   <div key={i}>
@@ -289,8 +289,8 @@ export function AboutPage() {
                       <span className="text-white font-semibold">{lang.lang}</span>
                       <span className="text-gray-500 text-sm">{lang.level}</span>
                     </div>
-                    <div className="w-full bg-gray-800 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full" style={{ width: `${lang.percent}%` }} />
+                    <div className="w-full bg-ink-850 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-royal-500 to-royal-600 h-2 rounded-full" style={{ width: `${lang.percent}%` }} />
                     </div>
                   </div>
                 ))}
@@ -302,35 +302,35 @@ export function AboutPage() {
 
       {/* صورة ثالثة + الصفات */}
       {loaded && info.aboutImages?.[2]?.url && (
-        <section className="py-12 bg-black">
+        <section className="py-12 bg-ink-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
                 <h2 className="text-3xl font-bold mb-4">
-                  <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">الشخصية والصفات</span>
+                  <span className="text-royal-400">الشخصية والصفات</span>
                 </h2>
                 <ul className="space-y-3 text-gray-300">
                   {["جاد وديناميكي مع قدرة كبيرة على التكيف", "مهتم بالتقنيات الجديدة والاقتصاد والثقافة العامة", "ناشط جمعوي وصانع محتوى رقمي", "يؤمن بأن المحتوى الناجح يبدأ بفهم الجمهور"].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <span className="text-blue-500 mt-1">✓</span><span>{item}</span>
+                      <span className="text-royal-500 mt-1">✓</span><span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
               <img src={info.aboutImages[2].url} alt={info.aboutImages[2].alt || "مصطفى جغلال"}
-                className="rounded-2xl w-full object-cover border-2 border-gray-800 shadow-xl" />
+                className="rounded-2xl w-full object-cover border-2 border-ink-700 shadow-xl" />
             </div>
           </div>
         </section>
       )}
 
       {/* CTA */}
-      <section className="py-20 bg-gradient-to-b from-gray-900 to-black">
+      <section className="py-20 bg-gradient-to-b from-ink-900 to-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-4">هل تريد التعاون معي؟</h2>
           <p className="text-gray-400 mb-8">سواء كان مشروعاً صوتياً أو بصرياً أو رقمياً — أنا هنا</p>
           <a href={`mailto:${info.email}`}
-            className="inline-block px-10 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all font-semibold text-lg">
+            className="inline-block px-10 py-4 bg-royal-500 rounded-xl hover:from-royal-600 hover:to-royal-700 transition-all font-semibold text-lg">
             تواصل معي الآن
           </a>
         </div>

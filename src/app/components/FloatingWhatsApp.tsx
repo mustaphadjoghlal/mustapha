@@ -26,9 +26,9 @@ export function FloatingWhatsApp() {
   const whatsappUrl = `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent("مرحباً، أود التواصل معك")}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-40">
+    <div className="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-30">
       {isOpen && (
-        <div className="absolute bottom-20 right-0 bg-white rounded-2xl shadow-2xl p-6 w-80 mb-4">
+        <div className="absolute bottom-20 right-0 bg-white rounded-2xl shadow-2xl p-6 w-[min(20rem,calc(100vw-2rem))] mb-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-gray-800">تواصل معنا عبر الواتساب</h3>
             <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-700">

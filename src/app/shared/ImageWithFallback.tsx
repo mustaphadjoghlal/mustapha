@@ -19,7 +19,7 @@ export function ImageWithFallback({
 
   if (error) {
     return (
-      <div className={`bg-gray-800 flex items-center justify-center ${className}`}>
+      <div className={`bg-ink-850 flex items-center justify-center ${className}`}>
         <div className="text-gray-500 text-center p-4">
           <p className="text-sm">صورة غير متوفرة</p>
         </div>

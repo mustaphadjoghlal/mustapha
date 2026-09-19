@@ -39,7 +39,7 @@ export function CoursesPage() {
   ];
 
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className="bg-ink-950 text-white min-h-screen">
 
       {/* Hero */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
@@ -58,12 +58,12 @@ export function CoursesPage() {
       </section>
 
       {/* Benefits */}
-      <section className="py-20 bg-gray-900">
+      <section className="py-20 bg-ink-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">لماذا تختار دوراتنا</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {benefits.map((benefit, index) => (
-              <div key={index} className="text-center bg-gray-800 border border-gray-700 rounded-xl p-8 hover:border-green-500 transition-all">
+              <div key={index} className="text-center bg-ink-850 border border-ink-700 rounded-xl p-8 hover:border-green-500 transition-all">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-full mb-4 text-green-400">
                   {benefit.icon}
                 </div>
@@ -76,7 +76,7 @@ export function CoursesPage() {
       </section>
 
       {/* Courses */}
-      <section className="py-20 bg-gradient-to-b from-gray-900 to-black">
+      <section className="py-20 bg-gradient-to-b from-ink-900 to-ink-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">الدورات المتاحة</h2>
@@ -87,17 +87,17 @@ export function CoursesPage() {
           {!loaded && (
             <div className="space-y-8">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden animate-pulse">
+                <div key={i} className="bg-ink-900 border border-ink-700 rounded-xl overflow-hidden animate-pulse">
                   <div className="grid md:grid-cols-3">
-                    <div className="h-64 bg-gray-800" />
+                    <div className="h-64 bg-ink-850" />
                     <div className="md:col-span-2 p-8 space-y-4">
-                      <div className="h-6 bg-gray-800 rounded w-2/3" />
-                      <div className="h-4 bg-gray-800 rounded w-full" />
-                      <div className="h-4 bg-gray-800 rounded w-3/4" />
+                      <div className="h-6 bg-ink-850 rounded w-2/3" />
+                      <div className="h-4 bg-ink-850 rounded w-full" />
+                      <div className="h-4 bg-ink-850 rounded w-3/4" />
                       <div className="flex gap-4 mt-4">
-                        <div className="h-4 bg-gray-800 rounded w-24" />
-                        <div className="h-4 bg-gray-800 rounded w-24" />
-                        <div className="h-4 bg-gray-800 rounded w-24" />
+                        <div className="h-4 bg-ink-850 rounded w-24" />
+                        <div className="h-4 bg-ink-850 rounded w-24" />
+                        <div className="h-4 bg-ink-850 rounded w-24" />
                       </div>
                     </div>
                   </div>
@@ -120,14 +120,14 @@ export function CoursesPage() {
             <div className="space-y-8">
               {courses.map((course) => (
                 <div key={course.id}
-                  className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-green-500 transition-all hover:shadow-xl hover:shadow-green-500/20">
+                  className="group bg-ink-900 border border-ink-700 rounded-xl overflow-hidden hover:border-green-500 transition-all hover:shadow-xl hover:shadow-green-500/20">
                   <div className="grid md:grid-cols-3 gap-0">
                     <div className="relative h-64 md:h-auto overflow-hidden">
                       {course.image ? (
                         <img src={course.image} alt={course.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                       ) : (
-                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                        <div className="w-full h-full bg-ink-850 flex items-center justify-center">
                           <GraduationCap size={48} className="text-gray-600" />
                         </div>
                       )}
@@ -182,7 +182,7 @@ export function CoursesPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-black">
+      <section className="py-20 bg-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">هل أنت مستعد للبدء؟</h2>
           <p className="text-gray-400 text-lg mb-8">انضم إلى مئات المتدربين الذين طوروا مهاراتهم معنا</p>

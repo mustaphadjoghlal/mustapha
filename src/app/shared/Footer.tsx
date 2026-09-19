@@ -35,11 +35,11 @@ export function Footer() {
   }, []);
 
   return (
-    <footer className="border-t border-gray-800 bg-black">
+    <footer className="border-t border-ink-700 bg-ink-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+            <h3 className="text-xl font-bold mb-4 text-royal-400">
               {info.heroName}
             </h3>
             <p className="text-gray-400">{info.footerDescription}</p>
@@ -48,13 +48,13 @@ export function Footer() {
             <h4 className="font-semibold mb-4">تواصل معي</h4>
             <div className="space-y-3 text-gray-400">
               {info.email && (
-                <a href={`mailto:${info.email}`} className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+                <a href={`mailto:${info.email}`} className="flex items-center gap-2 hover:text-royal-300 transition-colors">
                   <Mail size={18} />
                   <span>{info.email}</span>
                 </a>
               )}
               {info.phone && (
-                <a href={`tel:${info.phone}`} className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+                <a href={`tel:${info.phone}`} className="flex items-center gap-2 hover:text-royal-300 transition-colors">
                   <Phone size={18} />
                   <span dir="ltr">{info.phone}</span>
                 </a>
@@ -64,19 +64,19 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4">تابعني</h4>
             <div className="flex gap-4">
-              <a href={info.linkedinUrl || "#"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition-colors">
+              <a href={info.linkedinUrl || "#"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-royal-300 transition-colors">
                 <Linkedin size={24} />
               </a>
-              <a href={info.twitterUrl || "#"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition-colors">
+              <a href={info.twitterUrl || "#"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-royal-300 transition-colors">
                 <Twitter size={24} />
               </a>
-              <a href={info.instagramUrl || "#"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition-colors">
+              <a href={info.instagramUrl || "#"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-royal-300 transition-colors">
                 <Instagram size={24} />
               </a>
             </div>
           </div>
         </div>
-        <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
+        <div className="mt-8 pt-8 border-t border-ink-700 text-center text-gray-400">
           <p>&copy; {new Date().getFullYear()} جميع الحقوق محفوظة - {info.heroName}</p>
         </div>
       </div>

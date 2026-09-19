@@ -48,9 +48,9 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
   const Divider = () => <div className="w-px h-6 bg-gray-700 mx-1" />;
 
   return (
-    <div className="border border-gray-700 rounded-xl overflow-hidden focus-within:border-blue-500 transition-all">
+    <div className="border border-ink-700 rounded-xl overflow-hidden focus-within:border-royal-500 transition-all">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-900 border-b border-gray-700">
+      <div className="flex flex-wrap items-center gap-1 p-2 bg-ink-900 border-b border-ink-700">
         {/* Text style */}
         <button type="button" onClick={() => exec("bold")} className={toolbarBtnBase} title="غامق"><Bold size={15} /></button>
         <button type="button" onClick={() => exec("italic")} className={toolbarBtnBase} title="مائل"><Italic size={15} /></button>
@@ -84,7 +84,7 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
         contentEditable
         dir="rtl"
         onInput={handleInput}
-        className="min-h-[300px] max-h-[500px] overflow-y-auto p-4 bg-gray-800 text-gray-200 text-sm leading-relaxed focus:outline-none"
+        className="min-h-[300px] max-h-[500px] overflow-y-auto p-4 bg-ink-850 text-gray-200 text-sm leading-relaxed focus:outline-none"
         style={{
           fontFamily: "'Segoe UI', Tahoma, sans-serif",
           fontSize: "0.95rem",
@@ -94,15 +94,15 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
 
       {/* CSS for editor content */}
       <style>{`
-        [contenteditable] h2 { font-size:1.3rem; font-weight:800; color:#fff; margin:1rem 0 0.5rem; border-bottom:2px solid #3b82f6; padding-bottom:0.25rem; }
+        [contenteditable] h2 { font-size:1.3rem; font-weight:800; color:#fff; margin:1rem 0 0.5rem; border-bottom:2px solid #4169e1; padding-bottom:0.25rem; }
         [contenteditable] h3 { font-size:1.1rem; font-weight:700; color:#e5e7eb; margin:0.8rem 0 0.4rem; }
         [contenteditable] p  { margin-bottom:0.8rem; }
         [contenteditable] strong { font-weight:700; color:#fff; }
         [contenteditable] ul { list-style:disc; padding-right:1.5rem; margin:0.5rem 0; }
         [contenteditable] ol { list-style:decimal; padding-right:1.5rem; margin:0.5rem 0; }
         [contenteditable] li { margin-bottom:0.3rem; }
-        [contenteditable] blockquote { border-right:3px solid #3b82f6; padding-right:1rem; color:#9ca3af; font-style:italic; margin:0.8rem 0; }
-        [contenteditable] a  { color:#60a5fa; }
+        [contenteditable] blockquote { border-right:3px solid #4169e1; padding-right:1rem; color:#9ca3af; font-style:italic; margin:0.8rem 0; }
+        [contenteditable] a  { color:#93aeff; }
       `}</style>
     </div>
   );
@@ -153,9 +153,9 @@ function SingleImageUploader({ url, onChange, folder = "images", label = "رفع
   };
   return (
     <div className="flex gap-3 items-center">
-      {url && <img src={url} alt="" className={`w-16 h-16 object-cover border-2 border-gray-700 ${rounded ? "rounded-full" : "rounded-lg"}`} />}
-      <div onClick={() => fileInputRef.current?.click()} className="flex-1 border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-xl p-3 text-center cursor-pointer transition-all">
-        {uploading ? <div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-blue-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
+      {url && <img src={url} alt="" className={`w-16 h-16 object-cover border-2 border-ink-700 ${rounded ? "rounded-full" : "rounded-lg"}`} />}
+      <div onClick={() => fileInputRef.current?.click()} className="flex-1 border-2 border-dashed border-ink-600 hover:border-royal-500 rounded-xl p-3 text-center cursor-pointer transition-all">
+        {uploading ? <div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-royal-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
           : <div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={14} /><span>{label}</span></div>}
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
       </div>
@@ -184,14 +184,14 @@ function AudioUploader({ url, onChange, onFileName, folder = "audio", label = "�
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="flex gap-3 items-center">
-        {url && <div className="flex-1 bg-gray-800 border border-gray-700 rounded-lg p-3 text-sm text-green-400 truncate">✓ ملف صوتي مرفوع</div>}
-        <div onClick={() => !uploading && fileInputRef.current?.click()} className={`flex-1 border-2 border-dashed ${uploading ? 'border-purple-500/50 cursor-not-allowed' : 'border-gray-600 hover:border-purple-500 cursor-pointer'} rounded-xl p-3 text-center transition-all`}>
-          {uploading ? (<div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-purple-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>)
+        {url && <div className="flex-1 bg-ink-850 border border-ink-700 rounded-lg p-3 text-sm text-green-400 truncate">✓ ملف صوتي مرفوع</div>}
+        <div onClick={() => !uploading && fileInputRef.current?.click()} className={`flex-1 border-2 border-dashed ${uploading ? 'border-royal-500/50 cursor-not-allowed' : 'border-ink-600 hover:border-royal-500 cursor-pointer'} rounded-xl p-3 text-center transition-all`}>
+          {uploading ? (<div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-royal-300" /><p className="text-gray-400 text-xs">{progress}%</p></div>)
             : (<div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={14} /><span>{label}</span></div>)}
           <input ref={fileInputRef} type="file" accept="audio/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
         </div>
       </div>
-      {status && <p className="text-xs text-purple-400 text-center">{status}</p>}
+      {status && <p className="text-xs text-royal-300 text-center">{status}</p>}
     </div>
   );
 }
@@ -220,15 +220,15 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
   };
   return (
     <div className="space-y-4">
-      <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-700 hover:border-blue-500 rounded-xl p-8 text-center cursor-pointer transition-all">
-        {uploading ? <div className="space-y-2"><Loader size={24} className="animate-spin mx-auto text-blue-500" /><p className="text-gray-400 text-sm">{progress}%</p></div>
+      <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-ink-700 hover:border-royal-500 rounded-xl p-8 text-center cursor-pointer transition-all">
+        {uploading ? <div className="space-y-2"><Loader size={24} className="animate-spin mx-auto text-royal-500" /><p className="text-gray-400 text-sm">{progress}%</p></div>
           : <div className="space-y-2 text-gray-400"><Image size={32} className="mx-auto opacity-50" /><p className="text-sm">اسحب الصور هنا أو انقر للرفع</p></div>}
         <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={(e) => e.target.files && handleFiles(e.target.files)} />
       </div>
       {images.length > 0 && (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
           {images.filter(img => img.trim()).map((img, i) => (
-            <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-gray-800">
+            <div key={i} className="relative group aspect-square rounded-lg overflow-hidden border border-ink-700">
               <img src={img} alt="" className="w-full h-full object-cover" />
               <button onClick={() => removeImage(img)} className="absolute inset-0 bg-red-600/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Trash2 size={16} /></button>
             </div>
@@ -246,11 +246,11 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
     <div>
       <div className="flex items-center justify-between mb-6">
         <span className="text-gray-400 text-sm">{filtered.length} عمل</span>
-        <button onClick={() => { setNewWork({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category }); setShowAdd(true); }} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2 rounded-lg font-semibold text-sm hover:from-blue-600 hover:to-purple-700 transition-all"><Plus size={16} /> إضافة عمل</button>
+        <button onClick={() => { setNewWork({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category }); setShowAdd(true); }} className="flex items-center gap-2 bg-royal-500 px-5 py-2 rounded-lg font-semibold text-sm hover:from-royal-600 hover:to-royal-700 transition-all"><Plus size={16} /> إضافة عمل</button>
       </div>
       {showAdd && newWork.category === category && (
-        <div className="bg-gray-900 border border-blue-800 rounded-2xl p-6 mb-6 space-y-4">
-          <div className="flex items-center justify-between"><h3 className="font-bold text-blue-400">إضافة عمل جديد</h3><button onClick={() => setShowAdd(false)}><X size={18} className="text-gray-400" /></button></div>
+        <div className="bg-ink-900 border border-blue-800 rounded-2xl p-6 mb-6 space-y-4">
+          <div className="flex items-center justify-between"><h3 className="font-bold text-royal-400">إضافة عمل جديد</h3><button onClick={() => setShowAdd(false)}><X size={18} className="text-gray-400" /></button></div>
           <div className="grid md:grid-cols-2 gap-4">
             <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className={sc} />
             <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={sc} />
@@ -273,13 +273,13 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
               <ImageUploader images={newWork.images || []} onChange={(imgs: string[]) => setNewWork(prev => ({ ...prev, images: imgs }))} />
             </div>
           )}
-          <button onClick={onAdd} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50"><Plus size={16} /> {saving ? "جارٍ الإضافة..." : "إضافة"}</button>
+          <button onClick={onAdd} disabled={saving} className="flex items-center gap-2 bg-royal-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50"><Plus size={16} /> {saving ? "جارٍ الإضافة..." : "إضافة"}</button>
         </div>
       )}
       <div className="space-y-4">
-        {filtered.length === 0 && <div className="text-center text-gray-500 py-12 border border-dashed border-gray-800 rounded-xl">لا توجد أعمال بعد</div>}
+        {filtered.length === 0 && <div className="text-center text-gray-500 py-12 border border-dashed border-ink-700 rounded-xl">لا توجد أعمال بعد</div>}
         {filtered.map((work: Work) => (
-          <div key={work.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+          <div key={work.id} className="bg-ink-900 border border-ink-700 rounded-xl p-5">
             {editingWork?.id === work.id ? (
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
@@ -298,7 +298,7 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                {work.coverImage ? <img src={work.coverImage} alt={work.altText} className="w-14 h-14 rounded-lg object-cover border border-gray-700 flex-shrink-0" /> : isVoice ? <div className="w-14 h-14 rounded-lg border border-gray-700 flex-shrink-0 bg-pink-900/20 flex items-center justify-center">🎙️</div> : null}
+                {work.coverImage ? <img src={work.coverImage} alt={work.altText} className="w-14 h-14 rounded-lg object-cover border border-ink-700 flex-shrink-0" /> : isVoice ? <div className="w-14 h-14 rounded-lg border border-ink-700 flex-shrink-0 bg-royal-900/20 flex items-center justify-center">🎙️</div> : null}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-white">{work.title}</h3>
                   <p className="text-gray-400 text-sm truncate">{work.description}</p>
@@ -306,8 +306,8 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                   {(work.soundcloudUrl || work.audioUrl) && <span className="text-xs text-orange-400 mr-2">صوت ✓</span>}
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => setEditingWork(work)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-lg"><Pencil size={16} /></button>
-                  <button onClick={() => onDelete(work.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg"><Trash2 size={16} /></button>
+                  <button onClick={() => setEditingWork(work)} className="p-2 text-gray-400 hover:text-royal-300 hover:bg-ink-850 rounded-lg"><Pencil size={16} /></button>
+                  <button onClick={() => onDelete(work.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-ink-850 rounded-lg"><Trash2 size={16} /></button>
                 </div>
               </div>
             )}
@@ -347,7 +347,7 @@ function ArticlesSection({ articles, saving, sc, onAdd, onSave, onDelete }: {
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+    <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">المقالات ({articles.length})</h2>
         <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 px-5 py-2 rounded-lg font-semibold text-sm">
@@ -357,7 +357,7 @@ function ArticlesSection({ articles, saving, sc, onAdd, onSave, onDelete }: {
 
       {/* Add Form */}
       {showAdd && (
-        <div className="bg-gray-800 border border-orange-700 rounded-xl p-5 mb-6 space-y-4">
+        <div className="bg-ink-850 border border-orange-700 rounded-xl p-5 mb-6 space-y-4">
           <div className="flex justify-between">
             <h3 className="text-orange-400 font-bold">مقال جديد</h3>
             <button onClick={() => setShowAdd(false)}><X size={16} className="text-gray-400" /></button>
@@ -399,7 +399,7 @@ function ArticlesSection({ articles, saving, sc, onAdd, onSave, onDelete }: {
       <div className="space-y-3">
         {articles.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد مقالات</p>}
         {articles.map((article) => (
-          <div key={article.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+          <div key={article.id} className="bg-ink-850 border border-ink-700 rounded-xl p-4">
             {editingArticle?.id === article.id ? (
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-3">
@@ -432,7 +432,7 @@ function ArticlesSection({ articles, saving, sc, onAdd, onSave, onDelete }: {
               </div>
             ) : (
               <div className="flex items-start justify-between gap-4">
-                {article.coverImage && <img src={article.coverImage} alt={article.title} className="w-16 h-16 rounded-lg object-cover border border-gray-600 flex-shrink-0" />}
+                {article.coverImage && <img src={article.coverImage} alt={article.title} className="w-16 h-16 rounded-lg object-cover border border-ink-600 flex-shrink-0" />}
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-white text-sm truncate">{article.title}</p>
                   <p className="text-gray-400 text-xs">{article.date} — {article.category}</p>
@@ -443,7 +443,7 @@ function ArticlesSection({ articles, saving, sc, onAdd, onSave, onDelete }: {
                   )}
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => setEditingArticle(article)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                  <button onClick={() => setEditingArticle(article)} className="p-1.5 text-gray-400 hover:text-royal-300 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
                   <button onClick={() => onDelete(article.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
                 </div>
               </div>
@@ -494,7 +494,7 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
 
       {/* Add Form */}
       {showAdd && (
-        <div className="bg-gray-800 border border-amber-700 rounded-xl p-5 mb-6 space-y-4">
+        <div className="bg-ink-850 border border-amber-700 rounded-xl p-5 mb-6 space-y-4">
           <div className="flex justify-between">
             <h3 className="text-amber-400 font-bold">حكاية جديدة</h3>
             <button onClick={() => setShowAdd(false)}><X size={16} className="text-gray-400" /></button>
@@ -532,7 +532,7 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
       <div className="space-y-3">
         {stories.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد حكايات بعد</p>}
         {stories.map((story) => (
-          <div key={story.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+          <div key={story.id} className="bg-ink-850 border border-ink-700 rounded-xl p-4">
             {editingStory?.id === story.id ? (
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-3">
@@ -561,7 +561,7 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
               </div>
             ) : (
               <div className="flex items-start justify-between gap-4">
-                {story.coverImage && <img src={story.coverImage} alt={story.title} className="w-16 h-16 rounded-lg object-cover border border-gray-600 flex-shrink-0" />}
+                {story.coverImage && <img src={story.coverImage} alt={story.title} className="w-16 h-16 rounded-lg object-cover border border-ink-600 flex-shrink-0" />}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-bold text-white text-sm truncate">{story.title}</p>
@@ -572,7 +572,7 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
                   <p className="text-gray-400 text-xs">{story.publishedAt}</p>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => setEditingStory(story)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                  <button onClick={() => setEditingStory(story)} className="p-1.5 text-gray-400 hover:text-royal-300 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
                   <button onClick={() => onDelete(story.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
                 </div>
               </div>
@@ -619,7 +619,7 @@ export function AdminPage() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showAddClient, setShowAddClient] = useState(false);
 
-  const sc = "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-all text-sm";
+  const sc = "w-full bg-ink-850 border border-ink-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-royal-500 transition-all text-sm";
   const mediaTypes = ["تلفزيون", "إذاعة", "صحافة", "بودكاست", "يوتيوب", "أخرى"];
 
   useEffect(() => { const u = onAuthStateChanged(auth, (u) => { setUser(u); setLoading(false); }); return u; }, []);
@@ -661,7 +661,7 @@ export function AdminPage() {
   const deleteClient = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "clients", id)); };
   const saveInfo = async () => { if (!siteInfo) return; setSaving(true); try { await updateDoc(doc(db, "siteInfo", siteInfo.id), siteInfo as any); alert("تم الحفظ بنجاح"); } catch (e) { console.error(e); } setSaving(false); };
 
-  if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><Loader className="animate-spin text-blue-500" /></div>;
+  if (loading) return <div className="min-h-screen bg-ink-950 flex items-center justify-center"><Loader className="animate-spin text-royal-500" /></div>;
   if (!user) return <LoginForm onLogin={signInWithEmailAndPassword} />;
 
   const tabs = [
@@ -672,22 +672,22 @@ export function AdminPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans pb-20" dir="rtl">
-      <div className="bg-gray-900 border-b border-gray-800 sticky top-0 z-30">
+    <div className="min-h-screen bg-ink-950 text-white font-sans pb-20" dir="rtl">
+      <div className="bg-ink-900 border-b border-ink-700 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center font-bold">M</div>
+            <div className="w-8 h-8 bg-gradient-to-br from-royal-500 to-royal-600 rounded-lg flex items-center justify-center font-bold">M</div>
             <nav className="hidden md:flex items-center gap-1">
               {tabs.map(tab => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? "bg-gray-800 text-blue-400" : "text-gray-400 hover:text-white hover:bg-gray-800/50"}`}>{tab.label}</button>
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? "bg-ink-850 text-royal-400" : "text-gray-400 hover:text-white hover:bg-ink-850/50"}`}>{tab.label}</button>
               ))}
             </nav>
           </div>
           <button onClick={() => signOut(auth)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"><LogOut size={16} /> خروج</button>
         </div>
-        <div className="md:hidden flex overflow-x-auto border-t border-gray-800 px-2 py-1">
+        <div className="md:hidden flex overflow-x-auto border-t border-ink-700 px-2 py-1">
           {tabs.map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-shrink-0 px-4 py-2 text-sm whitespace-nowrap ${activeTab === tab.id ? "text-blue-400 border-b-2 border-blue-400" : "text-gray-400"}`}>{tab.label}</button>
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-shrink-0 px-4 py-2 text-sm whitespace-nowrap ${activeTab === tab.id ? "text-royal-400 border-b-2 border-blue-400" : "text-gray-400"}`}>{tab.label}</button>
           ))}
         </div>
       </div>
@@ -695,10 +695,10 @@ export function AdminPage() {
       <div className="max-w-7xl mx-auto px-4 mt-8">
 
         {activeTab === "works" && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-            <div className="flex flex-wrap items-center gap-2 mb-8 bg-black/40 p-1.5 rounded-xl w-fit">
+          <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
+            <div className="flex flex-wrap items-center gap-2 mb-8 bg-ink-950/40 p-1.5 rounded-xl w-fit">
               {[{ id: "design", label: "التصميم الجرافيكي" }, { id: "voice", label: "التعليق الصوتي" }, { id: "photography", label: "التصوير الفوتوغرافي" }].map((cat) => (
-                <button key={cat.id} onClick={() => setNewWork({ ...newWork, category: cat.id as any })} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${newWork.category === cat.id ? "bg-blue-600 text-white shadow-lg" : "text-gray-400 hover:text-white hover:bg-gray-800"}`}>{cat.label}</button>
+                <button key={cat.id} onClick={() => setNewWork({ ...newWork, category: cat.id as any })} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${newWork.category === cat.id ? "bg-royal-600 text-white shadow-lg" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>{cat.label}</button>
               ))}
             </div>
             <WorksList works={works} category={newWork.category || "design"} saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
@@ -706,26 +706,26 @@ export function AdminPage() {
         )}
 
         {activeTab === "experience" && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+          <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">الخبرات ({experiences.length})</h2>
               <button onClick={() => setShowAddExp(true)} className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة خبرة</button>
             </div>
             {showAddExp && (
-              <div className="bg-gray-800 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
-                <div className="flex justify-between"><h3 className="text-blue-400 font-bold">تجربة جديدة</h3><button onClick={() => setShowAddExp(false)}><X size={16} className="text-gray-400" /></button></div>
+              <div className="bg-ink-850 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
+                <div className="flex justify-between"><h3 className="text-royal-400 font-bold">تجربة جديدة</h3><button onClick={() => setShowAddExp(false)}><X size={16} className="text-gray-400" /></button></div>
                 <div className="grid md:grid-cols-2 gap-3">
                   <input value={newExp.title} onChange={(e) => setNewExp({ ...newExp, title: e.target.value })} placeholder="المسمى الوظيفي" className={sc} />
                   <input value={newExp.period} onChange={(e) => setNewExp({ ...newExp, period: e.target.value })} placeholder="الفترة" className={sc} />
                   <input value={newExp.location} onChange={(e) => setNewExp({ ...newExp, location: e.target.value })} placeholder="الموقع" className={sc} />
                 </div>
                 <textarea value={newExp.tasks} onChange={(e) => setNewExp({ ...newExp, tasks: e.target.value })} placeholder="المهام" rows={3} className={`${sc} resize-none`} />
-                <button onClick={addExp} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+                <button onClick={addExp} disabled={saving} className="flex items-center gap-2 bg-royal-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
               </div>
             )}
             <div className="space-y-3">
               {experiences.map((exp) => (
-                <div key={exp.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                <div key={exp.id} className="bg-ink-850 border border-ink-700 rounded-xl p-4">
                   {editingExp?.id === exp.id ? (
                     <div className="space-y-3">
                       <div className="grid md:grid-cols-2 gap-3">
@@ -741,9 +741,9 @@ export function AdminPage() {
                     </div>
                   ) : (
                     <div className="flex items-start justify-between gap-4">
-                      <div><p className="font-bold text-white text-sm">{exp.title}</p><p className="text-blue-400 text-xs">{exp.period} — {exp.location}</p></div>
+                      <div><p className="font-bold text-white text-sm">{exp.title}</p><p className="text-royal-400 text-xs">{exp.period} — {exp.location}</p></div>
                       <div className="flex gap-1">
-                        <button onClick={() => setEditingExp(exp)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                        <button onClick={() => setEditingExp(exp)} className="p-1.5 text-gray-400 hover:text-royal-300 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
                         <button onClick={() => deleteExp(exp.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
                       </div>
                     </div>
@@ -755,14 +755,14 @@ export function AdminPage() {
         )}
 
         {activeTab === "media" && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+          <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">المخرجات الإعلامية ({mediaOutputs.length})</h2>
-              <button onClick={() => setShowAddMedia(true)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-red-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة ظهور</button>
+              <button onClick={() => setShowAddMedia(true)} className="flex items-center gap-2 bg-gradient-to-r from-royal-500 to-red-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة ظهور</button>
             </div>
             {showAddMedia && (
-              <div className="bg-gray-800 border border-pink-700 rounded-xl p-5 mb-6 space-y-3">
-                <div className="flex justify-between"><h3 className="text-pink-400 font-bold">ظهور إعلامي جديد</h3><button onClick={() => setShowAddMedia(false)}><X size={16} className="text-gray-400" /></button></div>
+              <div className="bg-ink-850 border border-royal-700 rounded-xl p-5 mb-6 space-y-3">
+                <div className="flex justify-between"><h3 className="text-royal-200 font-bold">ظهور إعلامي جديد</h3><button onClick={() => setShowAddMedia(false)}><X size={16} className="text-gray-400" /></button></div>
                 <div className="grid md:grid-cols-2 gap-3">
                   <input value={newMedia.title} onChange={(e) => setNewMedia({ ...newMedia, title: e.target.value })} placeholder="عنوان الظهور" className={sc} />
                   <input value={newMedia.channel} onChange={(e) => setNewMedia({ ...newMedia, channel: e.target.value })} placeholder="اسم القناة" className={sc} />
@@ -772,12 +772,12 @@ export function AdminPage() {
                   <textarea value={newMedia.description} onChange={(e) => setNewMedia({ ...newMedia, description: e.target.value })} placeholder="وصف مختصر" rows={2} className={`${sc} resize-none md:col-span-2`} />
                 </div>
                 <SingleImageUploader url={newMedia.coverImage || ""} onChange={(url) => setNewMedia({ ...newMedia, coverImage: url })} folder="media-outputs" label="رفع صورة الغلاف" />
-                <button onClick={addMedia} disabled={saving} className="flex items-center gap-2 bg-pink-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-pink-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+                <button onClick={addMedia} disabled={saving} className="flex items-center gap-2 bg-royal-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-royal-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
               </div>
             )}
             <div className="space-y-3">
               {mediaOutputs.map((media) => (
-                <div key={media.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                <div key={media.id} className="bg-ink-850 border border-ink-700 rounded-xl p-4">
                   {editingMedia?.id === media.id ? (
                     <div className="space-y-3">
                       <div className="grid md:grid-cols-2 gap-3">
@@ -796,7 +796,7 @@ export function AdminPage() {
                     </div>
                   ) : (
                     <div className="flex items-start justify-between gap-4">
-                      {media.coverImage && <img src={media.coverImage} alt={media.title} className="w-16 h-16 rounded-lg object-cover border border-gray-600 flex-shrink-0" />}
+                      {media.coverImage && <img src={media.coverImage} alt={media.title} className="w-16 h-16 rounded-lg object-cover border border-ink-600 flex-shrink-0" />}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900 text-blue-300">{media.type}</span>
@@ -806,7 +806,7 @@ export function AdminPage() {
                         <p className="text-gray-400 text-xs">{media.channel}</p>
                       </div>
                       <div className="flex gap-1">
-                        <button onClick={() => setEditingMedia(media)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                        <button onClick={() => setEditingMedia(media)} className="p-1.5 text-gray-400 hover:text-royal-300 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
                         <button onClick={() => deleteMedia(media.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
                       </div>
                     </div>
@@ -829,11 +829,11 @@ export function AdminPage() {
         )}
 
         {activeTab === "hakawati" && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-            <div className="flex flex-wrap items-center gap-2 mb-8 bg-black/40 p-1.5 rounded-xl w-fit">
+          <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
+            <div className="flex flex-wrap items-center gap-2 mb-8 bg-ink-950/40 p-1.5 rounded-xl w-fit">
               {[{ id: "stories", label: "🏮 الحكايات" }, { id: "game", label: "❓ لعبة الأسئلة" }].map((sub) => (
                 <button key={sub.id} onClick={() => setHakawatiSubTab(sub.id as "stories" | "game")}
-                  className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${hakawatiSubTab === sub.id ? "bg-amber-600 text-white shadow-lg" : "text-gray-400 hover:text-white hover:bg-gray-800"}`}>
+                  className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${hakawatiSubTab === sub.id ? "bg-amber-600 text-white shadow-lg" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>
                   {sub.label}
                 </button>
               ))}
@@ -854,14 +854,14 @@ export function AdminPage() {
         )}
 
         {activeTab === "courses" && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+          <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">الدورات التدريبية ({courses.length})</h2>
-              <button onClick={() => setShowAddCourse(true)} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة دورة</button>
+              <button onClick={() => setShowAddCourse(true)} className="flex items-center gap-2 bg-gradient-to-r from-royal-500 to-cyan-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة دورة</button>
             </div>
             {showAddCourse && (
-              <div className="bg-gray-800 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
-                <div className="flex justify-between"><h3 className="text-blue-400 font-bold">دورة جديدة</h3><button onClick={() => setShowAddCourse(false)}><X size={16} className="text-gray-400" /></button></div>
+              <div className="bg-ink-850 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
+                <div className="flex justify-between"><h3 className="text-royal-400 font-bold">دورة جديدة</h3><button onClick={() => setShowAddCourse(false)}><X size={16} className="text-gray-400" /></button></div>
                 <div className="grid md:grid-cols-2 gap-3">
                   <input value={newCourse.title} onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })} placeholder="عنوان الدورة" className={sc} />
                   <input value={newCourse.duration} onChange={(e) => setNewCourse({ ...newCourse, duration: e.target.value })} placeholder="المدة" className={sc} />
@@ -872,12 +872,12 @@ export function AdminPage() {
                 </div>
                 <textarea value={newCourse.description} onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })} placeholder="وصف الدورة" rows={3} className={`${sc} resize-none`} />
                 <SingleImageUploader url={newCourse.image || ""} onChange={(url) => setNewCourse(prev => ({ ...prev, image: url }))} folder="courses" label="رفع صورة" />
-                <button onClick={addCourse} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+                <button onClick={addCourse} disabled={saving} className="flex items-center gap-2 bg-royal-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
               </div>
             )}
             <div className="space-y-3">
               {courses.map((course) => (
-                <div key={course.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                <div key={course.id} className="bg-ink-850 border border-ink-700 rounded-xl p-4">
                   {editingCourse?.id === course.id ? (
                     <div className="space-y-3">
                       <div className="grid md:grid-cols-2 gap-3">
@@ -894,13 +894,13 @@ export function AdminPage() {
                     </div>
                   ) : (
                     <div className="flex items-start justify-between gap-4">
-                      {course.image && <img src={course.image} alt={course.title} className="w-16 h-16 rounded-lg object-cover border border-gray-600 flex-shrink-0" />}
+                      {course.image && <img src={course.image} alt={course.title} className="w-16 h-16 rounded-lg object-cover border border-ink-600 flex-shrink-0" />}
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-white text-sm truncate">{course.title}</p>
                         <p className="text-gray-400 text-xs">{course.duration} — {course.level}</p>
                       </div>
                       <div className="flex gap-1">
-                        <button onClick={() => setEditingCourse(course)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                        <button onClick={() => setEditingCourse(course)} className="p-1.5 text-gray-400 hover:text-royal-300 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
                         <button onClick={() => deleteCourse(course.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
                       </div>
                     </div>
@@ -912,25 +912,25 @@ export function AdminPage() {
         )}
 
         {activeTab === "clients" && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+          <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">العملاء المميزون ({clients.length})</h2>
-              <button onClick={() => setShowAddClient(true)} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة عميل</button>
+              <button onClick={() => setShowAddClient(true)} className="flex items-center gap-2 bg-gradient-to-r from-royal-500 to-cyan-600 px-5 py-2 rounded-lg font-semibold text-sm"><Plus size={16} /> إضافة عميل</button>
             </div>
             {showAddClient && (
-              <div className="bg-gray-800 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
-                <div className="flex justify-between"><h3 className="text-blue-400 font-bold">عميل جديد</h3><button onClick={() => setShowAddClient(false)}><X size={16} className="text-gray-400" /></button></div>
+              <div className="bg-ink-850 border border-blue-700 rounded-xl p-5 mb-6 space-y-3">
+                <div className="flex justify-between"><h3 className="text-royal-400 font-bold">عميل جديد</h3><button onClick={() => setShowAddClient(false)}><X size={16} className="text-gray-400" /></button></div>
                 <div className="grid md:grid-cols-2 gap-3">
                   <input value={newClient.name} onChange={(e) => setNewClient({ ...newClient, name: e.target.value })} placeholder="اسم العميل" className={sc} />
                   <input value={newClient.logoAlt} onChange={(e) => setNewClient({ ...newClient, logoAlt: e.target.value })} placeholder="النص البديل للشعار (alt)" className={sc} />
                 </div>
                 <SingleImageUploader url={newClient.logoUrl || ""} onChange={(url) => setNewClient(prev => ({ ...prev, logoUrl: url }))} folder="clients" label="رفع شعار العميل" />
-                <button onClick={addClient} disabled={saving || !newClient.name} className="flex items-center gap-2 bg-blue-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
+                <button onClick={addClient} disabled={saving || !newClient.name} className="flex items-center gap-2 bg-royal-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"><Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}</button>
               </div>
             )}
             <div className="space-y-3">
               {clients.map((client) => (
-                <div key={client.id} className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+                <div key={client.id} className="bg-ink-850 border border-ink-700 rounded-xl p-4">
                   {editingClient?.id === client.id ? (
                     <div className="space-y-3">
                       <div className="grid md:grid-cols-2 gap-3">
@@ -945,13 +945,13 @@ export function AdminPage() {
                     </div>
                   ) : (
                     <div className="flex items-center justify-between gap-4">
-                      {client.logoUrl && <img src={client.logoUrl} alt={client.logoAlt || client.name} className="w-16 h-16 rounded-lg object-contain bg-white/5 border border-gray-600 flex-shrink-0 p-1" />}
+                      {client.logoUrl && <img src={client.logoUrl} alt={client.logoAlt || client.name} className="w-16 h-16 rounded-lg object-contain bg-white/5 border border-ink-600 flex-shrink-0 p-1" />}
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-white text-sm truncate">{client.name}</p>
                         {client.logoAlt && <p className="text-gray-400 text-xs truncate">{client.logoAlt}</p>}
                       </div>
                       <div className="flex gap-1">
-                        <button onClick={() => setEditingClient(client)} className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                        <button onClick={() => setEditingClient(client)} className="p-1.5 text-gray-400 hover:text-royal-300 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
                         <button onClick={() => deleteClient(client.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
                       </div>
                     </div>
@@ -964,10 +964,10 @@ export function AdminPage() {
         )}
 
         {activeTab === "info" && siteInfo && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+          <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-xl font-bold">إعدادات الموقع</h2>
-              <button onClick={saveInfo} disabled={saving} className="flex items-center gap-2 bg-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button>
+              <button onClick={saveInfo} disabled={saving} className="flex items-center gap-2 bg-royal-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button>
             </div>
             <div className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
@@ -1002,15 +1002,15 @@ function LoginForm({ onLogin }: { onLogin: any }) {
     setLoading(false);
   };
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center" dir="rtl">
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 w-full max-w-md">
+    <div className="min-h-screen bg-ink-950 flex items-center justify-center" dir="rtl">
+      <div className="bg-ink-900 border border-ink-700 rounded-2xl p-10 w-full max-w-md">
         <h1 className="text-2xl font-bold text-white mb-2 text-center">لوحة التحكم</h1>
         <p className="text-gray-400 text-center mb-8">أدخل بياناتك للدخول</p>
         {error && <div className="bg-red-900/40 border border-red-700 text-red-300 rounded-lg p-3 mb-6 text-center">{error}</div>}
         <div className="space-y-4">
-          <input type="email" placeholder="البريد الإلكتروني" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
-          <input type="password" placeholder="كلمة المرور" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
-          <button onClick={handleSubmit} disabled={loading} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50">
+          <input type="email" placeholder="البريد الإلكتروني" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-ink-850 border border-ink-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-royal-500" />
+          <input type="password" placeholder="كلمة المرور" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-ink-850 border border-ink-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-royal-500" />
+          <button onClick={handleSubmit} disabled={loading} className="w-full bg-royal-500 text-white py-3 rounded-lg font-semibold hover:from-royal-600 hover:to-royal-700 transition-all disabled:opacity-50">
             {loading ? "جارٍ الدخول..." : "دخول"}
           </button>
         </div>

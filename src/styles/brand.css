@@ -1,0 +1,40 @@
+/* ===========================================================
+   هوية الموقع البصرية — أزرق ملكي على خلفية ليلية
+   =========================================================== */
+
+@theme {
+  /* الأزرق الملكي */
+  --color-royal-50: #eef3ff;
+  --color-royal-100: #dce5ff;
+  --color-royal-200: #bccfff;
+  --color-royal-300: #93aeff;
+  --color-royal-400: #6a89f7;
+  --color-royal-500: #4169e1; /* Royal Blue */
+  --color-royal-600: #2f4fd0;
+  --color-royal-700: #253dae;
+  --color-royal-800: #1d318c;
+  --color-royal-900: #16256a;
+
+  /* درجات الخلفية الليلية */
+  --color-ink-950: #05070f;
+  --color-ink-900: #090d18;
+  --color-ink-850: #0d1220;
+  --color-ink-800: #121829;
+  --color-ink-700: #1b2337;
+  --color-ink-600: #2a3450;
+}
+
+/* توهّج أزرق يُستخدم خلف الصور والأقسام البارزة */
+.royal-glow {
+  background: radial-gradient(ellipse at center, rgba(65, 105, 225, 0.38) 0%, rgba(65, 105, 225, 0) 70%);
+}
+
+/* خط الخطّ العربي المستخدم في الجمل الاقتباسية القصيرة */
+.script-ar {
+  font-family: "Aref Ruqaa", Georgia, serif;
+}
+
+/* شريط سفلي متدرّج للفواصل */
+.royal-rule {
+  background: linear-gradient(90deg, rgba(65, 105, 225, 0) 0%, #4169e1 50%, rgba(65, 105, 225, 0) 100%);
+}
