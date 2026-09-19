@@ -4,6 +4,7 @@ import { db } from "../../../firebase";
 import { doc, onSnapshot, collection } from "firebase/firestore";
 import { ArrowRight } from "lucide-react";
 
+import { useSeo } from "../../shared/useSeo";
 interface HakawatiStory {
   id: string;
   title: string;
@@ -49,12 +50,16 @@ export function HakawatiStoryPage() {
 
   const visible = story && story.published;
 
-  useEffect(() => {
-    if (!visible || !story) return;
-    document.title = `${story.title} — الحكواتي — مصطفى جغلال`;
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc) desc.setAttribute("content", story.excerpt || story.content?.replace(/<[^>]*>/g, "").substring(0, 160));
-  }, [visible, story]);
+  useSeo({
+    title: visible && story ? `${story.title} — الحكواتي — مصطفى جغلال` : undefined,
+    description:
+      visible && story
+        ? story.excerpt || story.content?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().substring(0, 160)
+        : undefined,
+    image: (visible && story?.coverImage) || undefined,
+    type: "article",
+    noindex: loaded && !visible,
+  });
 
   const fontImport = (
     <style>{`

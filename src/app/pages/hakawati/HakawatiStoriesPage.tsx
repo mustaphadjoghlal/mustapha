@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { db } from "../../../firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
+import { useSeo } from "../../shared/useSeo";
 interface HakawatiStory {
   id: string;
   title: string;
@@ -21,11 +22,7 @@ export function HakawatiStoriesPage() {
   const [stories, setStories] = useState<HakawatiStory[]>([]);
   const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    document.title = PAGE_TITLE;
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc) desc.setAttribute("content", PAGE_DESC);
-  }, []);
+  useSeo({ title: PAGE_TITLE, description: PAGE_DESC });
 
   useEffect(() => {
     const q = query(collection(db, "hakawati_stories"), orderBy("publishedAt", "desc"));

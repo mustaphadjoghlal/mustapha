@@ -3,6 +3,7 @@ import { CheckCircle, Mic, Play, Pause, Link } from "lucide-react";
 import { Link as RouterLink } from "react-router";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
+import { useSeo } from "../../shared/useSeo";
 
 interface VoiceWork {
   id: string;
@@ -65,6 +66,11 @@ function AudioPlayer({ url, title }: { url: string; title: string }) {
 }
 
 export function PortfolioVoicePage() {
+  useSeo({
+    title: "التعليق الصوتي",
+    description:
+      "نماذج من أعمال التعليق الصوتي: إعلانات، محتوى تعليمي، وثائقيات ومقدمات برامج بصوت مصطفى جغلال.",
+  });
   const [works, setWorks] = useState<VoiceWork[]>([]);
 
   useEffect(() => {

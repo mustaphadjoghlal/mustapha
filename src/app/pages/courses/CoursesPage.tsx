@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { CheckCircle, GraduationCap, Users, Clock, Award } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
+import { useSeo } from "../../shared/useSeo";
 
 interface Course {
   id: string;
@@ -16,6 +17,10 @@ interface Course {
 }
 
 export function CoursesPage() {
+  useSeo({
+    title: "الدورات التدريبية",
+    description: "دورات تدريبية في التعليق الصوتي وصناعة المحتوى البصري يقدمها مصطفى جغلال.",
+  });
   const [courses, setCourses] = useState<Course[]>([]);
   const [loaded, setLoaded] = useState(false);
 

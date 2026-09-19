@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
+import { useSeo } from "../../shared/useSeo";
 
 interface SiteInfo {
   heroName: string;
@@ -45,6 +46,11 @@ const defaultExperiences: Experience[] = [
 ];
 
 export function AboutPage() {
+  useSeo({
+    title: "عني",
+    description:
+      "تعرّف على مصطفى جغلال: مسيرته في التعليق الصوتي وتصميم المحتوى البصري، وخبراته ومشاريعه بين الجزائر وسلطنة عُمان.",
+  });
   const [info, setInfo] = useState<SiteInfo>(defaultInfo);
   const [experiences, setExperiences] = useState<Experience[]>(defaultExperiences);
   const [mediaOutputs, setMediaOutputs] = useState<MediaOutput[]>([]);

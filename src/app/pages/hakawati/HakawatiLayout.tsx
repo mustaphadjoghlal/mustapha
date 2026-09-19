@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, ScrollRestoration } from "react-router";
 import { HakawatiHeader } from "./HakawatiHeader";
 
 export function HakawatiLayout() {
@@ -8,6 +8,7 @@ export function HakawatiLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
+      <ScrollRestoration />
     </div>
   );
 }

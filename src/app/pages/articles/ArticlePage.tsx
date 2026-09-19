@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router";
 import { db } from "../../../firebase";
 import { doc, onSnapshot, collection } from "firebase/firestore";
 import { ArrowRight } from "lucide-react";
+import { useSeo } from "../../shared/useSeo";
 
 interface Article {
   id: string;
@@ -26,6 +27,13 @@ export function ArticlePage() {
   const [article, setArticle] = useState<Article | null>(null);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
   const [loaded, setLoaded] = useState(false);
+
+  useSeo({
+    title: article ? `${article.title} — مصطفى جغلال` : undefined,
+    description: article?.content?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().substring(0, 160),
+    image: article?.coverImage || undefined,
+    type: "article",
+  });
 
   useEffect(() => {
     if (!id) return;
@@ -91,14 +99,6 @@ export function ArticlePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
-
-      {/* Meta tags ديناميكية */}
-      {typeof document !== "undefined" && (() => {
-        document.title = `${article.title} — مصطفى جغلال`;
-        const desc = document.querySelector('meta[name="description"]');
-        if (desc) desc.setAttribute("content", article.content?.replace(/<[^>]*>/g, "").substring(0, 160));
-        return null;
-      })()}
 
       {/* Breadcrumb */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">

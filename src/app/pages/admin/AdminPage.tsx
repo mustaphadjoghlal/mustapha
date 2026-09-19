@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebas
 import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader,
   Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff } from "lucide-react";
 import HakawatiAdmin from "../hakawati/HakawatiAdmin";
+import { useSeo } from "../../shared/useSeo";
 
 // ============================================================
 // Rich Text Editor Component
@@ -587,6 +588,7 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
 // Main AdminPage
 // ============================================================
 export function AdminPage() {
+  useSeo({ title: "لوحة التحكم", noindex: true });
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("works");

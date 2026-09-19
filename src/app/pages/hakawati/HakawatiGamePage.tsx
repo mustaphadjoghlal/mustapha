@@ -3,6 +3,7 @@ import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { QUESTIONS_BANK, CATEGORY_LABELS } from "./hakawatiQuestionsBank";
 import type { HakawatiCategory } from "./hakawatiQuestionsBank";
+import { useSeo } from "../../shared/useSeo";
 
 // ─── الأنواع ───
 export interface HakawatiQuestion {
@@ -93,6 +94,11 @@ const HakawatiGamePage: React.FC = () => {
   const [revealed, setRevealed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useSeo({
+    title: "لعبة الحكواتي — اختبر معرفتك بالتاريخ",
+    description: "لعبة أسئلة من ركن الحكواتي تختبر معرفتك بالسير والأمجاد في التاريخ العربي والإسلامي.",
+  });
 
   // ─── جلب البيانات من Firestore ───
   useEffect(() => {

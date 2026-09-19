@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { CheckCircle, Camera } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
+import { useSeo } from "../../shared/useSeo";
 
 interface Work {
   id: string;
@@ -15,6 +16,10 @@ interface Work {
 }
 
 export function PortfolioPhotographyPage() {
+  useSeo({
+    title: "التصوير",
+    description: "معرض أعمال التصوير الفوتوغرافي والمحتوى البصري من تنفيذ مصطفى جغلال.",
+  });
   const [works, setWorks] = useState<Work[]>([]);
 
   useEffect(() => {

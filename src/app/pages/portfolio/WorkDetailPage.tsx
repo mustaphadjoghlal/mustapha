@@ -4,6 +4,7 @@ import { db } from "../../../firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { ArrowRight, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { CustomAudioPlayer } from "../../components/CustomAudioPlayer";
+import { useSeo } from "../../shared/useSeo";
 
 interface Work {
   id: string;
@@ -22,6 +23,13 @@ export function WorkDetailPage() {
   const [work, setWork] = useState<Work | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  useSeo({
+    title: work?.title,
+    description: work?.description?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().substring(0, 160),
+    image: work?.coverImage || undefined,
+    type: "article",
+  });
 
   useEffect(() => {
     if (!id) return;

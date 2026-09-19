@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { CheckCircle, Palette } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
+import { useSeo } from "../../shared/useSeo";
 
 interface Work {
   id: string;
@@ -15,6 +16,11 @@ interface Work {
 }
 
 export function PortfolioDesignPage() {
+  useSeo({
+    title: "التصميم الجرافيكي",
+    description:
+      "أعمال مختارة في التصميم الجرافيكي: هويات بصرية، منشورات سوشيال ميديا، وإعلانات للمشاريع التجارية والثقافية.",
+  });
   const [works, setWorks] = useState<Work[]>([]);
 
   useEffect(() => {

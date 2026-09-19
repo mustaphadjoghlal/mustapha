@@ -4,6 +4,7 @@ import { Camera, Mic, Palette, GraduationCap, ArrowLeft } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import profileImg from "../../../assets/profile.jpg";
+import { useSeo } from "../../shared/useSeo";
 
 interface SiteInfo {
   heroName: string;
@@ -48,6 +49,11 @@ const defaults: SiteInfo = {
 };
 
 export function HomePage() {
+  useSeo({
+    title: "مصطفى جغلال — معلق صوتي ومصمم بصري",
+    description:
+      "معلق صوتي محترف ومصمم محتوى بصري مقيم في مسقط، سلطنة عُمان. أجمع بين قوة الصوت وجاذبية الصورة في التعليق الصوتي والتصميم والسوشيال ميديا.",
+  });
   const cached = getCached();
   const [siteInfo, setSiteInfo] = useState<SiteInfo>(cached || defaults);
   const [clients, setClients] = useState<Client[]>([]);

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { db } from "../../../firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { useSeo } from "../../shared/useSeo";
 
 interface Article {
   id: string;
@@ -15,6 +16,10 @@ interface Article {
 }
 
 export function ArticlesPage() {
+  useSeo({
+    title: "المقالات",
+    description: "مقالات ونصائح في التعليق الصوتي والتصميم وصناعة المحتوى الرقمي بقلم مصطفى جغلال.",
+  });
   const [articles, setArticles] = useState<Article[]>([]);
   const [activeTag, setActiveTag] = useState<string>("الكل");
   const [loaded, setLoaded] = useState(false);

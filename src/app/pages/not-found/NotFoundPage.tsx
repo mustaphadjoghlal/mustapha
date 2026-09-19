@@ -1,7 +1,13 @@
 import { Link } from "react-router";
 import { Home } from "lucide-react";
+import { useSeo } from "../../shared/useSeo";
 
 export function NotFoundPage() {
+  useSeo({
+    title: "الصفحة غير موجودة",
+    description: "عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    noindex: true,
+  });
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
       <div className="text-center">
