@@ -51,12 +51,13 @@ export function HakawatiStoryPage() {
   const visible = story && story.published;
 
   useSeo({
-    title: visible && story ? `${story.title} — الحكواتي — مصطفى جغلال` : undefined,
+    title: visible && story ? story.title : undefined,
+    siteName: "الحكواتي",
     description:
       visible && story
         ? story.excerpt || story.content?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().substring(0, 160)
         : undefined,
-    image: (visible && story?.coverImage) || undefined,
+    image: (visible && story?.coverImage) || "https://mustaphadjoghlal.com/hakawati/og-image.jpg",
     type: "article",
     noindex: loaded && !visible,
   });
@@ -95,17 +96,15 @@ export function HakawatiStoryPage() {
     "author": {
       "@type": "Person",
       "name": "مصطفى جغلال",
-      "alternateName": "Mustapha Djoghlal",
-      "url": "https://mustaphadjoghlal.com",
-      "image": siteInfo?.profileImageUrl || "https://mustaphadjoghlal.com/og-image.jpg",
     },
     "publisher": {
-      "@type": "Person",
-      "name": "مصطفى جغلال",
-      "url": "https://mustaphadjoghlal.com",
+      "@type": "Organization",
+      "name": "الحكواتي",
+      "url": "https://mustaphadjoghlal.com/hakawati",
+      "logo": "https://mustaphadjoghlal.com/hakawati/logo.png",
     },
     "datePublished": story!.publishedAt,
-    "image": story!.coverImage || "https://mustaphadjoghlal.com/og-image.jpg",
+    "image": story!.coverImage || "https://mustaphadjoghlal.com/hakawati/og-image.jpg",
     "url": `https://mustaphadjoghlal.com/hakawati/stories/${id}`,
     "description": story!.excerpt || story!.content?.replace(/<[^>]*>/g, "").substring(0, 160),
   };

@@ -11,6 +11,11 @@ const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 export interface SeoOptions {
   /** عنوان الصفحة بدون اسم الموقع — يُضاف تلقائياً */
   title?: string;
+  /**
+   * اسم الموقع الذي يُضاف إلى العنوان ويُستخدم في og:site_name.
+   * "الحكواتي" موقع مستقل بهويته الخاصة فتمرّر صفحاته اسمها هنا.
+   */
+  siteName?: string;
   description?: string;
   /** رابط صورة المشاركة (مطلق) */
   image?: string;
@@ -45,10 +50,21 @@ function setCanonical(url: string) {
  * يضبط عنوان الصفحة ووسوم الميتا (description / canonical / Open Graph / Twitter)
  * عند كل تنقّل. بدونه تبقى وسوم الصفحة السابقة معلّقة لأن الموقع SPA.
  */
-export function useSeo({ title, description, image, type = "website", noindex = false }: SeoOptions = {}) {
+export function useSeo({
+  title,
+  description,
+  image,
+  type = "website",
+  noindex = false,
+  siteName = SITE_NAME,
+}: SeoOptions = {}) {
   const { pathname } = useLocation();
 
-  const fullTitle = title ? (title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`) : DEFAULT_TITLE;
+  const fullTitle = title
+    ? title.includes(siteName)
+      ? title
+      : `${title} | ${siteName}`
+    : DEFAULT_TITLE;
   const desc = description?.trim() || DEFAULT_DESCRIPTION;
   const img = image || DEFAULT_IMAGE;
   const canonical = `${SITE_URL}${pathname === "/" ? "" : pathname.replace(/\/+$/, "")}`;
@@ -64,9 +80,10 @@ export function useSeo({ title, description, image, type = "website", noindex = 
     setMeta("property", "og:url", canonical);
     setMeta("property", "og:image", img);
     setMeta("property", "og:type", type);
+    setMeta("property", "og:site_name", siteName);
 
     setMeta("name", "twitter:title", fullTitle);
     setMeta("name", "twitter:description", desc);
     setMeta("name", "twitter:image", img);
-  }, [fullTitle, desc, img, type, noindex, canonical]);
+  }, [fullTitle, desc, img, type, noindex, canonical, siteName]);
 }

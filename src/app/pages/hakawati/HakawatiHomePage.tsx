@@ -16,14 +16,15 @@ interface HakawatiStory {
   published: boolean;
 }
 
-const PAGE_TITLE = "الحكواتي — حيث تعود أحداث الماضي للحياة | مصطفى جغلال";
+const HK_OG = "https://mustaphadjoghlal.com/hakawati/og-image.jpg";
+const PAGE_TITLE = "الحكواتي — حيث تعود أحداث الماضي للحياة";
 const PAGE_DESC = "ركن الحكواتي: حكايات درامية من التاريخ العربي والإسلامي، ولعبة أسئلة تختبر معرفتك بالسير والأمجاد.";
 
 export function HakawatiHomePage() {
   const [stories, setStories] = useState<HakawatiStory[]>([]);
   const [loaded, setLoaded] = useState(false);
 
-  useSeo({ title: PAGE_TITLE, description: PAGE_DESC });
+  useSeo({ title: PAGE_TITLE, description: PAGE_DESC, siteName: "الحكواتي", image: HK_OG });
 
   useEffect(() => {
     const q = query(collection(db, "hakawati_stories"), orderBy("publishedAt", "desc"));

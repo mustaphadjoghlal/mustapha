@@ -96,8 +96,10 @@ const HakawatiGamePage: React.FC = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useSeo({
-    title: "لعبة الحكواتي — اختبر معرفتك بالتاريخ",
-    description: "لعبة أسئلة من ركن الحكواتي تختبر معرفتك بالسير والأمجاد في التاريخ العربي والإسلامي.",
+    title: "اللعبة — اختبر معرفتك بالتاريخ",
+    description: "لعبة أسئلة من الحكواتي تختبر معرفتك بالسير والأمجاد في التاريخ العربي والإسلامي.",
+    siteName: "الحكواتي",
+    image: "https://mustaphadjoghlal.com/hakawati/og-image.jpg",
   });
 
   // ─── جلب البيانات من Firestore ───

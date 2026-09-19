@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router";
-import { Menu, X, ArrowLeft } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 export function HakawatiHeader() {
@@ -36,10 +36,6 @@ export function HakawatiHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link to="/" className="flex items-center gap-1.5 text-xs transition-colors" style={{ color: "#7a6650" }}>
-              الموقع الرئيسي
-              <ArrowLeft size={12} />
-            </Link>
           </nav>
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2" style={{ color: "#d9c9b0" }}>
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -58,10 +54,6 @@ export function HakawatiHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-1.5 py-3 text-sm" style={{ color: "#7a6650" }}>
-              <ArrowLeft size={14} />
-              الموقع الرئيسي
-            </Link>
           </nav>
         )}
       </div>

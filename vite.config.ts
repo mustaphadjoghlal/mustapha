@@ -24,6 +24,16 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    rollupOptions: {
+      // صفحتا دخول: الموقع الرئيسي والحكواتي — كلٌّ بوسومه الثابتة الخاصة
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        hakawati: path.resolve(__dirname, 'hakawati.html'),
+      },
+    },
+  },
+
   resolve: {
     alias: {
       // Alias @ to the src directory

@@ -10,7 +10,6 @@ export const navItems = [
   { path: "/portfolio-voice", label: "التعليق الصوتي" },
   { path: "/courses", label: "الدورات التدريبية" },
   { path: "/articles", label: "المقالات" },
-  { path: "/hakawati", label: "الحكواتي" },
 ];
 
 export function Header() {
