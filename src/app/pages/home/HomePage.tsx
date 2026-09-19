@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import {
-  Camera, Mic, Palette, BarChart3, ArrowLeft, Play, Linkedin, Instagram, Twitter, Quote,
+  Mic, Video, Palette, TrendingUp, ArrowLeft, Play, Linkedin, Instagram, Twitter,
 } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
@@ -59,7 +59,7 @@ function setCache(data: SiteInfo) {
 const defaults: SiteInfo = {
   heroName: "مصطفى جغلال",
   heroDescription:
-    "معلّق صوتي، صانع محتوى، وأساعد الأفراد والعلامات التجارية على إيصال رسالتهم بإبداع واحترافية.",
+    "معلّق صوتي وصانع محتوى ومصمم، أساعد العلامات التجارية والمشاريع على تقديم أفكارها بصوت وصورة أكثر تأثيراً.",
   profileImageUrl: "",
   email: "",
   phone: "",
@@ -68,12 +68,14 @@ const defaults: SiteInfo = {
   instagramUrl: "",
 };
 
+/** مجالات العمل الأربعة */
 const services = [
-  { icon: Mic, title: "التعليق الصوتي", description: "إعلانات، وثائقيات، محتوى تعليمي", link: "/portfolio-voice" },
-  { icon: Camera, title: "صناعة المحتوى", description: "فيديو، كتابة، أفكار واستراتيجيات", link: "/portfolio-photography" },
-  { icon: Palette, title: "تصميم جرافيك", description: "تصاميم احترافية ومحتوى بصري", link: "/portfolio-design" },
-  { icon: BarChart3, title: "التسويق الرقمي", description: "إدارة حسابات وزيادة التفاعل", link: "/courses" },
+  { Icon: Mic, title: "التعليق الصوتي", description: "إعلانات ووثائقيات ومحتوى تعليمي", link: "/portfolio-voice" },
+  { Icon: Video, title: "صناعة المحتوى", description: "أفكار وكتابة وإنتاج محتوى رقمي", link: "/portfolio-photography" },
+  { Icon: Palette, title: "التصميم الجرافيكي", description: "هويات بصرية ومنشورات وإعلانات", link: "/portfolio-design" },
+  { Icon: TrendingUp, title: "التسويق الرقمي", description: "إدارة حسابات وبناء حضور رقمي", link: "/about" },
 ];
+
 
 export function HomePage() {
   useSeo({
@@ -106,7 +108,7 @@ export function HomePage() {
 
   const heroImage = siteInfo.profileImageUrl || profileImg;
   const voiceSample = works.find((w) => w.category === "voice" && (w.audioUrl || w.soundcloudUrl));
-  const featured = works.filter((w) => w.coverImage).slice(0, 3);
+  const featured = works.filter((w) => w.coverImage).slice(0, 6);
 
   const socials = [
     { url: siteInfo.linkedinUrl, Icon: Linkedin, label: "لينكدإن" },
@@ -130,100 +132,64 @@ export function HomePage() {
   };
 
   return (
-    <div className="bg-ink-950 text-white">
+    <div className="bg-ink-950 text-fg overflow-x-hidden">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* ═══ البطل ═══ */}
-      <section className="relative overflow-hidden -mt-16 pt-16">
-        {/* خلفية */}
-        <div className="absolute inset-0 bg-ink-950" />
-        <div className="absolute -top-32 start-1/4 w-[38rem] h-[38rem] royal-glow opacity-70" />
-
-        {/* الصورة على الشاشات الكبيرة — تمتد حتى حافة الشاشة وتذوب في الخلفية */}
-        <div className="pointer-events-none absolute inset-y-0 start-0 hidden lg:block w-[48%] xl:w-[45%]">
-          <img
-            src={heroImage}
-            alt=""
-            aria-hidden="true"
-            className="h-full w-full object-cover object-top"
-          />
+      {/* ═══════════ البطل ═══════════
+          الجوال: عنوان ← وصف ← أزرار ← صورة
+          الشاشات الكبيرة: نص على اليسار وصورة ممتدة على اليمين */}
+      <section className="relative -mt-16 pt-16 lg:min-h-screen lg:flex lg:items-center">
+        {/* الصورة على الشاشات الكبيرة — ممتدة إلى حافة الشاشة وتذوب في الخلفية */}
+        <div className="pointer-events-none absolute inset-y-0 start-0 hidden lg:block w-[46%] xl:w-[42%]">
+          <img src={heroImage} alt="" aria-hidden="true" className="h-full w-full object-cover object-top" />
           <div className="absolute inset-0 bg-gradient-to-l from-transparent via-ink-950/55 to-ink-950" />
-          <div className="absolute inset-y-0 end-0 w-1/3 bg-gradient-to-l from-transparent to-ink-950" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-transparent" />
-          <p
-            aria-hidden="true"
-            className="script-ar absolute bottom-20 start-14 xl:start-24 -rotate-6 text-royal-100/90 text-[1.7rem] leading-[2.2] drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)]"
-          >
-            كل قصة
-            <br />
-            تَستحقّ أن تُروى
-          </p>
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink-950 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink-950 to-transparent" />
         </div>
 
-        {/* حجاب علوي يضمن وضوح روابط القائمة فوق الصورة */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-ink-950 via-ink-950/70 to-transparent" />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-4 items-center min-h-[calc(100svh-4rem)] py-6 lg:py-0">
-
-            {/* الصورة على الجوال — بطاقة رأسية */}
-            <div className="relative order-1 lg:hidden flex justify-center">
-              <div className="relative w-full max-w-[15rem] sm:max-w-[20rem]">
-                <div className="absolute inset-6 royal-glow blur-2xl" />
-                <img
-                  src={heroImage}
-                  alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
-                  title="مصطفى جغلال"
-                  width={777}
-                  height={777}
-                  loading="eager"
-                  fetchPriority="high"
-                  className="relative w-full aspect-square object-cover object-top rounded-[2rem]"
-                />
-                <div className="pointer-events-none absolute inset-0 rounded-[2rem] bg-gradient-to-t from-ink-950 via-ink-950/10 to-transparent" />
-              </div>
-            </div>
-
-            {/* عمود فارغ يحجز مكان الصورة على الشاشات الكبيرة */}
-            <div className="hidden lg:block order-1" aria-hidden="true" />
+        <div className="relative w-full max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+          <div className="lg:grid lg:grid-cols-2 lg:items-center">
+            {/* عمود يحجز مكان الصورة على الشاشات الكبيرة */}
+            <div className="hidden lg:block" aria-hidden="true" />
 
             {/* النص */}
-            <div className="relative order-2 text-center lg:text-start">
-              <p className="script-ar lg:hidden mb-2 text-lg text-royal-300">
-                كل قصة تَستحقّ أن تُروى
-              </p>
-              <h1 className="text-[2rem] sm:text-5xl lg:text-6xl font-bold leading-[1.3] mb-4 lg:mb-6">
-                أحوِّل
+            <div className="pt-12 pb-10 lg:py-24">
+              <h1 className="fade-up text-[2.15rem] leading-[1.35] sm:text-5xl sm:leading-[1.3] lg:text-[3.4rem] lg:leading-[1.25] font-bold">
+                أحوّل الأفكار
                 <br />
-                الأفكار إلى
-                <br />
-                <span className="text-royal-500">صوت مؤثر</span>
+                إلى <span className="text-royal-400">صوتٍ مؤثر.</span>
               </h1>
 
-              <div className="royal-rule h-px w-40 mx-auto lg:mx-0 mb-4 lg:mb-6" />
+              <span className="rule-accent fade-up mt-6" style={{ animationDelay: "60ms" }} />
 
-              <p className="text-gray-300 text-[0.95rem] sm:text-lg leading-relaxed max-w-md mx-auto lg:mx-0 mb-6 lg:mb-8">
+              <p
+                className="fade-up mt-6 max-w-[34rem] text-[0.98rem] sm:text-lg leading-[1.9] text-fg-muted"
+                style={{ animationDelay: "120ms" }}
+              >
                 {siteInfo.heroDescription}
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-6 lg:mb-8">
+              <div
+                className="fade-up mt-8 flex flex-col sm:flex-row gap-3"
+                style={{ animationDelay: "180ms" }}
+              >
                 <Link
                   to="/portfolio-voice"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-royal-500 px-7 py-3.5 font-semibold text-white shadow-lg shadow-royal-500/25 transition-colors hover:bg-royal-600"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-royal-500 px-6 py-3.5 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
                 >
-                  <Play size={18} />
+                  <Play size={17} />
                   استمع إلى نماذج صوتية
                 </Link>
-                <a
-                  href={siteInfo.email ? `mailto:${siteInfo.email}` : "#contact"}
-                  className="inline-flex items-center justify-center rounded-xl border border-ink-600 px-7 py-3.5 font-semibold text-gray-200 transition-colors hover:border-royal-500 hover:text-white"
+                <Link
+                  to="/portfolio-design"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-ink-600 px-6 py-3.5 text-[0.95rem] font-semibold text-fg transition-colors hover:border-royal-500"
                 >
-                  تواصل معي
-                </a>
+                  اكتشف أعمالي
+                </Link>
               </div>
 
               {socials.length > 0 && (
-                <div className="flex gap-3 justify-center lg:justify-start">
+                <div className="fade-up mt-8 flex gap-5" style={{ animationDelay: "240ms" }}>
                   {socials.map(({ url, Icon, label }) => (
                     <a
                       key={label}
@@ -231,9 +197,9 @@ export function HomePage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={label}
-                      className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-700 bg-ink-800/60 text-gray-300 transition-colors hover:border-royal-500 hover:text-royal-300"
+                      className="text-fg-muted transition-colors hover:text-royal-400"
                     >
-                      <Icon size={18} />
+                      <Icon size={20} />
                     </a>
                   ))}
                 </div>
@@ -241,166 +207,155 @@ export function HomePage() {
             </div>
           </div>
         </div>
-      </section>
 
-      {/* ═══ شريط الخدمات ═══ */}
-      <section id="services" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 lg:-mt-12">
-        <div className="rounded-3xl border border-ink-700 bg-ink-850/90 backdrop-blur-sm p-6 sm:p-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-8 divide-ink-700 lg:divide-x lg:divide-x-reverse">
-            {services.map(({ icon: Icon, title, description, link }) => (
-              <Link key={title} to={link} className="group px-2 lg:px-6 text-center">
-                <Icon
-                  className="mx-auto mb-3 text-royal-500 transition-transform group-hover:scale-110"
-                  size={30}
-                  strokeWidth={1.8}
-                />
-                <h3 className="font-bold mb-1.5 transition-colors group-hover:text-royal-300">{title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{description}</p>
-              </Link>
-            ))}
-          </div>
+        {/* الصورة على الجوال — بعد النص، ممتدة بعرض الشاشة وتذوب في الخلفية */}
+        <div className="relative lg:hidden">
+          <img
+            src={heroImage}
+            alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
+            title="مصطفى جغلال"
+            width={1000}
+            height={1000}
+            loading="eager"
+            fetchPriority="high"
+            className="w-full h-[58vh] min-h-[20rem] object-cover object-[center_18%]"
+          />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink-950 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-ink-950 to-transparent" />
         </div>
       </section>
 
-      {/* ═══ النموذج الصوتي ═══ */}
+      {/* ═══════════ مجالات العمل ═══════════ */}
+      <section id="services" className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <h2 className="text-2xl sm:text-3xl font-bold">ماذا أقدم</h2>
+        <span className="rule-accent mt-4" />
+
+        <div className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+          {services.map(({ Icon, title, description, link }) => (
+            <Link key={title} to={link} className="group">
+              <Icon size={22} strokeWidth={1.6} className="text-royal-400" />
+              <h3 className="mt-4 text-[1.02rem] font-semibold transition-colors group-hover:text-royal-300">
+                {title}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">{description}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════ نماذج صوتية ═══════════ */}
       {voiceSample && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-          <VoiceSampleCard
-            id={voiceSample.id}
-            title={voiceSample.title}
-            audioUrl={voiceSample.audioUrl}
-            soundcloudUrl={voiceSample.soundcloudUrl}
-          />
+        <section className="border-y border-ink-700 bg-ink-900">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
+            <h2 className="text-2xl sm:text-3xl font-bold">نماذج صوتية</h2>
+            <span className="rule-accent mt-4" />
+            <div className="mt-8 max-w-3xl">
+              <VoiceSampleCard
+                id={voiceSample.id}
+                title={voiceSample.title}
+                audioUrl={voiceSample.audioUrl}
+                soundcloudUrl={voiceSample.soundcloudUrl}
+              />
+            </div>
+          </div>
         </section>
       )}
 
-      {/* ═══ أعمال مختارة ═══ */}
+      {/* ═══════════ أعمالي ═══════════ */}
       {featured.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-          <div className="relative mb-10 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold">أعمال مختارة</h2>
-              <div className="royal-rule mx-auto mt-3 h-0.5 w-20" />
-            </div>
+        <section className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-2xl sm:text-3xl font-bold">أعمال مختارة</h2>
             <Link
               to="/portfolio-design"
-              className="absolute end-0 hidden sm:inline-flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-royal-300"
+              className="inline-flex shrink-0 items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-royal-400"
             >
-              عرض جميع الأعمال
-              <ArrowLeft size={16} />
+              كل الأعمال
+              <ArrowLeft size={15} />
             </Link>
           </div>
+          <span className="rule-accent mt-4" />
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="mt-8 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
             {featured.map((work) => (
               <Link
                 key={work.id}
                 to={`/portfolio/${work.id}`}
-                className="group relative overflow-hidden rounded-2xl border border-ink-700 bg-ink-850"
+                className="group relative block overflow-hidden rounded-lg"
               >
                 <img
                   src={work.coverImage}
                   alt={work.altText || work.title}
                   loading="lazy"
-                  className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/20 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 p-4">
-                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-royal-500/90 text-white">
-                    <ArrowLeft size={16} />
-                  </span>
-                  <h3 className="truncate text-sm font-semibold text-white">{work.title}</h3>
-                </div>
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950/95 via-ink-950/20 to-transparent" />
+                <h3 className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-[0.82rem] sm:text-sm font-semibold text-fg">
+                  {work.title}
+                </h3>
               </Link>
             ))}
           </div>
-
-          <Link
-            to="/portfolio-design"
-            className="mt-6 inline-flex sm:hidden items-center gap-2 text-sm text-gray-300"
-          >
-            عرض جميع الأعمال
-            <ArrowLeft size={16} />
-          </Link>
         </section>
       )}
 
-      {/* ═══ الاقتباس ═══ */}
-      <section className="relative overflow-hidden border-y border-ink-700 bg-ink-900">
-        <div className="absolute -start-20 top-1/2 h-80 w-80 -translate-y-1/2 royal-glow opacity-60" />
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
-          <Quote className="mx-auto mb-5 text-royal-500" size={40} strokeWidth={1.5} />
-          <blockquote className="text-xl sm:text-2xl lg:text-3xl font-semibold leading-relaxed text-gray-100">
-            الإبداع ليس ما أفعله فقط،
-            <br />
-            بل هو الطريقة التي أرى بها العالم.
-          </blockquote>
-          <div className="royal-rule mx-auto mt-8 h-0.5 w-28" />
-        </div>
-      </section>
-
-      {/* ═══ العملاء ═══ */}
+      {/* ═══════════ عملاؤنا المميزون ═══════════ */}
       {clients.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-          <div className="mb-10 text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold">عملاء وثقوا بي</h2>
-            <div className="royal-rule mx-auto mt-3 h-0.5 w-20" />
-          </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {clients.map((client) => (
-              <div
-                key={client.id}
-                className="group flex flex-col items-center justify-center gap-3 rounded-2xl border border-ink-700 bg-ink-850 p-6 transition-colors hover:border-royal-600"
-              >
-                {client.logoUrl ? (
-                  <img
-                    src={client.logoUrl}
-                    alt={client.logoAlt || `شعار ${client.name} — عميل مصطفى جغلال`}
-                    title={client.name}
-                    width={64}
-                    height={64}
-                    loading="lazy"
-                    className="h-16 w-16 object-contain brightness-75 transition-all group-hover:brightness-100"
-                  />
-                ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-ink-700 text-2xl font-bold text-gray-400 transition-colors group-hover:text-white">
-                    {client.name.charAt(0)}
-                  </div>
-                )}
-                <p className="text-center text-sm font-semibold text-gray-400 transition-colors group-hover:text-white">
-                  {client.name}
-                </p>
-              </div>
-            ))}
+        <section className="border-y border-ink-700 bg-ink-900">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
+            <h2 className="text-2xl sm:text-3xl font-bold">عملاؤنا المميزون</h2>
+            <p className="mt-3 text-fg-muted">فخورون بثقة هذه الجهات المرموقة</p>
+            <span className="rule-accent mt-4" />
+
+            <div className="mt-10 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-10">
+              {clients.map((client) => (
+                <div key={client.id} className="group flex flex-col items-center gap-3">
+                  {client.logoUrl ? (
+                    <img
+                      src={client.logoUrl}
+                      alt={client.logoAlt || `شعار ${client.name} — عميل مصطفى جغلال`}
+                      title={client.name}
+                      width={64}
+                      height={64}
+                      loading="lazy"
+                      className="h-12 w-12 sm:h-14 sm:w-14 object-contain opacity-60 transition-opacity group-hover:opacity-100"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-ink-800 text-lg font-bold text-fg-muted">
+                      {client.name.charAt(0)}
+                    </div>
+                  )}
+                  <p className="text-center text-xs text-fg-muted transition-colors group-hover:text-fg">
+                    {client.name}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* ═══ دعوة للتواصل ═══ */}
-      <section id="contact" className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-ink-950 to-ink-900" />
-        <div className="absolute start-1/2 top-0 h-72 w-[30rem] -translate-x-1/2 royal-glow opacity-50" />
-        <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h2 className="mb-4 text-2xl sm:text-3xl font-bold">جاهز لبدء مشروعك؟</h2>
-          <p className="mb-8 text-gray-400">دعنا نتعاون لتحويل أفكارك إلى صوت وصورة تترك أثراً.</p>
-          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3">
-            {siteInfo.email && (
-              <a
-                href={`mailto:${siteInfo.email}`}
-                className="rounded-xl bg-royal-500 px-8 py-3.5 font-semibold text-white shadow-lg shadow-royal-500/25 transition-colors hover:bg-royal-600"
-              >
-                أرسل رسالة
-              </a>
-            )}
-            {siteInfo.phone && (
-              <a
-                href={`tel:${siteInfo.phone}`}
-                className="rounded-xl border border-ink-600 px-8 py-3.5 font-semibold text-gray-200 transition-colors hover:border-royal-500 hover:text-white"
-              >
-                اتصل الآن
-              </a>
-            )}
-          </div>
+      {/* ═══════════ دعوة للتواصل ═══════════ */}
+      <section id="contact" className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold">جاهز لبدء مشروعك؟</h2>
+        <p className="mt-4 text-fg-muted">دعنا نتعاون لتحويل أفكارك إلى واقع ملموس</p>
+        <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
+          {siteInfo.email && (
+            <a
+              href={`mailto:${siteInfo.email}`}
+              className="rounded-lg bg-royal-500 px-7 py-3.5 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
+            >
+              أرسل رسالة
+            </a>
+          )}
+          {siteInfo.phone && (
+            <a
+              href={`tel:${siteInfo.phone}`}
+              className="rounded-lg border border-ink-600 px-7 py-3.5 text-[0.95rem] font-semibold text-fg transition-colors hover:border-royal-500"
+            >
+              اتصل الآن
+            </a>
+          )}
         </div>
       </section>
     </div>

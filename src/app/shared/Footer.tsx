@@ -36,47 +36,43 @@ export function Footer() {
 
   return (
     <footer className="border-t border-ink-700 bg-ink-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-xl font-bold mb-4 text-royal-400">
-              {info.heroName}
-            </h3>
-            <p className="text-gray-400">{info.footerDescription}</p>
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+          {/* الاسم ووصف مختصر */}
+          <div className="max-w-sm">
+            <h3 className="text-lg font-bold">{info.heroName}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-fg-muted">{info.footerDescription}</p>
           </div>
-          <div>
-            <h4 className="font-semibold mb-4">تواصل معي</h4>
-            <div className="space-y-3 text-gray-400">
-              {info.email && (
-                <a href={`mailto:${info.email}`} className="flex items-center gap-2 hover:text-royal-300 transition-colors">
-                  <Mail size={18} />
-                  <span>{info.email}</span>
-                </a>
-              )}
-              {info.phone && (
-                <a href={`tel:${info.phone}`} className="flex items-center gap-2 hover:text-royal-300 transition-colors">
-                  <Phone size={18} />
-                  <span dir="ltr">{info.phone}</span>
-                </a>
-              )}
-            </div>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4">تابعني</h4>
-            <div className="flex gap-4">
-              <a href={info.linkedinUrl || "#"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-royal-300 transition-colors">
-                <Linkedin size={24} />
+
+          {/* التواصل */}
+          <div className="flex flex-col gap-3 text-sm text-fg-muted">
+            {info.email && (
+              <a href={`mailto:${info.email}`} className="flex items-center gap-2 transition-colors hover:text-fg">
+                <Mail size={16} />
+                <span>{info.email}</span>
               </a>
-              <a href={info.twitterUrl || "#"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-royal-300 transition-colors">
-                <Twitter size={24} />
+            )}
+            {info.phone && (
+              <a href={`tel:${info.phone}`} className="flex items-center gap-2 transition-colors hover:text-fg">
+                <Phone size={16} />
+                <span dir="ltr">{info.phone}</span>
               </a>
-              <a href={info.instagramUrl || "#"} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-royal-300 transition-colors">
-                <Instagram size={24} />
+            )}
+            <div className="mt-1 flex gap-5">
+              <a href={info.linkedinUrl || "#"} target="_blank" rel="noopener noreferrer" aria-label="لينكدإن" className="transition-colors hover:text-royal-400">
+                <Linkedin size={19} />
+              </a>
+              <a href={info.twitterUrl || "#"} target="_blank" rel="noopener noreferrer" aria-label="تويتر" className="transition-colors hover:text-royal-400">
+                <Twitter size={19} />
+              </a>
+              <a href={info.instagramUrl || "#"} target="_blank" rel="noopener noreferrer" aria-label="إنستغرام" className="transition-colors hover:text-royal-400">
+                <Instagram size={19} />
               </a>
             </div>
           </div>
         </div>
-        <div className="mt-8 pt-8 border-t border-ink-700 text-center text-gray-400">
+
+        <div className="mt-10 border-t border-ink-700 pt-6 text-sm text-fg-muted">
           <p>&copy; {new Date().getFullYear()} جميع الحقوق محفوظة - {info.heroName}</p>
         </div>
       </div>

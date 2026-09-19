@@ -1,40 +1,56 @@
 /* ===========================================================
-   هوية الموقع البصرية — أزرق ملكي على خلفية ليلية
+   الهوية البصرية — خلفية داكنة + أزرق ملكي كلون تمييز فقط
    =========================================================== */
 
 @theme {
-  /* الأزرق الملكي */
-  --color-royal-50: #eef3ff;
-  --color-royal-100: #dce5ff;
-  --color-royal-200: #bccfff;
-  --color-royal-300: #93aeff;
-  --color-royal-400: #6a89f7;
-  --color-royal-500: #4169e1; /* Royal Blue */
-  --color-royal-600: #2f4fd0;
-  --color-royal-700: #253dae;
-  --color-royal-800: #1d318c;
-  --color-royal-900: #16256a;
+  /* الأزرق الملكي — يُستخدم للتمييز لا للخلفيات الواسعة */
+  --color-royal-200: #b9c7f5;
+  --color-royal-300: #8098ec;
+  --color-royal-400: #4169e1; /* Bright Royal Blue */
+  --color-royal-500: #3157d5; /* Primary Royal Blue */
+  --color-royal-600: #2446b8; /* Deep Royal Blue */
+  --color-royal-700: #1c3792;
 
-  /* درجات الخلفية الليلية */
-  --color-ink-950: #05070f;
-  --color-ink-900: #090d18;
-  --color-ink-850: #0d1220;
-  --color-ink-800: #121829;
-  --color-ink-700: #1b2337;
-  --color-ink-600: #2a3450;
+  /* الخلفيات الداكنة */
+  --color-ink-950: #08090d;
+  --color-ink-900: #0d0f14;
+  --color-ink-850: #111318;
+  --color-ink-800: #14171e;
+  --color-ink-700: #1d2029; /* الحدود الخفيفة */
+  --color-ink-600: #2a2e3a;
+
+  /* النصوص */
+  --color-fg: #f5f5f5;
+  --color-fg-muted: #a7a9b0;
 }
 
-/* توهّج أزرق يُستخدم خلف الصور والأقسام البارزة */
-.royal-glow {
-  background: radial-gradient(ellipse at center, rgba(65, 105, 225, 0.38) 0%, rgba(65, 105, 225, 0) 70%);
+/* فاصل رفيع أسفل العناوين */
+.rule-accent {
+  display: block;
+  height: 2px;
+  width: 2.5rem;
+  background: #3157d5;
+  border-radius: 999px;
 }
 
-/* خط الخطّ العربي المستخدم في الجمل الاقتباسية القصيرة */
-.script-ar {
-  font-family: "Aref Ruqaa", Georgia, serif;
+/* ظهور هادئ عند تحميل الصفحة — بلا حركة مستمرة */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-/* شريط سفلي متدرّج للفواصل */
-.royal-rule {
-  background: linear-gradient(90deg, rgba(65, 105, 225, 0) 0%, #4169e1 50%, rgba(65, 105, 225, 0) 100%);
+.fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.22, 0.8, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up {
+    animation: none;
+  }
 }
