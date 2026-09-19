@@ -84,8 +84,6 @@ const services = [
  * الداكنة فتبدو الصورة جزءاً من الصفحة لا عنصراً مركّباً فوقها.
  */
 function HeroPhoto({ src, priority = false }: { src: string; priority?: boolean }) {
-  const fade =
-    "radial-gradient(68% 72% at 50% 42%, #000 34%, rgba(0,0,0,0.55) 66%, transparent 90%)";
   return (
     <div className="fade-up relative">
       <img
@@ -97,17 +95,26 @@ function HeroPhoto({ src, priority = false }: { src: string; priority?: boolean 
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
         className="w-full aspect-[4/5] object-cover object-[center_12%]"
-        style={{ maskImage: fade, WebkitMaskImage: fade }}
       />
+      {/*
+        طبقات تذويب بلون الخلفية نفسه بدل القناع (mask) لأن دعم
+        mask-composite غير مضمون. الحافة اليمنى المواجهة للنص
+        والحافتان العلوية والسفلية تندمج في الخلفية، واليسرى تمتد
+        خارج حافة الشاشة.
+      */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-ink-950 via-ink-950/75 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-ink-950 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink-950 to-transparent" />
     </div>
   );
 }
-
 
 interface HeroCopyProps {
   description: string;
   email: string;
   socials: { url: string; Icon: typeof Mic; label: string }[];
+  /** روابط التواصل موجودة في الفوتر، فتُخفى من بطل الجوال */
+  showSocials?: boolean;
 }
 
 /** العنوان — يجاور الصورة */
@@ -134,7 +141,7 @@ function HeroTitle() {
 }
 
 /** بقيّة نصّ البطل: الوصف والأزرار وروابط التواصل */
-function HeroCopy({ description, email, socials }: HeroCopyProps) {
+function HeroCopy({ description, email, socials, showSocials = true }: HeroCopyProps) {
   return (
     <div className="max-w-[32rem]">
       <p
@@ -160,7 +167,7 @@ function HeroCopy({ description, email, socials }: HeroCopyProps) {
         </a>
       </div>
 
-      {socials.length > 0 && (
+      {showSocials && socials.length > 0 && (
         <div className="fade-up mt-8 lg:mt-9 flex gap-6" style={{ animationDelay: "240ms" }}>
           {socials.map(({ url, Icon, label }) => (
             <a
@@ -256,7 +263,7 @@ export function HomePage() {
               <div className="min-w-0 flex-1">
                 <HeroTitle />
               </div>
-              <div className="w-[38%] max-w-[9.5rem] shrink-0 sm:max-w-[12rem]">
+              <div className="-me-5 w-[46%] max-w-[12rem] shrink-0 sm:me-0 sm:max-w-[14rem]">
                 <HeroPhoto src={heroImage} priority />
               </div>
             </div>
@@ -266,6 +273,7 @@ export function HomePage() {
                 description={siteInfo.heroDescription}
                 email={siteInfo.email}
                 socials={socials}
+                showSocials={false}
               />
             </div>
           </div>
