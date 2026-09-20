@@ -6,6 +6,7 @@ import {
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import profileImg from "../../../assets/profile.jpg";
+import heroMobileImg from "../../../assets/hero-mobile.webp";
 import { useSeo } from "../../shared/useSeo";
 import { VoiceSampleCard } from "../../components/VoiceSampleCard";
 
@@ -256,40 +257,38 @@ export function HomePage() {
           الشاشات الكبيرة: التكوين السينمائي كما كان — صورة ممتدة تذوب في الخلفية */}
       <section className="relative lg:-mt-16">
 
-        {/* ——— الجوال: النص فوق صورة تملأ البطل ——— */}
+        {/* ——— الجوال: النص فوق الصورة المصمّمة ———
+            الصورة عرضية وحوافّها مصمّمة بلون الخلفية نفسه، فتُعرض
+            بكامل العرض ويبدأ النص فوق جزئها السفلي الداكن ثم يكمل
+            في خلفية الصفحة دون أي حدّ ظاهر. */}
         <div className="relative -mt-16 lg:hidden">
-          {/* الصورة خلفيةً للبطل */}
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="relative h-[56svh] min-h-[19rem] max-h-[30rem]">
             <img
-              src={heroImage}
+              src={heroMobileImg}
               alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
               title="مصطفى جغلال"
-              width={1000}
-              height={1000}
+              width={2000}
+              height={1414}
               loading="eager"
               fetchPriority="high"
-              className="h-full w-full object-cover object-[18%_top]"
+              className="h-full w-full object-cover object-center"
             />
-            {/* تعتيم الجهة اليسرى ليُقرأ النص فوقها */}
-            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-ink-950/72 to-ink-950/97" />
-            {/* تعتيم أعلى الصورة ليبقى الهيدر واضحاً */}
-            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-ink-950 via-ink-950/55 to-transparent" />
-            {/* ذوبان سفلي طويل يدمج الصورة بخلفية الصفحة */}
-            <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-ink-950 via-ink-950/94 to-transparent" />
+            {/* تعتيم خفيف أعلى الصورة ليبقى الهيدر واضحاً */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink-950/75 to-transparent" />
+            {/* تعتيم الجزء السفلي حيث يبدأ النص */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink-950 via-ink-950/75 to-transparent" />
           </div>
 
-          {/* النص فوق الصورة */}
-          <div className="relative flex min-h-[100svh] flex-col justify-end px-5 pb-14 pt-24 text-left">
-            <div className="w-[76%] max-w-[22rem]">
-              <HeroTitle />
-              <div className="mt-6">
-                <HeroCopy
-                  description={siteInfo.heroDescription}
-                  email={siteInfo.email}
-                  socials={socials}
-                  showSocials={false}
-                />
-              </div>
+          {/* النص يرتفع فوق الجزء السفلي من الصورة */}
+          <div className="relative -mt-32 px-5 pb-14">
+            <HeroTitle />
+            <div className="mt-6">
+              <HeroCopy
+                description={siteInfo.heroDescription}
+                email={siteInfo.email}
+                socials={socials}
+                showSocials={false}
+              />
             </div>
           </div>
         </div>
