@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Link } from "react-router";
 import {
   Mic, Video, Palette, TrendingUp, ArrowLeft, Play, Linkedin, Instagram, Twitter,
@@ -110,6 +110,82 @@ function HeroPhoto({ src, priority = false }: { src: string; priority?: boolean 
   );
 }
 
+/**
+ * نصّ بطل الجوال — كل الأحجام بوحدة em، فيكفي تغيير حجم الخط الأساسي
+ * للحاوية ليتقلّص النص كله بتناسب.
+ */
+function MobileHeroText({ description, email }: { description: string; email: string }) {
+  return (
+    <>
+      <p className="flex items-center gap-[0.8em] text-[0.62em] tracking-[0.2em] text-fg-muted">
+        <span className="h-px w-[2.2em] bg-royal-500" />
+        كل قصة تستحق أن تُروى
+      </p>
+
+      <h1 className="mt-[0.85em] text-[1.72em] font-bold leading-[1.26] tracking-[-0.01em]">
+        أحوّل
+        <br />
+        الأفكار إلى
+        <br />
+        <span className="text-royal-400">صوت مؤثر</span>
+      </h1>
+
+      <p className="mt-[1.1em] text-[0.82em] leading-[1.75] text-fg-muted">{description}</p>
+
+      <div className="mt-[1.3em] flex flex-col gap-[0.55em]">
+        <Link
+          to="/portfolio-design"
+          className="inline-flex items-center justify-center gap-[0.6em] rounded-[0.5em] bg-royal-500 px-[1.6em] py-[1em] text-[0.85em] font-semibold text-white transition-colors hover:bg-royal-600"
+        >
+          <ArrowLeft className="h-[1.1em] w-[1.1em]" />
+          أعمالي
+        </Link>
+        <a
+          href={email ? `mailto:${email}` : "#contact"}
+          className="inline-flex items-center justify-center rounded-[0.5em] border border-ink-700 px-[1.6em] py-[1em] text-[0.85em] text-fg-muted transition-colors hover:border-ink-600 hover:text-fg"
+        >
+          تواصل معي
+        </a>
+      </div>
+    </>
+  );
+}
+
+/**
+ * يُصغّر حجم الخط الأساسي تدريجياً حتى يدخل النص كاملاً داخل حدود
+ * الصورة. يعيد الحساب عند تغيّر النص أو عند تغيّر مقاس الشاشة.
+ */
+function useFitText(
+  boxRef: React.RefObject<HTMLDivElement | null>,
+  textRef: React.RefObject<HTMLDivElement | null>,
+  dep: string
+) {
+  useLayoutEffect(() => {
+    const fit = () => {
+      const box = boxRef.current;
+      const text = textRef.current;
+      if (!box || !text) return;
+      const MAX = 18;
+      const MIN = 10.5;
+      let size = MAX;
+      text.style.fontSize = `${size}px`;
+      while (size > MIN && text.getBoundingClientRect().height > box.clientHeight) {
+        size -= 0.5;
+        text.style.fontSize = `${size}px`;
+      }
+    };
+    fit();
+    // الخطوط تصل متأخرة أحياناً فيتغيّر الارتفاع بعد أول قياس
+    const t = window.setTimeout(fit, 350);
+    window.addEventListener("resize", fit);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("resize", fit);
+    };
+  }, [boxRef, textRef, dep]);
+}
+
+
 interface HeroCopyProps {
   description: string;
   email: string;
@@ -220,6 +296,10 @@ export function HomePage() {
 
   // الصورة المعتمدة للبطل هي المرفقة بالمشروع (ذات ربطة العنق الزرقاء).
   // الصورة المرفوعة من لوحة التحكم ما زالت تُستخدم في بقية الموقع.
+  const heroBoxRef = useRef<HTMLDivElement>(null);
+  const heroTextRef = useRef<HTMLDivElement>(null);
+  useFitText(heroBoxRef, heroTextRef, siteInfo.heroDescription);
+
   const heroImage = profileImg;
   const voiceSample = works.find((w) => w.category === "voice" && (w.audioUrl || w.soundcloudUrl));
   const withCover = works.filter((w) => w.coverImage);
@@ -257,11 +337,10 @@ export function HomePage() {
           الشاشات الكبيرة: التكوين السينمائي كما كان — صورة ممتدة تذوب في الخلفية */}
       <section className="relative lg:-mt-16">
 
-        {/* ——— الجوال: الصورة تغطّي البطل كاملاً والنص فوقها ———
-            ارتفاع البطل يتبع طول النص، والصورة absolute inset-0 فتغطّيه
-            مهما طال المحتوى — فلا يخرج أي نص خارج الصورة. */}
-        <div className="relative min-h-[100svh] lg:hidden">
-          {/* الصورة */}
+        {/* ——— الجوال: النص فوق الصورة بارتفاع شاشة واحدة ———
+            البطل ثابت الارتفاع، وحجم الخط ينكمش تلقائياً كلما طال
+            الوصف حتى يبقى النص كله داخل حدود الصورة. */}
+        <div className="relative h-[100svh] lg:hidden">
           <img
             src={heroMobileImg}
             alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
@@ -272,25 +351,17 @@ export function HomePage() {
             fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover object-center"
           />
-          {/* تعتيم أعلى الصورة ليبقى الهيدر واضحاً */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink-950/85 to-transparent" />
-          {/* تعتيم الجهة اليسرى حيث يقع النص */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-ink-950/45 to-ink-950/88" />
-          {/* ذوبان سفلي يدمج الصورة بخلفية الصفحة */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-ink-950 to-transparent" />
 
-          {/* النص فوق الصورة */}
-          <div className="relative flex min-h-[100svh] items-center justify-end px-5 pb-12 pt-24">
-            <div className="w-[64%] max-w-[15.5rem] text-left">
-              <HeroTitle />
-              <div className="mt-5">
-                <HeroCopy
-                  description={siteInfo.heroDescription}
-                  email={siteInfo.email}
-                  socials={socials}
-                  showSocials={false}
-                />
-              </div>
+          {/* حدود المساحة المتاحة للنص داخل الصورة */}
+          <div
+            ref={heroBoxRef}
+            className="absolute inset-x-5 bottom-8 top-20 flex items-center justify-end overflow-hidden"
+          >
+            <div ref={heroTextRef} className="w-[64%] max-w-[16rem] text-left">
+              <MobileHeroText description={siteInfo.heroDescription} email={siteInfo.email} />
             </div>
           </div>
         </div>
