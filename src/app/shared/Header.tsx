@@ -5,9 +5,7 @@ import { useEffect, useState } from "react";
 export const navItems = [
   { path: "/", label: "الرئيسية" },
   { path: "/about", label: "عني" },
-  { path: "/portfolio-design", label: "التصميم الجرافيكي" },
-  { path: "/portfolio-photography", label: "التصوير" },
-  { path: "/portfolio-voice", label: "التعليق الصوتي" },
+  { path: "/portfolio", label: "أعمالي" },
   { path: "/courses", label: "الدورات التدريبية" },
   { path: "/articles", label: "المقالات" },
 ];

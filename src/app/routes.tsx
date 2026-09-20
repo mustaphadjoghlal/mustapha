@@ -11,6 +11,7 @@ import { AdminPage } from "./pages/admin/AdminPage";
 import { ArticlesPage } from "./pages/articles/ArticlesPage";
 import { ArticlePage } from "./pages/articles/ArticlePage";
 import { WorkDetailPage } from "./pages/portfolio/WorkDetailPage";
+import { PortfolioIndexPage } from "./pages/portfolio/PortfolioIndexPage";
 import { HakawatiLayout } from "./pages/hakawati/HakawatiLayout";
 import { HakawatiHomePage } from "./pages/hakawati/HakawatiHomePage";
 import { HakawatiStoriesPage } from "./pages/hakawati/HakawatiStoriesPage";
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
       { path: "courses", Component: CoursesPage },
       { path: "articles", Component: ArticlesPage },
       { path: "articles/:id", Component: ArticlePage },
+      { path: "portfolio", Component: PortfolioIndexPage },
       { path: "portfolio/:id", Component: WorkDetailPage },
       { path: "*", Component: NotFoundPage },
     ],

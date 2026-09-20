@@ -138,7 +138,7 @@ function HeroCopy({ description, whatsapp, socials, showSocials = true }: HeroCo
 
       <div className="fade-up mt-8 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "180ms" }}>
         <Link
-          to="/portfolio-design"
+          to="/portfolio"
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-royal-500 px-7 py-4 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
         >
           <ArrowLeft size={17} />
@@ -318,7 +318,7 @@ export function HomePage() {
           {/* الأزرار — تحت الصورة */}
           <div style={{ padding: "20px 22px 0", display: "flex", flexDirection: "column", gap: 10 }}>
             <Link
-              to="/portfolio-design"
+              to="/portfolio"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                 background: "#3157d5", color: "#fff", borderRadius: 10, padding: "15px 20px",
@@ -448,7 +448,7 @@ export function HomePage() {
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-2xl sm:text-3xl font-bold">أعمال مختارة</h2>
             <Link
-              to="/portfolio-design"
+              to="/portfolio"
               className="inline-flex shrink-0 items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-royal-400"
             >
               كل الأعمال
