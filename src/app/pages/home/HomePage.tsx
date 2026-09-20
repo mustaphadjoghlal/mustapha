@@ -256,25 +256,40 @@ export function HomePage() {
           الشاشات الكبيرة: التكوين السينمائي كما كان — صورة ممتدة تذوب في الخلفية */}
       <section className="relative lg:-mt-16">
 
-        {/* ——— الجوال ——— */}
-        <div className="lg:hidden">
-          <div className="px-5 pt-10 pb-12">
-            <div className="flex items-center gap-4 sm:gap-6">
-              <div className="min-w-0 flex-1">
-                <HeroTitle />
-              </div>
-              <div className="-me-5 w-[46%] max-w-[12rem] shrink-0 sm:me-0 sm:max-w-[14rem]">
-                <HeroPhoto src={heroImage} priority />
-              </div>
-            </div>
+        {/* ——— الجوال: النص فوق صورة تملأ البطل ——— */}
+        <div className="relative -mt-16 lg:hidden">
+          {/* الصورة خلفيةً للبطل */}
+          <div className="absolute inset-0 overflow-hidden">
+            <img
+              src={heroImage}
+              alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
+              title="مصطفى جغلال"
+              width={1000}
+              height={1000}
+              loading="eager"
+              fetchPriority="high"
+              className="h-full w-full object-cover object-[18%_top]"
+            />
+            {/* تعتيم الجهة اليسرى ليُقرأ النص فوقها */}
+            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-ink-950/72 to-ink-950/97" />
+            {/* تعتيم أعلى الصورة ليبقى الهيدر واضحاً */}
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-ink-950 via-ink-950/55 to-transparent" />
+            {/* ذوبان سفلي طويل يدمج الصورة بخلفية الصفحة */}
+            <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-ink-950 via-ink-950/94 to-transparent" />
+          </div>
 
-            <div className="mt-7">
-              <HeroCopy
-                description={siteInfo.heroDescription}
-                email={siteInfo.email}
-                socials={socials}
-                showSocials={false}
-              />
+          {/* النص فوق الصورة */}
+          <div className="relative flex min-h-[100svh] flex-col justify-end px-5 pb-14 pt-24 text-left">
+            <div className="w-[76%] max-w-[22rem]">
+              <HeroTitle />
+              <div className="mt-6">
+                <HeroCopy
+                  description={siteInfo.heroDescription}
+                  email={siteInfo.email}
+                  socials={socials}
+                  showSocials={false}
+                />
+              </div>
             </div>
           </div>
         </div>
