@@ -186,6 +186,20 @@ function useFitText(
 }
 
 
+/** يختصر الوصف في البطل إلى أول جملة أو جملتين دون قطع الكلام في منتصفه */
+function shortenDescription(text: string, limit = 110) {
+  const clean = text.trim();
+  if (clean.length <= limit) return clean;
+  const sentences = clean.split(/(?<=\.)\s+/);
+  let out = "";
+  for (const sentence of sentences) {
+    if (out && (out + " " + sentence).length > limit) break;
+    out = out ? `${out} ${sentence}` : sentence;
+  }
+  return out || sentences[0];
+}
+
+
 interface HeroCopyProps {
   description: string;
   email: string;
@@ -347,8 +361,8 @@ export function HomePage() {
               src={heroMobileImg}
               alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
               title="مصطفى جغلال"
-              width={2000}
-              height={2240}
+              width={1164}
+              height={1304}
               loading="eager"
               fetchPriority="high"
               className="block h-full w-full object-cover"
@@ -399,7 +413,7 @@ export function HomePage() {
               </h1>
               <div style={{ width: 44, height: 3, background: "#3157d5", borderRadius: 2, margin: "12px 0" }} />
               <p style={{ margin: 0, color: "rgba(255,255,255,0.7)", fontSize: 13, lineHeight: 1.8, maxWidth: 280 }}>
-                {siteInfo.heroDescription}
+                {shortenDescription(siteInfo.heroDescription)}
               </p>
             </div>
           </div>
