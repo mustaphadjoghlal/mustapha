@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import {
   Mic, Video, Palette, TrendingUp, ArrowLeft, Play, Linkedin, Instagram, Twitter,
@@ -80,112 +80,6 @@ const services = [
 ];
 
 
-/**
- * صورة البطل — بلا إطار ولا بطاقة: قناع إشعاعي يُذيب الحواف في الخلفية
- * الداكنة فتبدو الصورة جزءاً من الصفحة لا عنصراً مركّباً فوقها.
- */
-function HeroPhoto({ src, priority = false }: { src: string; priority?: boolean }) {
-  return (
-    <div className="fade-up relative">
-      <img
-        src={src}
-        alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
-        title="مصطفى جغلال"
-        width={1000}
-        height={1000}
-        loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : "auto"}
-        className="w-full aspect-[4/5] object-cover object-[center_12%]"
-      />
-      {/*
-        طبقات تذويب بلون الخلفية نفسه بدل القناع (mask) لأن دعم
-        mask-composite غير مضمون. الحافة اليمنى المواجهة للنص
-        والحافتان العلوية والسفلية تندمج في الخلفية، واليسرى تمتد
-        خارج حافة الشاشة.
-      */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-ink-950 via-ink-950/75 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-ink-950 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink-950 to-transparent" />
-    </div>
-  );
-}
-
-/**
- * نصّ بطل الجوال — كل الأحجام بوحدة em، فيكفي تغيير حجم الخط الأساسي
- * للحاوية ليتقلّص النص كله بتناسب.
- */
-function MobileHeroText({ description, email }: { description: string; email: string }) {
-  return (
-    <>
-      <p className="flex items-center gap-[0.8em] text-[0.62em] tracking-[0.2em] text-fg-muted">
-        <span className="h-px w-[2.2em] bg-royal-500" />
-        كل قصة تستحق أن تُروى
-      </p>
-
-      <h1 className="mt-[0.85em] text-[1.72em] font-bold leading-[1.26] tracking-[-0.01em]">
-        أحوّل
-        <br />
-        الأفكار إلى
-        <br />
-        <span className="text-royal-400">صوت مؤثر</span>
-      </h1>
-
-      <p className="mt-[1.1em] text-[0.82em] leading-[1.75] text-fg-muted">{description}</p>
-
-      <div className="mt-[1.3em] flex flex-col gap-[0.55em]">
-        <Link
-          to="/portfolio-design"
-          className="inline-flex items-center justify-center gap-[0.6em] rounded-[0.5em] bg-royal-500 px-[1.6em] py-[1em] text-[0.85em] font-semibold text-white transition-colors hover:bg-royal-600"
-        >
-          <ArrowLeft className="h-[1.1em] w-[1.1em]" />
-          أعمالي
-        </Link>
-        <a
-          href={email ? `mailto:${email}` : "#contact"}
-          className="inline-flex items-center justify-center rounded-[0.5em] border border-ink-700 px-[1.6em] py-[1em] text-[0.85em] text-fg-muted transition-colors hover:border-ink-600 hover:text-fg"
-        >
-          تواصل معي
-        </a>
-      </div>
-    </>
-  );
-}
-
-/**
- * يُصغّر حجم الخط الأساسي تدريجياً حتى يدخل النص كاملاً داخل حدود
- * الصورة. يعيد الحساب عند تغيّر النص أو عند تغيّر مقاس الشاشة.
- */
-function useFitText(
-  boxRef: React.RefObject<HTMLDivElement | null>,
-  textRef: React.RefObject<HTMLDivElement | null>,
-  dep: string
-) {
-  useLayoutEffect(() => {
-    const fit = () => {
-      const box = boxRef.current;
-      const text = textRef.current;
-      if (!box || !text) return;
-      const MAX = 18;
-      const MIN = 10.5;
-      let size = MAX;
-      text.style.fontSize = `${size}px`;
-      while (size > MIN && text.getBoundingClientRect().height > box.clientHeight) {
-        size -= 0.5;
-        text.style.fontSize = `${size}px`;
-      }
-    };
-    fit();
-    // الخطوط تصل متأخرة أحياناً فيتغيّر الارتفاع بعد أول قياس
-    const t = window.setTimeout(fit, 350);
-    window.addEventListener("resize", fit);
-    return () => {
-      window.clearTimeout(t);
-      window.removeEventListener("resize", fit);
-    };
-  }, [boxRef, textRef, dep]);
-}
-
-
 /** يختصر الوصف في البطل إلى أول جملة أو جملتين دون قطع الكلام في منتصفه */
 function shortenDescription(text: string, limit = 110) {
   const clean = text.trim();
@@ -202,7 +96,7 @@ function shortenDescription(text: string, limit = 110) {
 
 interface HeroCopyProps {
   description: string;
-  email: string;
+  whatsapp: string;
   socials: { url: string; Icon: typeof Mic; label: string }[];
   /** روابط التواصل موجودة في الفوتر، فتُخفى من بطل الجوال */
   showSocials?: boolean;
@@ -232,7 +126,7 @@ function HeroTitle() {
 }
 
 /** بقيّة نصّ البطل: الوصف والأزرار وروابط التواصل */
-function HeroCopy({ description, email, socials, showSocials = true }: HeroCopyProps) {
+function HeroCopy({ description, whatsapp, socials, showSocials = true }: HeroCopyProps) {
   return (
     <div className="max-w-[32rem]">
       <p
@@ -251,7 +145,10 @@ function HeroCopy({ description, email, socials, showSocials = true }: HeroCopyP
           أعمالي
         </Link>
         <a
-          href={email ? `mailto:${email}` : "#contact"}
+          href={whatsapp}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-whatsapp-cta
           className="inline-flex items-center justify-center rounded-lg border border-ink-700 px-7 py-4 text-[0.95rem] text-fg-muted transition-colors hover:border-ink-600 hover:text-fg"
         >
           تواصل معي
@@ -310,9 +207,9 @@ export function HomePage() {
 
   // الصورة المعتمدة للبطل هي المرفقة بالمشروع (ذات ربطة العنق الزرقاء).
   // الصورة المرفوعة من لوحة التحكم ما زالت تُستخدم في بقية الموقع.
-  const heroBoxRef = useRef<HTMLDivElement>(null);
-  const heroTextRef = useRef<HTMLDivElement>(null);
-  useFitText(heroBoxRef, heroTextRef, siteInfo.heroDescription);
+  const whatsappUrl = siteInfo.phone
+    ? `https://wa.me/${siteInfo.phone.replace(/\D/g, "")}?text=${encodeURIComponent("مرحباً، أود التواصل معك")}`
+    : "#contact";
 
   const heroImage = profileImg;
   const voiceSample = works.find((w) => w.category === "voice" && (w.audioUrl || w.soundcloudUrl));
@@ -432,7 +329,10 @@ export function HomePage() {
               أعمالي
             </Link>
             <a
-              href={siteInfo.email ? `mailto:${siteInfo.email}` : "#contact"}
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-whatsapp-cta
               style={{
                 background: "transparent", color: "#fff", border: "1.5px solid #2e2e2e",
                 borderRadius: 10, padding: "14px 20px", fontSize: 15, fontWeight: 600, textAlign: "center",
@@ -488,7 +388,7 @@ export function HomePage() {
               <div className="mt-5">
                 <HeroCopy
                   description={siteInfo.heroDescription}
-                  email={siteInfo.email}
+                  whatsapp={whatsappUrl}
                   socials={socials}
                 />
               </div>
