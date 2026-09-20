@@ -337,33 +337,118 @@ export function HomePage() {
           الشاشات الكبيرة: التكوين السينمائي كما كان — صورة ممتدة تذوب في الخلفية */}
       <section className="relative lg:-mt-16">
 
-        {/* ——— الجوال: النص فوق الصورة بارتفاع شاشة واحدة ———
-            البطل ثابت الارتفاع، وحجم الخط ينكمش تلقائياً كلما طال
-            الوصف حتى يبقى النص كله داخل حدود الصورة. */}
-        <div className="relative h-[100svh] lg:hidden">
-          <img
-            src={heroMobileImg}
-            alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
-            title="مصطفى جغلال"
-            width={1080}
-            height={1920}
-            loading="eager"
-            fetchPriority="high"
-            className="absolute inset-0 h-full w-full object-cover object-center"
-          />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink-950/85 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-ink-950/45 to-ink-950/88" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-ink-950 to-transparent" />
+        {/* ——— الجوال: تخطيط تصميم Figma بأرقامه ———
+            الصورة بنسبة 1/1.05 والوجه بلا تعتيم، تدرّج سفلي فقط بارتفاع 55%
+            والنص فوقه بعرض كامل، ثم الأزرار وروابط التواصل تحت الصورة. */}
+        <div className="lg:hidden">
+          {/* الصورة */}
+          <div className="relative w-full overflow-hidden" style={{ aspectRatio: "1 / 1.12" }}>
+            <img
+              src={heroMobileImg}
+              alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
+              title="مصطفى جغلال"
+              width={2000}
+              height={2240}
+              loading="eager"
+              fetchPriority="high"
+              className="block h-full w-full object-cover"
+              style={{ objectPosition: "center top" }}
+            />
 
-          {/* حدود المساحة المتاحة للنص داخل الصورة */}
-          <div
-            ref={heroBoxRef}
-            className="absolute inset-x-5 bottom-8 top-20 flex items-center justify-end overflow-hidden"
-          >
-            <div ref={heroTextRef} className="w-[64%] max-w-[16rem] text-left">
-              <MobileHeroText description={siteInfo.heroDescription} email={siteInfo.email} />
+            {/* تدرّج سفلي فقط — الوجه يبقى نقياً */}
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0"
+              style={{
+                height: "55%",
+                background:
+                  "linear-gradient(to top, #08090d 0%, rgba(8,9,13,0.85) 40%, transparent 100%)",
+              }}
+            />
+
+            {/* بطاقة الاقتباس — أعلى اليسار */}
+            <div
+              className="absolute"
+              style={{
+                top: 20,
+                left: 16,
+                background: "rgba(8,9,13,0.7)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                border: "1px solid rgba(49,87,213,0.3)",
+                borderRadius: 12,
+                padding: "10px 14px",
+              }}
+            >
+              <div style={{ color: "#3157d5", fontSize: 20, lineHeight: 1, marginBottom: 2 }}>”</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.8, fontStyle: "italic" }}>
+                كل قصة
+                <br />
+                تستحق أن تُروى
+              </div>
+            </div>
+
+            {/* النص فوق التدرّج السفلي */}
+            <div className="absolute inset-x-0 bottom-0" style={{ padding: "0 22px 28px" }}>
+              <h1 style={{ margin: 0, lineHeight: 1.15 }}>
+                <span style={{ display: "block", fontSize: 36, fontWeight: 800, color: "#fff" }}>
+                  أحوّل الأفكار إلى
+                </span>
+                <span style={{ display: "block", fontSize: 40, fontWeight: 900, color: "#3157d5" }}>
+                  صوت مؤثر
+                </span>
+              </h1>
+              <div style={{ width: 44, height: 3, background: "#3157d5", borderRadius: 2, margin: "12px 0" }} />
+              <p style={{ margin: 0, color: "rgba(255,255,255,0.7)", fontSize: 13, lineHeight: 1.8, maxWidth: 280 }}>
+                {siteInfo.heroDescription}
+              </p>
             </div>
           </div>
+
+          {/* الأزرار — تحت الصورة */}
+          <div style={{ padding: "20px 22px 0", display: "flex", flexDirection: "column", gap: 10 }}>
+            <Link
+              to="/portfolio-design"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                background: "#3157d5", color: "#fff", borderRadius: 10, padding: "15px 20px",
+                fontSize: 15, fontWeight: 700, boxShadow: "0 4px 20px rgba(49,87,213,0.35)",
+              }}
+            >
+              <ArrowLeft size={18} />
+              أعمالي
+            </Link>
+            <a
+              href={siteInfo.email ? `mailto:${siteInfo.email}` : "#contact"}
+              style={{
+                background: "transparent", color: "#fff", border: "1.5px solid #2e2e2e",
+                borderRadius: 10, padding: "14px 20px", fontSize: 15, fontWeight: 600, textAlign: "center",
+              }}
+            >
+              تواصل معي
+            </a>
+          </div>
+
+          {/* روابط التواصل */}
+          {socials.length > 0 && (
+            <div style={{ display: "flex", gap: 10, padding: "18px 22px 0" }}>
+              {socials.map(({ url, Icon, label }) => (
+                <a
+                  key={label}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  style={{
+                    width: 42, height: 42, borderRadius: 10, background: "#161616",
+                    border: "1px solid #252525", color: "#bbb",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  <Icon size={18} />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ——— الشاشات الكبيرة ——— */}
