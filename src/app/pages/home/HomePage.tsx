@@ -257,11 +257,12 @@ export function HomePage() {
           الشاشات الكبيرة: التكوين السينمائي كما كان — صورة ممتدة تذوب في الخلفية */}
       <section className="relative lg:-mt-16">
 
-        {/* ——— الجوال: النص فوق الصورة، الرأس يميناً والنص يساراً ———
-            الصورة عرضية فيُزاح إطار العرض حتى يقع الرأس في الجهة اليمنى
-            ويبقى الجزء الداكن من التصميم على اليسار ليُكتب النص فوقه. */}
-        <div className="relative -mt-16 min-h-[80svh] lg:hidden">
-          <div className="absolute inset-0 overflow-hidden">
+        {/* ——— الجوال: الصورة بنسبتها الأصلية بلا أي قصّ ———
+            تُعرض بكامل العرض وبنسبتها العرضية (2000×1414)، فلا يُقتطع
+            منها شيء. النص يبدأ فوق جزئها السفلي الداكن ثم يكمل في
+            خلفية الصفحة، وحوافّ التصميم بلون الخلفية فلا يظهر أي حدّ. */}
+        <div className="relative -mt-16 lg:hidden">
+          <div className="relative aspect-[2000/1414] w-full">
             <img
               src={heroMobileImg}
               alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
@@ -270,19 +271,15 @@ export function HomePage() {
               height={1414}
               loading="eager"
               fetchPriority="high"
-              className="h-full w-full object-cover object-[44%_center]"
+              className="h-full w-full object-contain"
             />
-            {/* تعتيم الجهة اليسرى حيث يقع النص */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-transparent via-ink-950/60 to-ink-950/94" />
-            {/* تعتيم أعلى الصورة ليبقى الهيدر واضحاً */}
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink-950/80 to-transparent" />
-            {/* ذوبان سفلي يدمج الصورة بخلفية الصفحة */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink-950 to-transparent" />
+            {/* تعتيم خفيف أعلى الصورة ليبقى الهيدر واضحاً */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-ink-950/85 to-transparent" />
           </div>
 
-          {/* النص فوق الجهة اليسرى */}
-          <div className="relative flex min-h-[80svh] items-center justify-end px-5 pb-10 pt-20">
-            <div className="w-[56%] max-w-[13.5rem] text-left">
+          {/* النص يبدأ فوق الجزء السفلي الأيسر من الصورة */}
+          <div className="relative -mt-10 flex justify-end px-5 pb-14 text-left">
+            <div className="w-[72%] max-w-[17rem]">
               <HeroTitle />
               <div className="mt-5">
                 <HeroCopy
