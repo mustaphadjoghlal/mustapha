@@ -12,6 +12,10 @@ import { VoiceSampleCard } from "../../components/VoiceSampleCard";
 
 interface SiteInfo {
   heroName: string;
+  /** عنوان البطل — الجزء الأبيض. كل سطر جديد يظهر سطراً مستقلاً على الشاشات الكبيرة */
+  heroTitle: string;
+  /** عنوان البطل — الجزء الأزرق */
+  heroTitleAccent: string;
   heroDescription: string;
   profileImageUrl: string;
   email: string;
@@ -61,6 +65,8 @@ function setCache(data: SiteInfo) {
 
 const defaults: SiteInfo = {
   heroName: "مصطفى جغلال",
+  heroTitle: "أحوّل\nالأفكار إلى",
+  heroTitleAccent: "صوت مؤثر",
   heroDescription:
     "معلّق صوتي وصانع محتوى ومصمم، أساعد العلامات التجارية والمشاريع على تقديم أفكارها بصوت وصورة أكثر تأثيراً.",
   profileImageUrl: "",
@@ -94,6 +100,13 @@ function shortenDescription(text: string, limit = 110) {
 }
 
 
+/** يفكّك عنوان البطل إلى أسطر؛ ويعود إلى النص الافتراضي إن تُرك الحقل فارغاً */
+function titleLines(text: string, fallback: string) {
+  const lines = (text || fallback).split("\n").map((l) => l.trim()).filter(Boolean);
+  return lines.length > 0 ? lines : fallback.split("\n");
+}
+
+
 interface HeroCopyProps {
   description: string;
   whatsapp: string;
@@ -103,7 +116,7 @@ interface HeroCopyProps {
 }
 
 /** العنوان — يجاور الصورة */
-function HeroTitle() {
+function HeroTitle({ title, accent }: { title: string; accent: string }) {
   return (
     <>
       <p className="fade-up flex items-center gap-3 text-[0.7rem] tracking-[0.2em] lg:text-[0.72rem] lg:tracking-[0.22em] text-fg-muted">
@@ -115,11 +128,12 @@ function HeroTitle() {
         className="fade-up mt-4 lg:mt-5 text-[1.95rem] leading-[1.28] sm:text-[2.6rem] lg:text-[3.6rem] lg:leading-[1.18] font-bold tracking-[-0.01em]"
         style={{ animationDelay: "60ms" }}
       >
-        أحوّل
-        <br />
-        الأفكار إلى
-        <br />
-        <span className="text-royal-400">صوت مؤثر</span>
+        {titleLines(title, defaults.heroTitle).map((line) => (
+          <span key={line} className="block">
+            {line}
+          </span>
+        ))}
+        <span className="block text-royal-400">{accent || defaults.heroTitleAccent}</span>
       </h1>
     </>
   );
@@ -184,7 +198,7 @@ export function HomePage() {
   });
 
   const cached = getCached();
-  const [siteInfo, setSiteInfo] = useState<SiteInfo>(cached || defaults);
+  const [siteInfo, setSiteInfo] = useState<SiteInfo>(cached ? { ...defaults, ...cached } : defaults);
   const [clients, setClients] = useState<Client[]>([]);
   const [works, setWorks] = useState<Work[]>([]);
 
@@ -302,10 +316,10 @@ export function HomePage() {
             <div className="absolute inset-x-0 bottom-0" style={{ padding: "0 22px 28px" }}>
               <h1 style={{ margin: 0, lineHeight: 1.15 }}>
                 <span style={{ display: "block", fontSize: 36, fontWeight: 800, color: "#fff" }}>
-                  أحوّل الأفكار إلى
+                  {titleLines(siteInfo.heroTitle, defaults.heroTitle).join(" ")}
                 </span>
                 <span style={{ display: "block", fontSize: 40, fontWeight: 900, color: "#3157d5" }}>
-                  صوت مؤثر
+                  {siteInfo.heroTitleAccent || defaults.heroTitleAccent}
                 </span>
               </h1>
               <div style={{ width: 44, height: 3, background: "#3157d5", borderRadius: 2, margin: "12px 0" }} />
@@ -384,7 +398,7 @@ export function HomePage() {
           <div className="relative mx-auto grid min-h-[100svh] max-w-7xl grid-cols-2 items-center px-8">
             <div aria-hidden="true" />
             <div className="max-w-[30rem]">
-              <HeroTitle />
+              <HeroTitle title={siteInfo.heroTitle} accent={siteInfo.heroTitleAccent} />
               <div className="mt-5">
                 <HeroCopy
                   description={siteInfo.heroDescription}

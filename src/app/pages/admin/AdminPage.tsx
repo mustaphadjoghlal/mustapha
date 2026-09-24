@@ -136,6 +136,7 @@ interface Course { id: string; title: string; description: string; image: string
 interface AboutImage { url: string; alt: string; }
 interface SiteInfo {
   id: string; heroName: string; heroDescription: string; profileImageUrl: string;
+  heroTitle?: string; heroTitleAccent?: string;
   aboutText: string; aboutBio: string; aboutImages: AboutImage[];
   email: string; phone: string; footerDescription: string;
   linkedinUrl: string; twitterUrl: string; instagramUrl: string;
@@ -989,6 +990,18 @@ export function AdminPage() {
                 <div className="space-y-2"><label className="text-sm text-gray-400">الوصف الرئيسي</label><input value={siteInfo.heroDescription} onChange={(e) => setSiteInfo({ ...siteInfo, heroDescription: e.target.value })} className={sc} /></div>
                 <div className="space-y-2"><label className="text-sm text-gray-400">البريد الإلكتروني</label><input value={siteInfo.email} onChange={(e) => setSiteInfo({ ...siteInfo, email: e.target.value })} className={sc} /></div>
                 <div className="space-y-2"><label className="text-sm text-gray-400">رقم الهاتف</label><input value={siteInfo.phone} onChange={(e) => setSiteInfo({ ...siteInfo, phone: e.target.value })} className={sc} /></div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-400">عنوان الصفحة الرئيسية — الجزء الأبيض</label>
+                  <textarea value={siteInfo.heroTitle ?? ""} onChange={(e) => setSiteInfo({ ...siteInfo, heroTitle: e.target.value })} rows={2} placeholder={"أحوّل\nالأفكار إلى"} className={`${sc} resize-none`} />
+                  <p className="text-xs text-gray-500">اضغط Enter لتقسيمه إلى أسطر (يظهر التقسيم على شاشة الكمبيوتر فقط). اتركه فارغاً للنص الافتراضي.</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-400">عنوان الصفحة الرئيسية — الجزء الأزرق</label>
+                  <input value={siteInfo.heroTitleAccent ?? ""} onChange={(e) => setSiteInfo({ ...siteInfo, heroTitleAccent: e.target.value })} placeholder="صوت مؤثر" className={sc} />
+                  <p className="text-xs text-gray-500">السطر الأخير من العنوان، ويظهر باللون الأزرق.</p>
+                </div>
               </div>
               <div className="space-y-2"><label className="text-sm text-gray-400">نبذة "عني"</label><textarea value={siteInfo.aboutBio} onChange={(e) => setSiteInfo({ ...siteInfo, aboutBio: e.target.value })} rows={4} className={`${sc} resize-none`} /></div>
               <div className="space-y-2"><label className="text-sm text-gray-400">صورة الملف الشخصي</label><SingleImageUploader url={siteInfo.profileImageUrl} onChange={(url) => setSiteInfo({ ...siteInfo, profileImageUrl: url })} folder="profile" rounded /></div>
