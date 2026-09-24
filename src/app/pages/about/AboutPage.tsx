@@ -32,7 +32,7 @@ interface MediaOutput {
 const defaultInfo: SiteInfo = {
   heroName: "مصطفى جغلال",
   aboutBio: "معلّق صوتي محترف ومصمّم محتوى بصري ومدير مجتمع جزائري الأصل، مقيم في مدينة مسقط بسلطنة عُمان.",
-  email: "djo-mustapha@hotmail.com",
+  email: "mustaphadjoghlal.pro@gmail.com",
   aboutImages: [],
 };
 

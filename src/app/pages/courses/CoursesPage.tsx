@@ -168,7 +168,7 @@ export function CoursesPage() {
                           </div>
                         </div>
                       )}
-                      <a href={`mailto:${course.email || "djo-mustapha@hotmail.com"}`}
+                      <a href={`mailto:${course.email || "mustaphadjoghlal.pro@gmail.com"}`}
                         className="inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 rounded-lg hover:from-green-600 hover:to-teal-700 transition-all font-semibold">
                         سجل الآن
                       </a>
@@ -186,7 +186,7 @@ export function CoursesPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">هل أنت مستعد للبدء؟</h2>
           <p className="text-gray-400 text-lg mb-8">انضم إلى مئات المتدربين الذين طوروا مهاراتهم معنا</p>
-          <a href="mailto:djo-mustapha@hotmail.com"
+          <a href="mailto:mustaphadjoghlal.pro@gmail.com"
             className="inline-block px-8 py-3 bg-gradient-to-r from-green-500 to-teal-600 rounded-lg hover:from-green-600 hover:to-teal-700 transition-all font-semibold">
             تواصل معنا للاستفسار
           </a>

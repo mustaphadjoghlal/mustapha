@@ -16,7 +16,7 @@ interface SiteInfo {
 export function Footer() {
   const [info, setInfo] = useState<SiteInfo>({
     heroName: "مصطفى جغلال",
-    email: "djo-mustapha@hotmail.com",
+    email: "mustaphadjoghlal.pro@gmail.com",
     phone: "",
     footerDescription: "معلق صوتي محترف ومصمم بصري مقيم في مسقط، سلطنة عُمان.",
     linkedinUrl: "#",

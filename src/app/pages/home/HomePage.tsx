@@ -64,7 +64,7 @@ const defaults: SiteInfo = {
   heroDescription:
     "معلّق صوتي وصانع محتوى ومصمم، أساعد العلامات التجارية والمشاريع على تقديم أفكارها بصوت وصورة أكثر تأثيراً.",
   profileImageUrl: "",
-  email: "djo-mustapha@hotmail.com",
+  email: "mustaphadjoghlal.pro@gmail.com",
   phone: "",
   linkedinUrl: "",
   twitterUrl: "",
