@@ -127,6 +127,8 @@ interface Article {
   id: string; title: string; content: string; coverImage: string;
   coverAlt: string; date: string; tags: string[]; category: string;
 }
+import { textGroups } from "../../shared/siteText";
+
 interface HakawatiStory {
   id: string; title: string; excerpt: string; content: string;
   coverImage?: string; videoUrl?: string; publishedAt: string; published: boolean;
@@ -140,6 +142,8 @@ interface SiteInfo {
   aboutText: string; aboutBio: string; aboutImages: AboutImage[];
   email: string; phone: string; footerDescription: string;
   linkedinUrl: string; twitterUrl: string; instagramUrl: string;
+  /** نصوص الموقع المعدَّلة — المفتاح كما هو معرَّف في siteText.tsx */
+  texts?: Record<string, string>;
 }
 
 function SingleImageUploader({ url, onChange, folder = "images", label = "رفع صورة", rounded = false }: {
@@ -630,6 +634,10 @@ export function AdminPage() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showAddClient, setShowAddClient] = useState(false);
 
+  /** يعدّل نصاً واحداً داخل خريطة siteInfo.texts */
+  const setText = (key: string, value: string) =>
+    setSiteInfo((prev) => (prev ? { ...prev, texts: { ...(prev.texts || {}), [key]: value } } : prev));
+
   const sc = "w-full bg-ink-850 border border-ink-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-royal-500 transition-all text-sm";
   const mediaTypes = ["تلفزيون", "إذاعة", "صحافة", "بودكاست", "يوتيوب", "أخرى"];
 
@@ -683,7 +691,8 @@ export function AdminPage() {
     { id: "works", label: "الأعمال" }, { id: "experience", label: "الخبرات" },
     { id: "media", label: "المخرجات" }, { id: "articles", label: "المقالات" },
     { id: "hakawati", label: "الحكواتي" },
-    { id: "courses", label: "الدورات" }, { id: "clients", label: "العملاء" }, { id: "info", label: "الإعدادات" },
+    { id: "courses", label: "الدورات" }, { id: "clients", label: "العملاء" },
+    { id: "texts", label: "النصوص" }, { id: "info", label: "الإعدادات" },
   ];
 
   return (
@@ -974,6 +983,56 @@ export function AdminPage() {
                 </div>
               ))}
               {clients.length === 0 && <p className="text-gray-500 text-sm text-center py-8">لا يوجد عملاء مضافون بعد</p>}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "texts" && siteInfo && (
+          <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
+            <div className="flex items-start justify-between gap-6 mb-8">
+              <div>
+                <h2 className="text-xl font-bold">نصوص الموقع</h2>
+                <p className="text-sm text-gray-400 mt-2 leading-relaxed">
+                  غيّر أي نص ثابت في الموقع من هنا. النص الرمادي داخل الحقل هو النص الحالي؛
+                  اتركه فارغاً ليبقى كما هو، واكتب فيه ليُستبدل.
+                </p>
+              </div>
+              <button onClick={saveInfo} disabled={saving} className="flex shrink-0 items-center gap-2 bg-royal-600 px-6 py-2 rounded-lg font-semibold hover:bg-royal-700 transition-all"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button>
+            </div>
+
+            <div className="space-y-10">
+              {textGroups.map((group) => (
+                <div key={group.id}>
+                  <h3 className="text-royal-300 font-semibold border-b border-ink-700 pb-2 mb-5">{group.title}</h3>
+                  <div className="grid md:grid-cols-2 gap-5">
+                    {group.items.map((item) => (
+                      <div key={item.key} className="space-y-2">
+                        <label className="text-sm text-gray-400">{item.label}</label>
+                        {item.multiline ? (
+                          <textarea
+                            value={siteInfo.texts?.[item.key] ?? ""}
+                            onChange={(e) => setText(item.key, e.target.value)}
+                            placeholder={item.value}
+                            rows={3}
+                            className={`${sc} resize-none`}
+                          />
+                        ) : (
+                          <input
+                            value={siteInfo.texts?.[item.key] ?? ""}
+                            onChange={(e) => setText(item.key, e.target.value)}
+                            placeholder={item.value}
+                            className={sc}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 flex justify-end">
+              <button onClick={saveInfo} disabled={saving} className="flex items-center gap-2 bg-royal-600 px-6 py-2 rounded-lg font-semibold hover:bg-royal-700 transition-all"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button>
             </div>
           </div>
         )}

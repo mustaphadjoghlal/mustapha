@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Mail, Phone, Linkedin, Twitter, Instagram } from "lucide-react";
 import { db } from "../../firebase";
+import { useText } from "./siteText";
 import { collection, onSnapshot } from "firebase/firestore";
 
 interface SiteInfo {
@@ -14,6 +15,7 @@ interface SiteInfo {
 }
 
 export function Footer() {
+  const t = useText();
   const [info, setInfo] = useState<SiteInfo>({
     heroName: "مصطفى جغلال",
     email: "mustaphadjoghlal.pro@gmail.com",
@@ -73,7 +75,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 border-t border-ink-700 pt-6 text-sm text-fg-muted">
-          <p>&copy; {new Date().getFullYear()} جميع الحقوق محفوظة - {info.heroName}</p>
+          <p>&copy; {new Date().getFullYear()} {t("footer.rights")} - {info.heroName}</p>
         </div>
       </div>
     </footer>

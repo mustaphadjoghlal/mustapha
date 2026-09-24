@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { db } from "../../../firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
+import { useText } from "../../shared/siteText";
 
 interface Article {
   id: string;
@@ -15,13 +16,18 @@ interface Article {
   category: string;
 }
 
+/** قيمة داخلية ثابتة لفلتر "الكل" حتى لا يتأثر الفلتر بتغيير نصّه من لوحة التحكم */
+const ALL_TAGS = "__all__";
+
 export function ArticlesPage() {
+  const t = useText();
+
   useSeo({
-    title: "المقالات",
-    description: "مقالات ونصائح في التعليق الصوتي والتصميم وصناعة المحتوى الرقمي بقلم مصطفى جغلال.",
+    title: t("articles.heading"),
+    description: t("articles.intro"),
   });
   const [articles, setArticles] = useState<Article[]>([]);
-  const [activeTag, setActiveTag] = useState<string>("الكل");
+  const [activeTag, setActiveTag] = useState<string>(ALL_TAGS);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -33,8 +39,8 @@ export function ArticlesPage() {
     return unsub;
   }, []);
 
-  const allTags = ["الكل", ...Array.from(new Set(articles.flatMap((a) => a.tags || [])))];
-  const filtered = activeTag === "الكل" ? articles : articles.filter((a) => a.tags?.includes(activeTag));
+  const allTags = [ALL_TAGS, ...Array.from(new Set(articles.flatMap((a) => a.tags || [])))];
+  const filtered = activeTag === ALL_TAGS ? articles : articles.filter((a) => a.tags?.includes(activeTag));
 
   return (
     <div className="bg-ink-950 text-white min-h-screen" dir="rtl">
@@ -42,14 +48,14 @@ export function ArticlesPage() {
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-royal-900/30 via-royal-800/15 to-black" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <p className="text-royal-400 font-semibold mb-3 tracking-widest text-sm uppercase">أفكار ومعرفة</p>
+          <p className="text-royal-400 font-semibold mb-3 tracking-widest text-sm uppercase">{t("articles.eyebrow")}</p>
           <h1 className="text-5xl lg:text-6xl font-bold mb-6">
             <span className="text-royal-400">
-              المقالات
+              {t("articles.heading")}
             </span>
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            مقالات في التعليق الصوتي، التنشيط، الإعلام الرقمي، وكل ما أعرفه وأمارسه
+            {t("articles.intro")}
           </p>
         </div>
       </section>
@@ -62,7 +68,7 @@ export function ArticlesPage() {
               {allTags.map((tag) => (
                 <button key={tag} onClick={() => setActiveTag(tag)}
                   className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${activeTag === tag ? "bg-royal-600 text-white" : "bg-ink-900 text-gray-400 hover:text-white border border-ink-700"}`}>
-                  {tag}
+                  {tag === ALL_TAGS ? t("articles.all") : tag}
                 </button>
               ))}
             </div>
@@ -91,8 +97,8 @@ export function ArticlesPage() {
           {loaded && filtered.length === 0 && (
             <div className="text-center text-gray-500 py-20">
               <p className="text-5xl mb-4">📝</p>
-              <p className="text-xl">لا توجد مقالات بعد</p>
-              <p className="text-gray-600 mt-2">قريباً — ترقّب المحتوى الجديد</p>
+              <p className="text-xl">{t("articles.empty.title")}</p>
+              <p className="text-gray-600 mt-2">{t("articles.empty.sub")}</p>
             </div>
           )}
 
@@ -135,7 +141,7 @@ export function ArticlesPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-500 text-xs">{article.date}</span>
                     <span className="text-royal-400 text-sm font-semibold group-hover:gap-2 transition-all flex items-center gap-1">
-                      اقرأ المزيد ←
+                      {t("articles.readMore")} ←
                     </span>
                   </div>
                 </div>

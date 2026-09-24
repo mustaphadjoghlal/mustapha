@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
+import { useText } from "../../shared/siteText";
 
 interface SiteInfo {
   heroName: string;
@@ -46,8 +47,10 @@ const defaultExperiences: Experience[] = [
 ];
 
 export function AboutPage() {
+  const t = useText();
+
   useSeo({
-    title: "عني",
+    title: t("nav.about"),
     description:
       "تعرّف على مصطفى جغلال: مسيرته في التعليق الصوتي وتصميم المحتوى البصري، وخبراته ومشاريعه بين الجزائر وسلطنة عُمان.",
   });
@@ -114,7 +117,7 @@ export function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-royal-400 font-semibold mb-3 tracking-widest text-sm uppercase">تعرّف عليّ</p>
+              <p className="text-royal-400 font-semibold mb-3 tracking-widest text-sm uppercase">{t("about.eyebrow")}</p>
               <h1 className="text-5xl lg:text-6xl font-bold mb-6">
                 <span className="text-royal-400">
                   {info.heroName}
@@ -124,7 +127,7 @@ export function AboutPage() {
                 {info.aboutBio || defaultInfo.aboutBio}
               </p>
               <p className="text-gray-400 leading-relaxed">
-                بدأت رحلتي من النشاط الجمعوي الجامعي في البليدة، ثم تطوّرت عبر سنوات من العمل الميداني في التصميم والتعليق الصوتي والإعلام الرقمي، حتى استقررت في مسقط حيث أواصل بناء مشاريعي المهنية والثقافية.
+                {t("about.intro")}
               </p>
             </div>
             <div className="flex justify-center">
@@ -147,9 +150,9 @@ export function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { emoji: "🎙️", title: "صوت مميز", desc: "أداء صوتي احترافي يناسب الإعلانات والمحتوى التعليمي والترفيهي" },
-              { emoji: "🎨", title: "إبداع بصري", desc: "تصاميم جرافيكية ومحتوى مرئي يعبّر عن هوية العلامة التجارية بدقة" },
-              { emoji: "📱", title: "إدارة مجتمع", desc: "استراتيجيات تسويقية رقمية تبني حضوراً قوياً على السوشيال ميديا" },
+              { emoji: "🎙️", title: t("about.trait1.title"), desc: t("about.trait1.desc") },
+              { emoji: "🎨", title: t("about.trait2.title"), desc: t("about.trait2.desc") },
+              { emoji: "📱", title: t("about.trait3.title"), desc: t("about.trait3.desc") },
             ].map((item, i) => (
               <div key={i} className="bg-ink-900 border border-ink-700 rounded-xl p-6 hover:border-royal-500 transition-all">
                 <div className="text-4xl mb-4">{item.emoji}</div>
@@ -165,7 +168,7 @@ export function AboutPage() {
       <section className="py-20 bg-ink-950">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold mb-12 text-center">
-            <span className="text-royal-400">المسيرة المهنية</span>
+            <span className="text-royal-400">{t("about.career.heading")}</span>
           </h2>
           <div className="space-y-6">
             {experiences.map((exp) => (
@@ -199,7 +202,7 @@ export function AboutPage() {
                 className="rounded-2xl w-full object-cover border-2 border-ink-700 shadow-xl" />
               <div>
                 <h2 className="text-3xl font-bold mb-6">
-                  <span className="bg-gradient-to-r from-royal-500 to-royal-400 bg-clip-text text-transparent">المهارات</span>
+                  <span className="bg-gradient-to-r from-royal-500 to-royal-400 bg-clip-text text-transparent">{t("about.skills.heading")}</span>
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   {skills.map((skill, i) => (

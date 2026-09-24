@@ -8,6 +8,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import profileImg from "../../../assets/profile.jpg";
 import heroMobileImg from "../../../assets/hero-mobile.webp";
 import { useSeo } from "../../shared/useSeo";
+import { useText } from "../../shared/siteText";
 import { VoiceSampleCard } from "../../components/VoiceSampleCard";
 
 interface SiteInfo {
@@ -79,10 +80,10 @@ const defaults: SiteInfo = {
 
 /** مجالات العمل الأربعة */
 const services = [
-  { Icon: Mic, title: "التعليق الصوتي", description: "إعلانات ووثائقيات ومحتوى تعليمي", link: "/portfolio-voice" },
-  { Icon: Video, title: "صناعة المحتوى", description: "أفكار وكتابة وإنتاج محتوى رقمي", link: "/portfolio-photography" },
-  { Icon: Palette, title: "التصميم الجرافيكي", description: "هويات بصرية ومنشورات وإعلانات", link: "/portfolio-design" },
-  { Icon: TrendingUp, title: "التسويق الرقمي", description: "إدارة حسابات وبناء حضور رقمي", link: "/about" },
+  { Icon: Mic, key: "voice", link: "/portfolio-voice" },
+  { Icon: Video, key: "content", link: "/portfolio-photography" },
+  { Icon: Palette, key: "design", link: "/portfolio-design" },
+  { Icon: TrendingUp, key: "marketing", link: "/about" },
 ];
 
 
@@ -116,6 +117,7 @@ interface HeroCopyProps {
 
 /** العنوان — يجاور الصورة */
 function HeroTitle({ title, accent }: { title: string; accent: string }) {
+  const t = useText();
   const lines = titleLines(title);
   const accentLine = (accent || "").trim();
 
@@ -123,7 +125,7 @@ function HeroTitle({ title, accent }: { title: string; accent: string }) {
     <>
       <p className="fade-up flex items-center gap-3 text-[0.7rem] tracking-[0.2em] lg:text-[0.72rem] lg:tracking-[0.22em] text-fg-muted">
         <span className="h-px w-6 lg:w-7 bg-royal-500" />
-        كل قصة تستحق أن تُروى
+        {t("home.hero.tagline")}
       </p>
 
       {(lines.length > 0 || accentLine) && (
@@ -145,6 +147,8 @@ function HeroTitle({ title, accent }: { title: string; accent: string }) {
 
 /** بقيّة نصّ البطل: الوصف والأزرار وروابط التواصل */
 function HeroCopy({ description, whatsapp, socials, showSocials = true }: HeroCopyProps) {
+  const t = useText();
+
   return (
     <div className="max-w-[32rem]">
       <p
@@ -160,7 +164,7 @@ function HeroCopy({ description, whatsapp, socials, showSocials = true }: HeroCo
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-royal-500 px-7 py-4 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
         >
           <ArrowLeft size={17} />
-          أعمالي
+          {t("home.cta.works")}
         </Link>
         <a
           href={whatsapp}
@@ -169,7 +173,7 @@ function HeroCopy({ description, whatsapp, socials, showSocials = true }: HeroCo
           data-whatsapp-cta
           className="inline-flex items-center justify-center rounded-lg border border-ink-700 px-7 py-4 text-[0.95rem] text-fg-muted transition-colors hover:border-ink-600 hover:text-fg"
         >
-          تواصل معي
+          {t("home.cta.contact")}
         </a>
       </div>
 
@@ -195,11 +199,9 @@ function HeroCopy({ description, whatsapp, socials, showSocials = true }: HeroCo
 
 
 export function HomePage() {
-  useSeo({
-    title: "مصطفى جغلال — معلق صوتي ومصمم بصري",
-    description:
-      "معلق صوتي محترف ومصمم محتوى بصري مقيم في مسقط، سلطنة عُمان. أجمع بين قوة الصوت وجاذبية الصورة في التعليق الصوتي والتصميم والسوشيال ميديا.",
-  });
+  const t = useText();
+
+  useSeo({ title: t("seo.home.title"), description: t("seo.home.description") });
 
   const cached = getCached();
   const [siteInfo, setSiteInfo] = useState<SiteInfo>(cached ? { ...defaults, ...cached } : defaults);
@@ -226,7 +228,7 @@ export function HomePage() {
   // الصورة المعتمدة للبطل هي المرفقة بالمشروع (ذات ربطة العنق الزرقاء).
   // الصورة المرفوعة من لوحة التحكم ما زالت تُستخدم في بقية الموقع.
   const whatsappUrl = siteInfo.phone
-    ? `https://wa.me/${siteInfo.phone.replace(/\D/g, "")}?text=${encodeURIComponent("مرحباً، أود التواصل معك")}`
+    ? `https://wa.me/${siteInfo.phone.replace(/\D/g, "")}?text=${encodeURIComponent(t("whatsapp.message"))}`
     : "#contact";
 
   const heroImage = profileImg;
@@ -309,10 +311,8 @@ export function HomePage() {
               }}
             >
               <div style={{ color: "#3157d5", fontSize: 20, lineHeight: 1, marginBottom: 2 }}>”</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.8, fontStyle: "italic" }}>
-                كل قصة
-                <br />
-                تستحق أن تُروى
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.8, fontStyle: "italic", maxWidth: 110 }}>
+                {t("home.hero.tagline")}
               </div>
             </div>
 
@@ -348,7 +348,7 @@ export function HomePage() {
               }}
             >
               <ArrowLeft size={18} />
-              أعمالي
+              {t("home.cta.works")}
             </Link>
             <a
               href={whatsappUrl}
@@ -360,7 +360,7 @@ export function HomePage() {
                 borderRadius: 10, padding: "14px 20px", fontSize: 15, fontWeight: 600, textAlign: "center",
               }}
             >
-              تواصل معي
+              {t("home.cta.contact")}
             </a>
           </div>
 
@@ -430,17 +430,17 @@ export function HomePage() {
 
       {/* ═══════════ مجالات العمل ═══════════ */}
       <section id="services" className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-4 pb-16 sm:pt-8 sm:pb-24 lg:pt-24">
-        <h2 className="text-2xl sm:text-3xl font-bold">ماذا أقدم</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold">{t("home.services.heading")}</h2>
         <span className="rule-accent mt-4" />
 
         <div className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-          {services.map(({ Icon, title, description, link }) => (
-            <Link key={title} to={link} className="group">
+          {services.map(({ Icon, key, link }) => (
+            <Link key={key} to={link} className="group">
               <Icon size={22} strokeWidth={1.6} className="text-royal-400" />
               <h3 className="mt-4 text-[1.02rem] font-semibold transition-colors group-hover:text-royal-300">
-                {title}
+                {t(`home.services.${key}.title`)}
               </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">{description}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">{t(`home.services.${key}.desc`)}</p>
             </Link>
           ))}
         </div>
@@ -450,7 +450,7 @@ export function HomePage() {
       {voiceSample && (
         <section className="bg-ink-900">
           <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
-            <h2 className="text-2xl sm:text-3xl font-bold">نماذج صوتية</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold">{t("home.samples.heading")}</h2>
             <span className="rule-accent mt-4" />
             <div className="mt-8 max-w-3xl">
               <VoiceSampleCard
@@ -468,12 +468,12 @@ export function HomePage() {
       {featured.length > 0 && (
         <section className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold">أعمال مختارة</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold">{t("home.featured.heading")}</h2>
             <Link
               to="/portfolio"
               className="inline-flex shrink-0 items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-royal-400"
             >
-              كل الأعمال
+              {t("home.featured.all")}
               <ArrowLeft size={15} />
             </Link>
           </div>
@@ -506,8 +506,8 @@ export function HomePage() {
       {clients.length > 0 && (
         <section className="bg-ink-900">
           <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
-            <h2 className="text-2xl sm:text-3xl font-bold">عملاؤنا المميزون</h2>
-            <p className="mt-3 text-fg-muted">فخورون بثقة هذه الجهات المرموقة</p>
+            <h2 className="text-2xl sm:text-3xl font-bold">{t("home.clients.heading")}</h2>
+            <p className="mt-3 text-fg-muted">{t("home.clients.subheading")}</p>
             <span className="rule-accent mt-4" />
 
             <div className="mt-10 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-10">
@@ -540,15 +540,15 @@ export function HomePage() {
 
       {/* ═══════════ دعوة للتواصل ═══════════ */}
       <section id="contact" className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold">جاهز لبدء مشروعك؟</h2>
-        <p className="mt-4 text-fg-muted">دعنا نتعاون لتحويل أفكارك إلى واقع ملموس</p>
+        <h2 className="text-2xl sm:text-3xl font-bold">{t("home.contact.heading")}</h2>
+        <p className="mt-4 text-fg-muted">{t("home.contact.subheading")}</p>
         <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
           {siteInfo.email && (
             <a
               href={`mailto:${siteInfo.email}`}
               className="rounded-lg bg-royal-500 px-7 py-3.5 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
             >
-              أرسل رسالة
+              {t("home.contact.email")}
             </a>
           )}
           {siteInfo.phone && (
@@ -556,7 +556,7 @@ export function HomePage() {
               href={`tel:${siteInfo.phone}`}
               className="rounded-lg border border-ink-600 px-7 py-3.5 text-[0.95rem] font-semibold text-fg transition-colors hover:border-royal-500"
             >
-              اتصل الآن
+              {t("home.contact.phone")}
             </a>
           )}
         </div>

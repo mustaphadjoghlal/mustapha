@@ -4,6 +4,7 @@ import { Mic, Camera, Palette, ArrowLeft } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
+import { useText } from "../../shared/siteText";
 
 interface Work {
   id: string;
@@ -15,32 +16,16 @@ interface Work {
 
 /** مجالات الأعمال — كل مجال يقود إلى صفحته الكاملة */
 const categories = [
-  {
-    key: "voice" as const,
-    title: "أعمالي في التعليق الصوتي",
-    description: "إعلانات ووثائقيات ومحتوى تعليمي ومقدمات برامج",
-    link: "/portfolio-voice",
-    Icon: Mic,
-  },
-  {
-    key: "photography" as const,
-    title: "أعمالي في التصوير",
-    description: "تصوير فوتوغرافي ومحتوى بصري للمشاريع والعلامات",
-    link: "/portfolio-photography",
-    Icon: Camera,
-  },
-  {
-    key: "design" as const,
-    title: "أعمالي في التصميم الجرافيكي",
-    description: "هويات بصرية ومنشورات وإعلانات ومواد تسويقية",
-    link: "/portfolio-design",
-    Icon: Palette,
-  },
+  { key: "voice" as const, textKey: "works.voice", link: "/portfolio-voice", Icon: Mic },
+  { key: "photography" as const, textKey: "works.photography", link: "/portfolio-photography", Icon: Camera },
+  { key: "design" as const, textKey: "works.design", link: "/portfolio-design", Icon: Palette },
 ];
 
 export function PortfolioIndexPage() {
+  const t = useText();
+
   useSeo({
-    title: "أعمالي",
+    title: t("works.heading"),
     description:
       "أعمال مصطفى جغلال في التعليق الصوتي والتصوير والتصميم الجرافيكي — مشاريع مختارة لعلامات تجارية ومشاريع ثقافية.",
   });
@@ -57,14 +42,16 @@ export function PortfolioIndexPage() {
   return (
     <div className="bg-ink-950 text-fg">
       <section className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 py-14 sm:py-20">
-        <h1 className="text-3xl sm:text-4xl font-bold">أعمالي</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold">{t("works.heading")}</h1>
         <span className="rule-accent mt-4" />
         <p className="mt-5 max-w-xl text-fg-muted leading-relaxed">
-          مشاريع مختارة في ثلاثة مجالات. اختر المجال الذي يهمّك لتصفّح أعماله كاملة.
+          {t("works.intro")}
         </p>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map(({ key, title, description, link, Icon }) => {
+          {categories.map(({ key, textKey, link, Icon }) => {
+            const title = t(`${textKey}.title`);
+            const description = t(`${textKey}.desc`);
             const items = works.filter((w) => w.category === key);
             const cover = items.find((w) => w.coverImage);
 
@@ -103,10 +90,10 @@ export function PortfolioIndexPage() {
 
                   <div className="mt-5 flex items-center justify-between">
                     <span className="text-xs text-fg-muted">
-                      {items.length > 0 ? `${items.length} عملاً` : "قريباً"}
+                      {items.length > 0 ? `${items.length} عملاً` : t("works.soon")}
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-sm text-royal-400">
-                      تصفّح
+                      {t("works.browse")}
                       <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-1" />
                     </span>
                   </div>

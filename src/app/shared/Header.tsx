@@ -1,16 +1,20 @@
 import { Link, useLocation } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useText } from "./siteText";
 
-export const navItems = [
-  { path: "/", label: "الرئيسية" },
-  { path: "/about", label: "عني" },
-  { path: "/portfolio", label: "أعمالي" },
-  { path: "/courses", label: "الدورات التدريبية" },
-  { path: "/articles", label: "المقالات" },
+/** روابط القائمة — النصوص تُقرأ من لوحة التحكم */
+const navPaths = [
+  { path: "/", textKey: "nav.home" },
+  { path: "/about", textKey: "nav.about" },
+  { path: "/portfolio", textKey: "nav.portfolio" },
+  { path: "/courses", textKey: "nav.courses" },
+  { path: "/articles", textKey: "nav.articles" },
 ];
 
 export function Header() {
+  const t = useText();
+  const navItems = navPaths.map(({ path, textKey }) => ({ path, label: t(textKey) }));
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -39,7 +43,7 @@ export function Header() {
             to="/"
             className="text-[1.05rem] font-bold tracking-tight text-fg transition-colors hover:text-royal-300"
           >
-            مصطفى جغلال
+            {t("header.wordmark")}
           </Link>
 
           <nav className="hidden md:flex gap-7">

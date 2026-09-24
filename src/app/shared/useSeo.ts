@@ -1,11 +1,8 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router";
+import { useText } from "./siteText";
 
 const SITE_URL = "https://mustaphadjoghlal.com";
-const SITE_NAME = "مصطفى جغلال";
-const DEFAULT_TITLE = "مصطفى جغلال — معلق صوتي ومصمم بصري";
-const DEFAULT_DESCRIPTION =
-  "مصطفى جغلال — معلق صوتي محترف ومصمم محتوى بصري مقيم في مسقط، سلطنة عُمان. أقدم خدمات التعليق الصوتي والتصميم الجرافيكي وإدارة السوشيال ميديا.";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 export interface SeoOptions {
@@ -56,16 +53,21 @@ export function useSeo({
   image,
   type = "website",
   noindex = false,
-  siteName = SITE_NAME,
+  siteName,
 }: SeoOptions = {}) {
   const { pathname } = useLocation();
+  const t = useText();
+
+  // اسم الموقع وعنوانه الافتراضي يُقرآن من لوحة التحكم، إلا في صفحات الحكواتي
+  // التي تمرّر اسمها الخاص لأنها موقع مستقل بهويته.
+  const name = siteName || t("seo.siteName");
+  const desc = description?.trim() || t("seo.home.description");
 
   const fullTitle = title
-    ? title.includes(siteName)
+    ? title.includes(name)
       ? title
-      : `${title} | ${siteName}`
-    : DEFAULT_TITLE;
-  const desc = description?.trim() || DEFAULT_DESCRIPTION;
+      : `${title} | ${name}`
+    : t("seo.home.title");
   const img = image || DEFAULT_IMAGE;
   const canonical = `${SITE_URL}${pathname === "/" ? "" : pathname.replace(/\/+$/, "")}`;
 
@@ -80,10 +82,10 @@ export function useSeo({
     setMeta("property", "og:url", canonical);
     setMeta("property", "og:image", img);
     setMeta("property", "og:type", type);
-    setMeta("property", "og:site_name", siteName);
+    setMeta("property", "og:site_name", name);
 
     setMeta("name", "twitter:title", fullTitle);
     setMeta("name", "twitter:description", desc);
     setMeta("name", "twitter:image", img);
-  }, [fullTitle, desc, img, type, noindex, canonical, siteName]);
+  }, [fullTitle, desc, img, type, noindex, canonical, name]);
 }

@@ -3,6 +3,7 @@ import { CheckCircle, GraduationCap, Users, Clock, Award } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
+import { useText } from "../../shared/siteText";
 
 interface Course {
   id: string;
@@ -17,9 +18,11 @@ interface Course {
 }
 
 export function CoursesPage() {
+  const t = useText();
+
   useSeo({
-    title: "الدورات التدريبية",
-    description: "دورات تدريبية في التعليق الصوتي وصناعة المحتوى البصري يقدمها مصطفى جغلال.",
+    title: t("courses.hero.title"),
+    description: t("courses.hero.desc"),
   });
   const [courses, setCourses] = useState<Course[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -33,9 +36,9 @@ export function CoursesPage() {
   }, []);
 
   const benefits = [
-    { icon: <Users className="w-8 h-8" />, title: "تدريب عملي", description: "تمارين عملية وتطبيقات حية خلال الدورة" },
-    { icon: <Clock className="w-8 h-8" />, title: "مرونة في المواعيد", description: "خيارات متعددة للمواعيد تناسب جدولك" },
-    { icon: <Award className="w-8 h-8" />, title: "خبرة ميدانية", description: "تدريب من محترف في المجال بخبرة عملية حقيقية" },
+    { icon: <Users className="w-8 h-8" />, title: t("courses.why1.title"), description: t("courses.why1.desc") },
+    { icon: <Clock className="w-8 h-8" />, title: t("courses.why2.title"), description: t("courses.why2.desc") },
+    { icon: <Award className="w-8 h-8" />, title: t("courses.why3.title"), description: t("courses.why3.desc") },
   ];
 
   return (
@@ -49,9 +52,9 @@ export function CoursesPage() {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-teal-600 rounded-full mb-6">
               <GraduationCap className="w-10 h-10" />
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">الدورات التدريبية</h1>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">{t("courses.hero.title")}</h1>
             <p className="text-xl text-gray-300 leading-relaxed">
-              طور مهاراتك في الإلقاء والخطابة والتعليق الصوتي مع دورات تدريبية شاملة ومصممة خصيصاً لتلبية احتياجاتك المهنية.
+              {t("courses.hero.desc")}
             </p>
           </div>
         </div>
@@ -60,7 +63,7 @@ export function CoursesPage() {
       {/* Benefits */}
       <section className="py-20 bg-ink-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">لماذا تختار دوراتنا</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">{t("courses.why.heading")}</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {benefits.map((benefit, index) => (
               <div key={index} className="text-center bg-ink-850 border border-ink-700 rounded-xl p-8 hover:border-green-500 transition-all">
@@ -79,8 +82,8 @@ export function CoursesPage() {
       <section className="py-20 bg-gradient-to-b from-ink-900 to-ink-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">الدورات المتاحة</h2>
-            <p className="text-gray-400 text-lg">اختر الدورة التي تناسب أهدافك المهنية</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("courses.list.heading")}</h2>
+            <p className="text-gray-400 text-lg">{t("courses.list.sub")}</p>
           </div>
 
           {/* Skeleton أثناء التحميل */}
@@ -110,8 +113,8 @@ export function CoursesPage() {
           {loaded && courses.length === 0 && (
             <div className="text-center text-gray-500 py-20">
               <GraduationCap size={48} className="mx-auto mb-4 opacity-30" />
-              <p className="text-xl">لا توجد دورات متاحة حالياً</p>
-              <p className="text-gray-600 mt-2">قريباً — ترقّب الإضافات الجديدة</p>
+              <p className="text-xl">{t("courses.empty.title")}</p>
+              <p className="text-gray-600 mt-2">{t("courses.empty.sub")}</p>
             </div>
           )}
 
@@ -157,7 +160,7 @@ export function CoursesPage() {
                       </div>
                       {course.modules && (
                         <div className="mb-6">
-                          <h4 className="font-semibold mb-3 text-green-400">محتوى الدورة:</h4>
+                          <h4 className="font-semibold mb-3 text-green-400">{t("courses.content.label")}</h4>
                           <div className="grid md:grid-cols-2 gap-2">
                             {course.modules.split("\n").filter(m => m.trim()).map((module, idx) => (
                               <div key={idx} className="flex items-start gap-2">
@@ -170,7 +173,7 @@ export function CoursesPage() {
                       )}
                       <a href={`mailto:${course.email || "mustaphadjoghlal.pro@gmail.com"}`}
                         className="inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 rounded-lg hover:from-green-600 hover:to-teal-700 transition-all font-semibold">
-                        سجل الآن
+                        {t("courses.register")}
                       </a>
                     </div>
                   </div>
@@ -184,11 +187,11 @@ export function CoursesPage() {
       {/* CTA */}
       <section className="py-20 bg-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">هل أنت مستعد للبدء؟</h2>
-          <p className="text-gray-400 text-lg mb-8">انضم إلى مئات المتدربين الذين طوروا مهاراتهم معنا</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">{t("courses.cta.heading")}</h2>
+          <p className="text-gray-400 text-lg mb-8">{t("courses.cta.sub")}</p>
           <a href="mailto:mustaphadjoghlal.pro@gmail.com"
             className="inline-block px-8 py-3 bg-gradient-to-r from-green-500 to-teal-600 rounded-lg hover:from-green-600 hover:to-teal-700 transition-all font-semibold">
-            تواصل معنا للاستفسار
+            {t("courses.cta.button")}
           </a>
         </div>
       </section>

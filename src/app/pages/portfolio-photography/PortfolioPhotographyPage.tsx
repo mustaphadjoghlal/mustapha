@@ -4,6 +4,8 @@ import { CheckCircle, Camera } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
+import { useText } from "../../shared/siteText";
+import { useSitePhone } from "../../shared/useSitePhone";
 
 interface Work {
   id: string;
@@ -16,9 +18,12 @@ interface Work {
 }
 
 export function PortfolioPhotographyPage() {
+  const t = useText();
+  const phone = useSitePhone();
+
   useSeo({
-    title: "التصوير",
-    description: "معرض أعمال التصوير الفوتوغرافي والمحتوى البصري من تنفيذ مصطفى جغلال.",
+    title: t("photo.hero.title"),
+    description: t("photo.hero.desc"),
   });
   const [works, setWorks] = useState<Work[]>([]);
 
@@ -32,27 +37,20 @@ export function PortfolioPhotographyPage() {
     return unsub;
   }, []);
 
-  const services = [
-    "التصوير الفوتوغرافي الاحترافي",
-    "تصوير المنتجات والإعلانات",
-    "التصوير الفوتوغرافي للفعاليات والحفلات",
-    "تصوير البورتريهات الشخصية",
-    "التصوير المعماري والعقاري",
-    "تحرير وتصحيح الصور الاحترافي",
-  ];
+  const services = [1, 2, 3, 4, 5, 6].map((n) => t(`photo.service${n}`));
 
   return (
     <div className="bg-ink-950 text-white min-h-screen">
       <section className="relative py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-teal-900/20 to-black"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-royal-900/25 via-royal-800/15 to-black"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-full mb-6">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-royal-400 to-royal-600 rounded-full mb-6">
               <Camera className="w-10 h-10" />
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">التصوير الفوتوغرافي</h1>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">{t("photo.hero.title")}</h1>
             <p className="text-xl text-gray-300 leading-relaxed">
-              أقدم خدمات تصوير فوتوغرافي احترافية تجمع بين الإبداع الفني والتقنية العالية، لتوثيق اللحظات المهمة وإبراز جمال المواضيع.
+              {t("photo.hero.desc")}
             </p>
           </div>
         </div>
@@ -60,7 +58,7 @@ export function PortfolioPhotographyPage() {
 
       <section className="py-20 bg-ink-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">الخدمات المقدمة</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">{t("photo.services.heading")}</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service, index) => (
               <div key={index} className="flex items-start gap-3 bg-ink-850 border border-ink-700 rounded-lg p-6 hover:border-cyan-500 transition-all">
@@ -75,11 +73,11 @@ export function PortfolioPhotographyPage() {
       <section className="py-20 bg-gradient-to-b from-ink-900 to-ink-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">مشاريع فوتوغرافية مميزة</h2>
-            <p className="text-gray-400 text-lg">نماذج من أعمالي في التصوير الفوتوغرافي</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("photo.projects.heading")}</h2>
+            <p className="text-gray-400 text-lg">{t("photo.projects.sub")}</p>
           </div>
           {works.length === 0 ? (
-            <p className="text-center text-gray-500 py-16">قريباً — سيتم إضافة الأعمال</p>
+            <p className="text-center text-gray-500 py-16">{t("photo.projects.empty")}</p>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {works.map((work) => {
@@ -119,10 +117,16 @@ export function PortfolioPhotographyPage() {
 
       <section className="py-20 bg-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">هل تحتاج خدمات تصوير فوتوغرافي؟</h2>
-          <p className="text-gray-400 text-lg mb-8">دعنا نعمل معاً لتوثيق اللحظات المهمة وإنشاء صور تعكس رؤيتك</p>
-          <a href="https://wa.me/96871227281?text=مرحباً مصطفى، أود الاستفسار عن خدمات التصوير الفوتوغرافي" className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-lg hover:from-cyan-600 hover:to-teal-700 transition-all font-semibold">
-            اطلب خدمة التصوير
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">{t("photo.cta.heading")}</h2>
+          <p className="text-gray-400 text-lg mb-8">{t("photo.cta.sub")}</p>
+          <a
+            href={`https://wa.me/${phone}?text=${encodeURIComponent(t("photo.cta.whatsapp"))}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-whatsapp-cta
+            className="inline-block px-8 py-3 bg-royal-500 rounded-lg hover:bg-royal-600 transition-all font-semibold"
+          >
+            {t("photo.cta.button")}
           </a>
         </div>
       </section>
