@@ -994,12 +994,12 @@ export function AdminPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400">عنوان الصفحة الرئيسية — الجزء الأبيض</label>
-                  <textarea value={siteInfo.heroTitle ?? ""} onChange={(e) => setSiteInfo({ ...siteInfo, heroTitle: e.target.value })} rows={2} placeholder={"أحوّل\nالأفكار إلى"} className={`${sc} resize-none`} />
-                  <p className="text-xs text-gray-500">اضغط Enter لتقسيمه إلى أسطر (يظهر التقسيم على شاشة الكمبيوتر فقط). اتركه فارغاً للنص الافتراضي.</p>
+                  <textarea value={siteInfo.heroTitle ?? ""} onChange={(e) => setSiteInfo({ ...siteInfo, heroTitle: e.target.value })} rows={2} placeholder="اكتب السطر الأبيض من العنوان" className={`${sc} resize-none`} />
+                  <p className="text-xs text-gray-500">اضغط Enter لتقسيمه إلى أسطر (يظهر التقسيم على شاشة الكمبيوتر فقط). إن تركته فارغاً لن يظهر عنوان في الصفحة الرئيسية.</p>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400">عنوان الصفحة الرئيسية — الجزء الأزرق</label>
-                  <input value={siteInfo.heroTitleAccent ?? ""} onChange={(e) => setSiteInfo({ ...siteInfo, heroTitleAccent: e.target.value })} placeholder="صوت مؤثر" className={sc} />
+                  <input value={siteInfo.heroTitleAccent ?? ""} onChange={(e) => setSiteInfo({ ...siteInfo, heroTitleAccent: e.target.value })} placeholder="اكتب السطر الملوّن" className={sc} />
                   <p className="text-xs text-gray-500">السطر الأخير من العنوان، ويظهر باللون الأزرق.</p>
                 </div>
               </div>

@@ -65,8 +65,8 @@ function setCache(data: SiteInfo) {
 
 const defaults: SiteInfo = {
   heroName: "مصطفى جغلال",
-  heroTitle: "أحوّل\nالأفكار إلى",
-  heroTitleAccent: "صوت مؤثر",
+  heroTitle: "",
+  heroTitleAccent: "",
   heroDescription:
     "معلّق صوتي وصانع محتوى ومصمم، أساعد العلامات التجارية والمشاريع على تقديم أفكارها بصوت وصورة أكثر تأثيراً.",
   profileImageUrl: "",
@@ -100,10 +100,9 @@ function shortenDescription(text: string, limit = 110) {
 }
 
 
-/** يفكّك عنوان البطل إلى أسطر؛ ويعود إلى النص الافتراضي إن تُرك الحقل فارغاً */
-function titleLines(text: string, fallback: string) {
-  const lines = (text || fallback).split("\n").map((l) => l.trim()).filter(Boolean);
-  return lines.length > 0 ? lines : fallback.split("\n");
+/** يفكّك عنوان البطل — المكتوب في لوحة التحكم — إلى أسطر */
+function titleLines(text: string) {
+  return (text || "").split("\n").map((l) => l.trim()).filter(Boolean);
 }
 
 
@@ -117,6 +116,9 @@ interface HeroCopyProps {
 
 /** العنوان — يجاور الصورة */
 function HeroTitle({ title, accent }: { title: string; accent: string }) {
+  const lines = titleLines(title);
+  const accentLine = (accent || "").trim();
+
   return (
     <>
       <p className="fade-up flex items-center gap-3 text-[0.7rem] tracking-[0.2em] lg:text-[0.72rem] lg:tracking-[0.22em] text-fg-muted">
@@ -124,17 +126,19 @@ function HeroTitle({ title, accent }: { title: string; accent: string }) {
         كل قصة تستحق أن تُروى
       </p>
 
-      <h1
-        className="fade-up mt-4 lg:mt-5 text-[1.95rem] leading-[1.28] sm:text-[2.6rem] lg:text-[3.6rem] lg:leading-[1.18] font-bold tracking-[-0.01em]"
-        style={{ animationDelay: "60ms" }}
-      >
-        {titleLines(title, defaults.heroTitle).map((line) => (
-          <span key={line} className="block">
-            {line}
-          </span>
-        ))}
-        <span className="block text-royal-400">{accent || defaults.heroTitleAccent}</span>
-      </h1>
+      {(lines.length > 0 || accentLine) && (
+        <h1
+          className="fade-up mt-4 lg:mt-5 text-[1.95rem] leading-[1.28] sm:text-[2.6rem] lg:text-[3.6rem] lg:leading-[1.18] font-bold tracking-[-0.01em]"
+          style={{ animationDelay: "60ms" }}
+        >
+          {lines.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+          {accentLine && <span className="block text-royal-400">{accentLine}</span>}
+        </h1>
+      )}
     </>
   );
 }
@@ -315,12 +319,16 @@ export function HomePage() {
             {/* النص فوق التدرّج السفلي */}
             <div className="absolute inset-x-0 bottom-0" style={{ padding: "0 22px 28px" }}>
               <h1 style={{ margin: 0, lineHeight: 1.15 }}>
-                <span style={{ display: "block", fontSize: 36, fontWeight: 800, color: "#fff" }}>
-                  {titleLines(siteInfo.heroTitle, defaults.heroTitle).join(" ")}
-                </span>
-                <span style={{ display: "block", fontSize: 40, fontWeight: 900, color: "#3157d5" }}>
-                  {siteInfo.heroTitleAccent || defaults.heroTitleAccent}
-                </span>
+                {titleLines(siteInfo.heroTitle).length > 0 && (
+                  <span style={{ display: "block", fontSize: 36, fontWeight: 800, color: "#fff" }}>
+                    {titleLines(siteInfo.heroTitle).join(" ")}
+                  </span>
+                )}
+                {(siteInfo.heroTitleAccent || "").trim() && (
+                  <span style={{ display: "block", fontSize: 40, fontWeight: 900, color: "#3157d5" }}>
+                    {siteInfo.heroTitleAccent.trim()}
+                  </span>
+                )}
               </h1>
               <div style={{ width: 44, height: 3, background: "#3157d5", borderRadius: 2, margin: "12px 0" }} />
               <p style={{ margin: 0, color: "rgba(255,255,255,0.7)", fontSize: 13, lineHeight: 1.8, maxWidth: 280 }}>
