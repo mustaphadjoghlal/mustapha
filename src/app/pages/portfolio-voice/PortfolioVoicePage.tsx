@@ -110,9 +110,11 @@ export function PortfolioVoicePage() {
               <Mic className="w-10 h-10" />
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">{t("voice.hero.title")}</h1>
-            <p className="text-xl text-gray-300 leading-relaxed">
-              {t("voice.hero.desc")}
-            </p>
+            {t("voice.hero.desc") && (
+              <p className="text-xl text-gray-300 leading-relaxed">
+                {t("voice.hero.desc")}
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -149,7 +151,11 @@ export function PortfolioVoicePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("voice.projects.heading")}</h2>
-            <p className="text-gray-400 text-lg">{t("voice.projects.sub")}</p>
+            {t("voice.projects.sub") && (
+              <p className="text-gray-400 text-lg">
+                {t("voice.projects.sub")}
+              </p>
+            )}
           </div>
           {works.length === 0 ? (
             <p className="text-center text-gray-500 py-16">{t("voice.projects.empty")}</p>
@@ -197,7 +203,11 @@ export function PortfolioVoicePage() {
       <section className="py-20 bg-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">{t("voice.cta.heading")}</h2>
-          <p className="text-gray-400 text-lg mb-8">{t("voice.cta.sub")}</p>
+          {t("voice.cta.sub") && (
+            <p className="text-gray-400 text-lg mb-8">
+              {t("voice.cta.sub")}
+            </p>
+          )}
           <a
             href={`https://wa.me/${phone}?text=${encodeURIComponent(t("voice.cta.whatsapp"))}`}
             target="_blank"

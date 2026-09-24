@@ -123,10 +123,12 @@ function HeroTitle({ title, accent }: { title: string; accent: string }) {
 
   return (
     <>
-      <p className="fade-up flex items-center gap-3 text-[0.7rem] tracking-[0.2em] lg:text-[0.72rem] lg:tracking-[0.22em] text-fg-muted">
-        <span className="h-px w-6 lg:w-7 bg-royal-500" />
-        {t("home.hero.tagline")}
-      </p>
+      {t("home.hero.tagline") && (
+        <p className="fade-up flex items-center gap-3 text-[0.7rem] tracking-[0.2em] lg:text-[0.72rem] lg:tracking-[0.22em] text-fg-muted">
+          <span className="h-px w-6 lg:w-7 bg-royal-500" />
+          {t("home.hero.tagline")}
+        </p>
+      )}
 
       {(lines.length > 0 || accentLine) && (
         <h1
@@ -159,22 +161,26 @@ function HeroCopy({ description, whatsapp, socials, showSocials = true }: HeroCo
       </p>
 
       <div className="fade-up mt-8 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "180ms" }}>
-        <Link
-          to="/portfolio"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-royal-500 px-7 py-4 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
-        >
-          <ArrowLeft size={17} />
-          {t("home.cta.works")}
-        </Link>
-        <a
-          href={whatsapp}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-whatsapp-cta
-          className="inline-flex items-center justify-center rounded-lg border border-ink-700 px-7 py-4 text-[0.95rem] text-fg-muted transition-colors hover:border-ink-600 hover:text-fg"
-        >
-          {t("home.cta.contact")}
-        </a>
+        {t("home.cta.works") && (
+          <Link
+            to="/portfolio"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-royal-500 px-7 py-4 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
+          >
+            <ArrowLeft size={17} />
+            {t("home.cta.works")}
+          </Link>
+        )}
+        {t("home.cta.contact") && (
+          <a
+            href={whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-whatsapp-cta
+            className="inline-flex items-center justify-center rounded-lg border border-ink-700 px-7 py-4 text-[0.95rem] text-fg-muted transition-colors hover:border-ink-600 hover:text-fg"
+          >
+            {t("home.cta.contact")}
+          </a>
+        )}
       </div>
 
       {showSocials && socials.length > 0 && (
@@ -297,24 +303,26 @@ export function HomePage() {
             />
 
             {/* بطاقة الاقتباس — أعلى اليسار */}
-            <div
-              className="absolute"
-              style={{
-                top: 20,
-                left: 16,
-                background: "rgba(8,9,13,0.7)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-                border: "1px solid rgba(49,87,213,0.3)",
-                borderRadius: 12,
-                padding: "10px 14px",
-              }}
-            >
-              <div style={{ color: "#3157d5", fontSize: 20, lineHeight: 1, marginBottom: 2 }}>”</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.8, fontStyle: "italic", maxWidth: 110 }}>
-                {t("home.hero.tagline")}
+            {t("home.hero.tagline") && (
+              <div
+                className="absolute"
+                style={{
+                  top: 20,
+                  left: 16,
+                  background: "rgba(8,9,13,0.7)",
+                  backdropFilter: "blur(8px)",
+                  WebkitBackdropFilter: "blur(8px)",
+                  border: "1px solid rgba(49,87,213,0.3)",
+                  borderRadius: 12,
+                  padding: "10px 14px",
+                }}
+              >
+                <div style={{ color: "#3157d5", fontSize: 20, lineHeight: 1, marginBottom: 2 }}>”</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.8, fontStyle: "italic", maxWidth: 110 }}>
+                  {t("home.hero.tagline")}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* النص فوق التدرّج السفلي */}
             <div className="absolute inset-x-0 bottom-0" style={{ padding: "0 22px 28px" }}>
@@ -339,29 +347,33 @@ export function HomePage() {
 
           {/* الأزرار — تحت الصورة */}
           <div style={{ padding: "20px 22px 0", display: "flex", flexDirection: "column", gap: 10 }}>
-            <Link
-              to="/portfolio"
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                background: "#3157d5", color: "#fff", borderRadius: 10, padding: "15px 20px",
-                fontSize: 15, fontWeight: 700, boxShadow: "0 4px 20px rgba(49,87,213,0.35)",
-              }}
-            >
-              <ArrowLeft size={18} />
-              {t("home.cta.works")}
-            </Link>
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-whatsapp-cta
-              style={{
-                background: "transparent", color: "#fff", border: "1.5px solid #2e2e2e",
-                borderRadius: 10, padding: "14px 20px", fontSize: 15, fontWeight: 600, textAlign: "center",
-              }}
-            >
-              {t("home.cta.contact")}
-            </a>
+            {t("home.cta.works") && (
+              <Link
+                to="/portfolio"
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                  background: "#3157d5", color: "#fff", borderRadius: 10, padding: "15px 20px",
+                  fontSize: 15, fontWeight: 700, boxShadow: "0 4px 20px rgba(49,87,213,0.35)",
+                }}
+              >
+                <ArrowLeft size={18} />
+                {t("home.cta.works")}
+              </Link>
+            )}
+            {t("home.cta.contact") && (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-whatsapp-cta
+                style={{
+                  background: "transparent", color: "#fff", border: "1.5px solid #2e2e2e",
+                  borderRadius: 10, padding: "14px 20px", fontSize: 15, fontWeight: 600, textAlign: "center",
+                }}
+              >
+                {t("home.cta.contact")}
+              </a>
+            )}
           </div>
 
           {/* روابط التواصل */}
@@ -430,8 +442,12 @@ export function HomePage() {
 
       {/* ═══════════ مجالات العمل ═══════════ */}
       <section id="services" className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-4 pb-16 sm:pt-8 sm:pb-24 lg:pt-24">
-        <h2 className="text-2xl sm:text-3xl font-bold">{t("home.services.heading")}</h2>
-        <span className="rule-accent mt-4" />
+        {t("home.services.heading") && (
+          <>
+            <h2 className="text-2xl sm:text-3xl font-bold">{t("home.services.heading")}</h2>
+            <span className="rule-accent mt-4" />
+          </>
+        )}
 
         <div className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
           {services.map(({ Icon, key, link }) => (
@@ -450,8 +466,12 @@ export function HomePage() {
       {voiceSample && (
         <section className="bg-ink-900">
           <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
-            <h2 className="text-2xl sm:text-3xl font-bold">{t("home.samples.heading")}</h2>
-            <span className="rule-accent mt-4" />
+            {t("home.samples.heading") && (
+              <>
+                <h2 className="text-2xl sm:text-3xl font-bold">{t("home.samples.heading")}</h2>
+                <span className="rule-accent mt-4" />
+              </>
+            )}
             <div className="mt-8 max-w-3xl">
               <VoiceSampleCard
                 id={voiceSample.id}
@@ -474,7 +494,7 @@ export function HomePage() {
               className="inline-flex shrink-0 items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-royal-400"
             >
               {t("home.featured.all")}
-              <ArrowLeft size={15} />
+              {t("home.featured.all") && <ArrowLeft size={15} />}
             </Link>
           </div>
           <span className="rule-accent mt-4" />
@@ -507,7 +527,9 @@ export function HomePage() {
         <section className="bg-ink-900">
           <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
             <h2 className="text-2xl sm:text-3xl font-bold">{t("home.clients.heading")}</h2>
-            <p className="mt-3 text-fg-muted">{t("home.clients.subheading")}</p>
+            {t("home.clients.subheading") && (
+              <p className="mt-3 text-fg-muted">{t("home.clients.subheading")}</p>
+            )}
             <span className="rule-accent mt-4" />
 
             <div className="mt-10 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-10">
@@ -541,7 +563,9 @@ export function HomePage() {
       {/* ═══════════ دعوة للتواصل ═══════════ */}
       <section id="contact" className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
         <h2 className="text-2xl sm:text-3xl font-bold">{t("home.contact.heading")}</h2>
-        <p className="mt-4 text-fg-muted">{t("home.contact.subheading")}</p>
+        {t("home.contact.subheading") && (
+          <p className="mt-4 text-fg-muted">{t("home.contact.subheading")}</p>
+        )}
         <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
           {siteInfo.email && (
             <a

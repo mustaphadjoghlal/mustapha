@@ -7,6 +7,12 @@ import { db } from "../../firebase";
  * القيمة المكتوبة في لوحة التحكم تُخزَّن في siteInfo.texts وتغلب على القيمة هنا،
  * والقيمة هنا تبقى شبكة أمان تظهر قبل وصول البيانات وإن تُرك الحقل فارغاً.
  */
+/**
+ * قيمة خاصة تُخزَّن حين يختار صاحب الموقع إخفاء نصّ بالكامل،
+ * لأن الحقل الفارغ معناه "أبقِ النص الأصلي".
+ */
+export const HIDDEN_TEXT = "__hidden__";
+
 export interface TextItem {
   key: string;
   /** وصف مختصر يظهر فوق الحقل في لوحة التحكم */
@@ -268,6 +274,7 @@ export function useText() {
   return useMemo(
     () => (key: string) => {
       const custom = overrides[key];
+      if (custom === HIDDEN_TEXT) return "";
       return typeof custom === "string" && custom.trim() !== "" ? custom : textDefaults[key] ?? "";
     },
     [overrides]

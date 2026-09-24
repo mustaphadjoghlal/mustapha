@@ -53,9 +53,11 @@ export function CoursesPage() {
               <GraduationCap className="w-10 h-10" />
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">{t("courses.hero.title")}</h1>
-            <p className="text-xl text-gray-300 leading-relaxed">
-              {t("courses.hero.desc")}
-            </p>
+            {t("courses.hero.desc") && (
+              <p className="text-xl text-gray-300 leading-relaxed">
+                {t("courses.hero.desc")}
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -83,7 +85,11 @@ export function CoursesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("courses.list.heading")}</h2>
-            <p className="text-gray-400 text-lg">{t("courses.list.sub")}</p>
+            {t("courses.list.sub") && (
+              <p className="text-gray-400 text-lg">
+                {t("courses.list.sub")}
+              </p>
+            )}
           </div>
 
           {/* Skeleton أثناء التحميل */}
@@ -114,7 +120,11 @@ export function CoursesPage() {
             <div className="text-center text-gray-500 py-20">
               <GraduationCap size={48} className="mx-auto mb-4 opacity-30" />
               <p className="text-xl">{t("courses.empty.title")}</p>
-              <p className="text-gray-600 mt-2">{t("courses.empty.sub")}</p>
+              {t("courses.empty.sub") && (
+                <p className="text-gray-600 mt-2">
+                  {t("courses.empty.sub")}
+                </p>
+              )}
             </div>
           )}
 
@@ -188,7 +198,11 @@ export function CoursesPage() {
       <section className="py-20 bg-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">{t("courses.cta.heading")}</h2>
-          <p className="text-gray-400 text-lg mb-8">{t("courses.cta.sub")}</p>
+          {t("courses.cta.sub") && (
+            <p className="text-gray-400 text-lg mb-8">
+              {t("courses.cta.sub")}
+            </p>
+          )}
           <a href="mailto:mustaphadjoghlal.pro@gmail.com"
             className="inline-block px-8 py-3 bg-gradient-to-r from-green-500 to-teal-600 rounded-lg hover:from-green-600 hover:to-teal-700 transition-all font-semibold">
             {t("courses.cta.button")}

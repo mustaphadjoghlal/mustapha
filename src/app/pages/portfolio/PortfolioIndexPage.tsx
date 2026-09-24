@@ -44,9 +44,11 @@ export function PortfolioIndexPage() {
       <section className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 py-14 sm:py-20">
         <h1 className="text-3xl sm:text-4xl font-bold">{t("works.heading")}</h1>
         <span className="rule-accent mt-4" />
-        <p className="mt-5 max-w-xl text-fg-muted leading-relaxed">
-          {t("works.intro")}
-        </p>
+        {t("works.intro") && (
+          <p className="mt-5 max-w-xl text-fg-muted leading-relaxed">
+            {t("works.intro")}
+          </p>
+        )}
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map(({ key, textKey, link, Icon }) => {

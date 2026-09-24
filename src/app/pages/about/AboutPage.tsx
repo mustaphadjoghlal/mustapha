@@ -117,7 +117,11 @@ export function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-royal-400 font-semibold mb-3 tracking-widest text-sm uppercase">{t("about.eyebrow")}</p>
+              {t("about.eyebrow") && (
+                <p className="text-royal-400 font-semibold mb-3 tracking-widest text-sm uppercase">
+                  {t("about.eyebrow")}
+                </p>
+              )}
               <h1 className="text-5xl lg:text-6xl font-bold mb-6">
                 <span className="text-royal-400">
                   {info.heroName}
@@ -126,9 +130,11 @@ export function AboutPage() {
               <p className="text-gray-300 text-lg leading-relaxed mb-4">
                 {info.aboutBio || defaultInfo.aboutBio}
               </p>
-              <p className="text-gray-400 leading-relaxed">
-                {t("about.intro")}
-              </p>
+              {t("about.intro") && (
+                <p className="text-gray-400 leading-relaxed">
+                  {t("about.intro")}
+                </p>
+              )}
             </div>
             <div className="flex justify-center">
               {loaded && info.aboutImages?.[0]?.url ? (

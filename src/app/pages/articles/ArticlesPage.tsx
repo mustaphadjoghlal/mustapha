@@ -48,15 +48,21 @@ export function ArticlesPage() {
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-royal-900/30 via-royal-800/15 to-black" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <p className="text-royal-400 font-semibold mb-3 tracking-widest text-sm uppercase">{t("articles.eyebrow")}</p>
+          {t("articles.eyebrow") && (
+            <p className="text-royal-400 font-semibold mb-3 tracking-widest text-sm uppercase">
+              {t("articles.eyebrow")}
+            </p>
+          )}
           <h1 className="text-5xl lg:text-6xl font-bold mb-6">
             <span className="text-royal-400">
               {t("articles.heading")}
             </span>
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            {t("articles.intro")}
-          </p>
+          {t("articles.intro") && (
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              {t("articles.intro")}
+            </p>
+          )}
         </div>
       </section>
 
@@ -98,7 +104,11 @@ export function ArticlesPage() {
             <div className="text-center text-gray-500 py-20">
               <p className="text-5xl mb-4">📝</p>
               <p className="text-xl">{t("articles.empty.title")}</p>
-              <p className="text-gray-600 mt-2">{t("articles.empty.sub")}</p>
+              {t("articles.empty.sub") && (
+                <p className="text-gray-600 mt-2">
+                  {t("articles.empty.sub")}
+                </p>
+              )}
             </div>
           )}
 

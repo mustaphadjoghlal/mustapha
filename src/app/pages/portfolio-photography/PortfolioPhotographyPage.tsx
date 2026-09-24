@@ -49,9 +49,11 @@ export function PortfolioPhotographyPage() {
               <Camera className="w-10 h-10" />
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">{t("photo.hero.title")}</h1>
-            <p className="text-xl text-gray-300 leading-relaxed">
-              {t("photo.hero.desc")}
-            </p>
+            {t("photo.hero.desc") && (
+              <p className="text-xl text-gray-300 leading-relaxed">
+                {t("photo.hero.desc")}
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -74,7 +76,11 @@ export function PortfolioPhotographyPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("photo.projects.heading")}</h2>
-            <p className="text-gray-400 text-lg">{t("photo.projects.sub")}</p>
+            {t("photo.projects.sub") && (
+              <p className="text-gray-400 text-lg">
+                {t("photo.projects.sub")}
+              </p>
+            )}
           </div>
           {works.length === 0 ? (
             <p className="text-center text-gray-500 py-16">{t("photo.projects.empty")}</p>
@@ -118,7 +124,11 @@ export function PortfolioPhotographyPage() {
       <section className="py-20 bg-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">{t("photo.cta.heading")}</h2>
-          <p className="text-gray-400 text-lg mb-8">{t("photo.cta.sub")}</p>
+          {t("photo.cta.sub") && (
+            <p className="text-gray-400 text-lg mb-8">
+              {t("photo.cta.sub")}
+            </p>
+          )}
           <a
             href={`https://wa.me/${phone}?text=${encodeURIComponent(t("photo.cta.whatsapp"))}`}
             target="_blank"

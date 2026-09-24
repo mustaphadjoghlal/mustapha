@@ -4,7 +4,7 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "fireb
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader,
-  Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff, Star } from "lucide-react";
+  Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff, Star, Search } from "lucide-react";
 import HakawatiAdmin from "../hakawati/HakawatiAdmin";
 import { useSeo } from "../../shared/useSeo";
 
@@ -127,7 +127,7 @@ interface Article {
   id: string; title: string; content: string; coverImage: string;
   coverAlt: string; date: string; tags: string[]; category: string;
 }
-import { textGroups } from "../../shared/siteText";
+import { textGroups, HIDDEN_TEXT } from "../../shared/siteText";
 
 interface HakawatiStory {
   id: string; title: string; excerpt: string; content: string;
@@ -602,11 +602,66 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
 // ============================================================
 // Main AdminPage
 // ============================================================
+
+/** حقل نصّ واحد في تبويب "النصوص" مع إمكانية إخفاء النص كلياً */
+function TextField({ item, value, onChange, inputClass }: {
+  item: { key: string; label: string; value: string; multiline?: boolean };
+  value: string;
+  onChange: (value: string) => void;
+  inputClass: string;
+}) {
+  const hidden = value === HIDDEN_TEXT;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <label className="text-sm text-gray-400">{item.label}</label>
+        <button
+          type="button"
+          onClick={() => onChange(hidden ? "" : HIDDEN_TEXT)}
+          className={`text-xs px-2 py-0.5 rounded border transition-all ${
+            hidden
+              ? "border-royal-500 text-royal-300"
+              : "border-ink-700 text-gray-500 hover:text-gray-300"
+          }`}
+        >
+          {hidden ? "إظهار" : "إخفاء"}
+        </button>
+      </div>
+
+      {hidden ? (
+        <div className={`${inputClass} text-gray-500`}>هذا النص مخفي ولن يظهر في الموقع</div>
+      ) : item.multiline ? (
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={item.value}
+          rows={3}
+          className={`${inputClass} resize-none`}
+        />
+      ) : (
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={item.value}
+          className={inputClass}
+        />
+      )}
+
+      {!hidden && value.trim() !== "" && (
+        <p className="text-xs text-gray-500 leading-relaxed">الأصلي: {item.value}</p>
+      )}
+    </div>
+  );
+}
+
 export function AdminPage() {
   useSeo({ title: "لوحة التحكم", noindex: true });
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("works");
+  /** بحث داخل نصوص الموقع في تبويب "النصوص" */
+  const [textQuery, setTextQuery] = useState("");
   const [works, setWorks] = useState<Work[]>([]);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [mediaOutputs, setMediaOutputs] = useState<MediaOutput[]>([]);
@@ -1000,36 +1055,55 @@ export function AdminPage() {
               <button onClick={saveInfo} disabled={saving} className="flex shrink-0 items-center gap-2 bg-royal-600 px-6 py-2 rounded-lg font-semibold hover:bg-royal-700 transition-all"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button>
             </div>
 
+            <div className="relative mb-8">
+              <Search size={18} className="absolute top-1/2 -translate-y-1/2 right-4 text-gray-500" />
+              <input
+                value={textQuery}
+                onChange={(e) => setTextQuery(e.target.value)}
+                placeholder="ابحث عن نص… اكتب جزءاً منه مثل: كل قصة"
+                style={{ paddingRight: 44 }}
+                className={sc}
+              />
+            </div>
+
             <div className="space-y-10">
-              {textGroups.map((group) => (
+              {textGroups.map((group) => {
+                const q = textQuery.trim();
+                const items = q
+                  ? group.items.filter((item) =>
+                      [item.label, item.value, siteInfo.texts?.[item.key] || ""].some((text) => text.includes(q))
+                    )
+                  : group.items;
+                if (items.length === 0) return null;
+
+                return (
                 <div key={group.id}>
                   <h3 className="text-royal-300 font-semibold border-b border-ink-700 pb-2 mb-5">{group.title}</h3>
                   <div className="grid md:grid-cols-2 gap-5">
-                    {group.items.map((item) => (
-                      <div key={item.key} className="space-y-2">
-                        <label className="text-sm text-gray-400">{item.label}</label>
-                        {item.multiline ? (
-                          <textarea
-                            value={siteInfo.texts?.[item.key] ?? ""}
-                            onChange={(e) => setText(item.key, e.target.value)}
-                            placeholder={item.value}
-                            rows={3}
-                            className={`${sc} resize-none`}
-                          />
-                        ) : (
-                          <input
-                            value={siteInfo.texts?.[item.key] ?? ""}
-                            onChange={(e) => setText(item.key, e.target.value)}
-                            placeholder={item.value}
-                            className={sc}
-                          />
-                        )}
-                      </div>
+                    {items.map((item) => (
+                      <TextField
+                        key={item.key}
+                        item={item}
+                        value={siteInfo.texts?.[item.key] ?? ""}
+                        onChange={(v) => setText(item.key, v)}
+                        inputClass={sc}
+                      />
                     ))}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
+
+            {textQuery.trim() !== "" &&
+              textGroups.every((g) =>
+                g.items.every(
+                  (item) =>
+                    ![item.label, item.value, siteInfo.texts?.[item.key] || ""].some((text) =>
+                      text.includes(textQuery.trim())
+                    )
+                )
+              ) && <p className="text-center text-gray-500 py-10">لا يوجد نص مطابق لبحثك</p>}
 
             <div className="mt-10 flex justify-end">
               <button onClick={saveInfo} disabled={saving} className="flex items-center gap-2 bg-royal-600 px-6 py-2 rounded-lg font-semibold hover:bg-royal-700 transition-all"><Save size={18} /> {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button>
