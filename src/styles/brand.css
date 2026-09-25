@@ -54,3 +54,58 @@
     animation: none;
   }
 }
+
+/* ═══════════ معرض المشاريع الطافي ═══════════
+   حركة هادئة ومستمرة تُعطي إحساساً بأن كل عمل طافٍ فوق الخلفية،
+   مع ظهور تدريجي عند التمرير. كل شيء بالـtransform وحده حفاظاً على الأداء. */
+
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, calc(var(--drift, 9px) * -1), 0); }
+}
+
+.float {
+  animation: drift var(--dur, 7s) ease-in-out var(--delay, 0s) infinite;
+  will-change: transform;
+}
+
+/* الميلان الخفيف مع حركة المؤشر */
+.tilt {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s cubic-bezier(0.22, 0.8, 0.3, 1);
+  transform-style: preserve-3d;
+}
+
+/* الظهور التدريجي عند الوصول إلى العنصر */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.75s cubic-bezier(0.22, 0.8, 0.3, 1), transform 0.75s cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ظلّ زرقاء خافتة تحت العمل تُكمل إحساس الطفو */
+.float-shadow {
+  position: absolute;
+  inset-inline: 12%;
+  bottom: -14px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(49, 87, 213, 0.4);
+  filter: blur(20px);
+  animation: shadow-breathe var(--dur, 7s) ease-in-out var(--delay, 0s) infinite;
+}
+
+@keyframes shadow-breathe {
+  0%, 100% { opacity: 0.75; transform: scaleX(1); }
+  50% { opacity: 0.45; transform: scaleX(0.9); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float, .float-shadow { animation: none; }
+  .tilt { transform: none; transition: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}

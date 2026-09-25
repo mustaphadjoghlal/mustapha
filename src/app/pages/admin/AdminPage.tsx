@@ -4,7 +4,7 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "fireb
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader,
-  Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff, Star, Search } from "lucide-react";
+  Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff, Star, Search, Headphones } from "lucide-react";
 import HakawatiAdmin from "../hakawati/HakawatiAdmin";
 import { useSeo } from "../../shared/useSeo";
 
@@ -116,6 +116,8 @@ interface Work {
   altText: string; soundcloudUrl: string; audioUrl?: string; category: "design" | "photography" | "voice";
   /** يظهر في قسم "أعمال مختارة" بالصفحة الرئيسية */
   featured?: boolean;
+  /** العينة الصوتية المعروضة في قسم "نماذج صوتية" بالصفحة الرئيسية */
+  homeSample?: boolean;
 }
 interface Experience { id: string; period: string; title: string; location: string; tasks: string; }
 interface MediaOutput {
@@ -246,7 +248,7 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
   );
 }
 
-function WorksList({ works, category, saving, editingWork, setEditingWork, onSave, onDelete, onToggleFeatured, showAdd, setShowAdd, newWork, setNewWork, onAdd, sc }: any) {
+function WorksList({ works, category, saving, editingWork, setEditingWork, onSave, onDelete, onToggleFeatured, onToggleHomeSample, showAdd, setShowAdd, newWork, setNewWork, onAdd, sc }: any) {
   const filtered = works.filter((w: Work) => w.category === category);
   const isVoice = category === "voice";
   return (
@@ -312,8 +314,18 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                   {work.images?.length > 0 && <span className="text-xs text-gray-500">{work.images.length} صور</span>}
                   {(work.soundcloudUrl || work.audioUrl) && <span className="text-xs text-orange-400 mr-2">صوت ✓</span>}
                   {work.featured && <span className="text-xs text-amber-400 mr-2">★ في الصفحة الرئيسية</span>}
+                  {work.homeSample && <span className="text-xs text-royal-300 mr-2">🎧 العينة الصوتية بالصفحة الرئيسية</span>}
                 </div>
                 <div className="flex gap-2">
+                  {isVoice && (work.audioUrl || work.soundcloudUrl) && (
+                    <button
+                      onClick={() => onToggleHomeSample(work)}
+                      title={work.homeSample ? "إلغاء عرضها في الصفحة الرئيسية" : "اجعلها العينة الصوتية في الصفحة الرئيسية"}
+                      className={`p-2 rounded-lg hover:bg-ink-850 ${work.homeSample ? "text-royal-300" : "text-gray-500 hover:text-royal-300"}`}
+                    >
+                      <Headphones size={16} />
+                    </button>
+                  )}
                   <button
                     onClick={() => onToggleFeatured(work)}
                     title={work.featured ? "إخفاء من «أعمال مختارة»" : "إظهار في «أعمال مختارة»"}
@@ -716,6 +728,21 @@ export function AdminPage() {
   const saveWork = async () => { if (!editingWork) return; setSaving(true); try { await updateDoc(doc(db, "works", editingWork.id), editingWork); setEditingWork(null); } catch (e) { console.error(e); } setSaving(false); };
   const deleteWork = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "works", id)); };
   /** إظهار/إخفاء العمل في قسم "أعمال مختارة" بالصفحة الرئيسية */
+  /** عينة صوتية واحدة فقط تظهر في الصفحة الرئيسية، فتُلغى العلامة عن البقية */
+  const toggleHomeSample = async (work: Work) => {
+    try {
+      const turningOn = !work.homeSample;
+      await updateDoc(doc(db, "works", work.id), { homeSample: turningOn });
+      if (turningOn) {
+        await Promise.all(
+          works
+            .filter((w) => w.id !== work.id && w.homeSample)
+            .map((w) => updateDoc(doc(db, "works", w.id), { homeSample: false }))
+        );
+      }
+    } catch (e) { console.error(e); }
+  };
+
   const toggleWorkFeatured = async (work: Work) => {
     try { await updateDoc(doc(db, "works", work.id), { featured: !work.featured }); } catch (e) { console.error(e); }
   };
@@ -780,7 +807,7 @@ export function AdminPage() {
                 <button key={cat.id} onClick={() => setNewWork({ ...newWork, category: cat.id as any })} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${newWork.category === cat.id ? "bg-royal-600 text-white shadow-lg" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>{cat.label}</button>
               ))}
             </div>
-            <WorksList works={works} category={newWork.category || "design"} saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} onToggleFeatured={toggleWorkFeatured} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
+            <WorksList works={works} category={newWork.category || "design"} saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} onToggleFeatured={toggleWorkFeatured} onToggleHomeSample={toggleHomeSample} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
           </div>
         )}
 

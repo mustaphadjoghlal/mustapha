@@ -43,6 +43,8 @@ interface Work {
   category: "design" | "photography" | "voice";
   /** يُحدَّد من لوحة التحكم — يظهر في قسم "أعمال مختارة" */
   featured?: boolean;
+  /** العينة الصوتية المختارة لقسم "نماذج صوتية" */
+  homeSample?: boolean;
 }
 
 const CACHE_KEY = "mustapha_site_info";
@@ -238,7 +240,9 @@ export function HomePage() {
     : "#contact";
 
   const heroImage = profileImg;
-  const voiceSample = works.find((w) => w.category === "voice" && (w.audioUrl || w.soundcloudUrl));
+  // العينة الصوتية: المختارة من لوحة التحكم، وإلا أول عمل صوتي حتى لا يفرغ القسم
+  const voiceWorks = works.filter((w) => w.category === "voice" && (w.audioUrl || w.soundcloudUrl));
+  const voiceSample = voiceWorks.find((w) => w.homeSample) || voiceWorks[0];
   const withCover = works.filter((w) => w.coverImage);
   const picked = withCover.filter((w) => w.featured);
   // ما لم يُحدَّد شيء من لوحة التحكم، تُعرض أول ستة أعمال حتى لا يفرغ القسم
