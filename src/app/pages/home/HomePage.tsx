@@ -256,25 +256,8 @@ export function HomePage() {
     { url: siteInfo.twitterUrl, Icon: Twitter, label: "تويتر" },
   ].filter((s) => s.url && s.url !== "#");
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: "مصطفى جغلال",
-    alternateName: "Mustapha Djoghlal",
-    url: "https://mustaphadjoghlal.com",
-    image: "https://mustaphadjoghlal.com/og-image.jpg",
-    jobTitle: "معلق صوتي ومصمم محتوى بصري",
-    description: siteInfo.heroDescription,
-    address: { "@type": "PostalAddress", addressLocality: "مسقط", addressCountry: "OM" },
-    sameAs: [siteInfo.linkedinUrl, siteInfo.instagramUrl, siteInfo.twitterUrl].filter(
-      (u) => u && u !== "#"
-    ),
-  };
-
   return (
     <div className="bg-ink-950 text-fg overflow-x-hidden">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-
       {/* ═══════════ البطل ═══════════
           الجوال: الصورة على يسار العنوان بحجم معتدل
           الشاشات الكبيرة: التكوين السينمائي كما كان — صورة ممتدة تذوب في الخلفية */}
