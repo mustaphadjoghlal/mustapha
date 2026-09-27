@@ -121,6 +121,18 @@ function build(templateFile, pages) {
     html = setTag(html, /<meta name="twitter:description" content="[^"]*"\s*\/>/,
       `<meta name="twitter:description" content="${esc(page.description)}" />`, "twitter:description", page.path);
 
+    if (page.image) {
+      html = setTag(html, /<meta property="og:image" content="[^"]*"\s*\/>/,
+        `<meta property="og:image" content="${esc(page.image)}" />`, "og:image", page.path);
+      html = setTag(html, /<meta name="twitter:image" content="[^"]*"\s*\/>/,
+        `<meta name="twitter:image" content="${esc(page.image)}" />`, "twitter:image", page.path);
+    }
+
+    if (page.type === "article") {
+      html = setTag(html, /<meta property="og:type" content="[^"]*"\s*\/>/,
+        `<meta property="og:type" content="article" />`, "og:type", page.path);
+    }
+
     if (page.keywords) {
       html = setTag(html, /<meta name="keywords" content="[^"]*"\s*\/>/,
         `<meta name="keywords" content="${esc(page.keywords)}" />`, "keywords", page.path);
@@ -129,10 +141,123 @@ function build(templateFile, pages) {
     const dir = join(dist, page.path);
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "index.html"), html, "utf8");
-    console.log(`✓ /${page.path}`);
+    if (!page.quiet) console.log(`✓ /${page.path}`);
   }
 }
 
+/** نص عادي من HTML، مقصوصاً عند آخر مسافة قبل الحد */
+function plain(html = "", limit = 155) {
+  const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  if (text.length <= limit) return text;
+  const cut = text.slice(0, limit);
+  return cut.slice(0, cut.lastIndexOf(" ")) + "…";
+}
+
+/** يقرأ المقالات والأعمال من قاعدة البيانات وقت البناء */
+async function fetchContent() {
+  const { initializeApp } = await import("firebase/app");
+  const { getFirestore, collection, getDocs } = await import("firebase/firestore");
+
+  const app = initializeApp({
+    apiKey: "AIzaSyBvljyA9z5O6zQHRtLIDxKnwyCxCF2vqL8",
+    authDomain: "mustapha-portfolio.firebaseapp.com",
+    projectId: "mustapha-portfolio",
+    storageBucket: "mustapha-portfolio.firebasestorage.app",
+    messagingSenderId: "597476763368",
+    appId: "1:597476763368:web:48cdeccdc1bc21b22e0b5d",
+  });
+  const db = getFirestore(app);
+
+  const [articlesSnap, worksSnap] = await Promise.all([
+    getDocs(collection(db, "articles")),
+    getDocs(collection(db, "works")),
+  ]);
+
+  const articles = articlesSnap.docs.map((d) => {
+    const a = d.data();
+    return {
+      path: `articles/${d.id}`,
+      title: `${a.title} — مصطفى جغلال`,
+      description: plain(a.excerpt || a.content),
+      image: a.coverImage || null,
+      type: "article",
+      lastmod: a.date || null,
+      quiet: true,
+    };
+  });
+
+  const works = worksSnap.docs.map((d) => {
+    const w = d.data();
+    const kind =
+      w.category === "voice" ? "تعليق صوتي"
+      : w.category === "photography" ? "تصوير فوتوغرافي"
+      : "تصميم جرافيكي";
+    return {
+      path: `portfolio/${d.id}`,
+      title: `${w.title} | مصطفى جغلال`,
+      description: `${kind} — ${plain(w.description, 110) || w.title}`,
+      image: w.coverImage || null,
+      type: "article",
+      lastmod: null,
+      quiet: true,
+    };
+  });
+
+  return { articles, works };
+}
+
+/** يكتب خريطة الموقع كاملةً: الصفحات الثابتة + كل مقال وعمل */
+function writeSitemap(pages) {
+  const body = pages
+    .map(({ loc, lastmod, priority, changefreq }) =>
+      [
+        "  <url>",
+        `    <loc>${loc}</loc>`,
+        lastmod ? `    <lastmod>${lastmod}</lastmod>` : null,
+        changefreq ? `    <changefreq>${changefreq}</changefreq>` : null,
+        priority ? `    <priority>${priority}</priority>` : null,
+        "  </url>",
+      ].filter(Boolean).join("\n")
+    )
+    .join("\n");
+
+  writeFileSync(
+    join(dist, "sitemap.xml"),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`,
+    "utf8"
+  );
+}
+
+// ═══════════ التنفيذ ═══════════
+
 build("index.html", mainPages);
 build("hakawati.html", hakawatiPages);
-console.log(`تم توليد ${mainPages.length + hakawatiPages.length} صفحة مستقلة.`);
+
+let dynamicPages = [];
+try {
+  const { articles, works } = await fetchContent();
+  dynamicPages = [...articles, ...works];
+  build("index.html", dynamicPages);
+  console.log(`✓ ${articles.length} مقالاً و${works.length} عملاً`);
+} catch (e) {
+  // لا نُسقط البناء إن تعذّر الوصول إلى قاعدة البيانات؛ يبقى الموقع كما هو
+  console.warn(`⚠ تعذّر قراءة المحتوى من قاعدة البيانات (${e.code || e.message}) — بقيت الصفحات الثابتة وحدها.`);
+}
+
+const sitemap = [
+  { loc: SITE, changefreq: "weekly", priority: "1.0" },
+  ...mainPages.map((p) => ({
+    loc: `${SITE}/${p.path}`,
+    changefreq: "weekly",
+    priority: p.path === "about" || p.path === "portfolio" ? "0.9" : "0.8",
+  })),
+  ...dynamicPages.map((p) => ({
+    loc: `${SITE}/${p.path}`,
+    lastmod: p.lastmod,
+    changefreq: "monthly",
+    priority: "0.7",
+  })),
+];
+writeSitemap(sitemap);
+
+console.log(`تم توليد ${mainPages.length + hakawatiPages.length + dynamicPages.length} صفحة، وخريطة موقع بـ${sitemap.length} رابطاً.`);
