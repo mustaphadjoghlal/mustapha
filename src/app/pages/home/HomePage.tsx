@@ -68,8 +68,10 @@ function setCache(data: SiteInfo) {
 
 const defaults: SiteInfo = {
   heroName: "مصطفى جغلال",
-  heroTitle: "",
-  heroTitleAccent: "",
+  // نسخة احتياطية تظهر لمحركات البحث وللزائر ريثما تصل القيمة من لوحة التحكم،
+  // فبدونها تبقى الصفحة الرئيسية بلا عنوان h1 في عين الزاحف.
+  heroTitle: "أحول الأفكار",
+  heroTitleAccent: "إلى حــــــقيقة",
   heroDescription:
     "معلّق صوتي وصانع محتوى ومصمم، أساعد العلامات التجارية والمشاريع على تقديم أفكارها بصوت وصورة أكثر تأثيراً.",
   profileImageUrl: "",
@@ -120,8 +122,8 @@ interface HeroCopyProps {
 /** العنوان — يجاور الصورة */
 function HeroTitle({ title, accent }: { title: string; accent: string }) {
   const t = useText();
-  const lines = titleLines(title);
-  const accentLine = (accent || "").trim();
+  const lines = titleLines(title || defaults.heroTitle);
+  const accentLine = (accent || defaults.heroTitleAccent).trim();
 
   return (
     <>
@@ -331,14 +333,14 @@ export function HomePage() {
             {/* النص فوق التدرّج السفلي */}
             <div className="absolute inset-x-0 bottom-0" style={{ padding: "0 22px 28px" }}>
               <h1 style={{ margin: 0, lineHeight: 1.15 }}>
-                {titleLines(siteInfo.heroTitle).length > 0 && (
+                {titleLines(siteInfo.heroTitle || defaults.heroTitle).length > 0 && (
                   <span style={{ display: "block", fontSize: 36, fontWeight: 800, color: "#fff" }}>
-                    {titleLines(siteInfo.heroTitle).join(" ")}
+                    {titleLines(siteInfo.heroTitle || defaults.heroTitle).join(" ")}
                   </span>
                 )}
-                {(siteInfo.heroTitleAccent || "").trim() && (
+                {(siteInfo.heroTitleAccent || defaults.heroTitleAccent).trim() && (
                   <span style={{ display: "block", fontSize: 40, fontWeight: 900, color: "#3157d5" }}>
-                    {siteInfo.heroTitleAccent.trim()}
+                    {(siteInfo.heroTitleAccent || defaults.heroTitleAccent).trim()}
                   </span>
                 )}
               </h1>
