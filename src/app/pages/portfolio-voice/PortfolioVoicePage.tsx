@@ -6,6 +6,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
 import { useText } from "../../shared/siteText";
 import { useSitePhone } from "../../shared/useSitePhone";
+import voiceFaq from "../../shared/voiceFaq.json";
 
 interface VoiceWork {
   id: string;
@@ -115,6 +116,11 @@ export function PortfolioVoicePage() {
                 {t("voice.hero.desc")}
               </p>
             )}
+            {t("voice.intro") && (
+              <p className="mt-6 text-base leading-[2] text-fg-muted">
+                {t("voice.intro")}
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -143,6 +149,54 @@ export function PortfolioVoicePage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* اللهجات */}
+      <section className="py-20 bg-ink-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">{t("voice.dialects.heading")}</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="bg-ink-900 border border-ink-700 rounded-xl p-7 hover:border-royal-500 transition-all">
+                <span className="rule-accent" />
+                <h3 className="mt-4 text-xl font-bold">{t(`voice.dialect${n}.title`)}</h3>
+                <p className="mt-3 leading-[1.9] text-fg-muted">{t(`voice.dialect${n}.desc`)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* خطوات العمل */}
+      <section className="py-20 bg-ink-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">{t("voice.process.heading")}</h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} className="relative bg-ink-850 border border-ink-700 rounded-xl p-6">
+                <span className="text-royal-400 text-sm font-bold">{`0${n}`}</span>
+                <h3 className="mt-2 text-lg font-bold">{t(`voice.step${n}.title`)}</h3>
+                <p className="mt-2 text-sm leading-[1.9] text-fg-muted">{t(`voice.step${n}.desc`)}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* جهات عملت معها */}
+          {t("voice.clients.heading") && (
+            <div className="mt-16 text-center">
+              <h2 className="text-2xl md:text-3xl font-bold mb-8">{t("voice.clients.heading")}</h2>
+              <div className="flex flex-wrap justify-center gap-4">
+                {[1, 2, 3].map((n) => (
+                  t(`voice.client${n}`) ? (
+                    <span key={n} className="rounded-full border border-ink-700 bg-ink-850 px-6 py-3 text-fg-muted">
+                      {t(`voice.client${n}`)}
+                    </span>
+                  ) : null
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -196,6 +250,23 @@ export function PortfolioVoicePage() {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* أسئلة شائعة */}
+      <section className="py-20 bg-ink-900">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">{voiceFaq.heading}</h2>
+          <div className="space-y-4">
+            {voiceFaq.items.map((item) => (
+              <details key={item.q} className="group rounded-xl border border-ink-700 bg-ink-850 p-6 transition-colors hover:border-royal-500">
+                <summary className="cursor-pointer list-none text-lg font-semibold marker:content-none">
+                  {item.q}
+                </summary>
+                <p className="mt-4 leading-[2] text-fg-muted">{item.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

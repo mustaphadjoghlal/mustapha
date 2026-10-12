@@ -17,6 +17,25 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
 const SITE = "https://mustaphadjoghlal.com";
 
+/** بطاقة الأسئلة الشائعة لصفحة التعليق الصوتي — تُحقن في الـHTML نفسه
+ *  ليقرأها جوجل بلا تشغيل جافاسكربت، وقد يعرضها منسدلةً في نتائج البحث. */
+const faq = JSON.parse(readFileSync(join(root, "src/app/shared/voiceFaq.json"), "utf8"));
+const faqJsonLd = `<script type="application/ld+json">
+${JSON.stringify(
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
+  null,
+  2
+)}
+</script>`;
+
 /** صفحات موقع مصطفى جغلال — تُبنى من index.html */
 const mainPages = [
   {
@@ -38,6 +57,7 @@ const mainPages = [
       "معلّق صوتي عربي محترف: إعلانات تجارية، أفلام وثائقية، محتوى تعليمي، مقدمات برامج، كتب صوتية وأنظمة ردّ صوتي. استمع إلى نماذج من أعمالي واطلب عينة.",
     keywords:
       "معلق صوتي, تعليق صوتي عربي, معلق صوتي احترافي, تعليق صوتي إعلانات, معلق صوتي عمان, voice over arabic",
+    extraHead: () => faqJsonLd,
   },
   {
     path: "portfolio-photography",
@@ -136,6 +156,10 @@ function build(templateFile, pages) {
     if (page.keywords) {
       html = setTag(html, /<meta name="keywords" content="[^"]*"\s*\/>/,
         `<meta name="keywords" content="${esc(page.keywords)}" />`, "keywords", page.path);
+    }
+
+    if (page.extraHead) {
+      html = html.replace("</head>", `  ${page.extraHead()}\n  </head>`);
     }
 
     const dir = join(dist, page.path);
