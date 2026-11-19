@@ -15,12 +15,19 @@
 ### 1) خطة Blaze
 Cloud Storage يتطلب خطة Blaze (الدفع حسب الاستخدام، مع حصة مجانية). ضع تنبيه ميزانية منخفضاً من Google Cloud Billing.
 
-### 2) قواعد Storage
-أضف هذا الجزء داخل `match /b/{bucket}/o { ... }` في قواعد Storage، **مع إبقاء قواعدك الحالية لمجلدات الموقع كما هي**:
+### 2) قواعد Storage (مُطبّقة في 20 نوفمبر 2026)
+القاعدة العامة القديمة كانت تسمح للجميع بقراءة كل الملفات، فاستُثني منها مجلد `waqti`:
 
 ```
-match /waqti/{uid}/{allPaths=**} {
-  allow read, write: if request.auth != null && request.auth.uid == uid;
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /waqti/{uid}/{allPaths=**} { allow read, write: if request.auth != null && request.auth.uid == uid; }
+    match /{folder}/{allPaths=**} {
+      allow read: if folder != 'waqti';
+      allow write: if request.auth != null && folder != 'waqti';
+    }
+  }
 }
 ```
 
