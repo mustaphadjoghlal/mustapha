@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebas
 import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader,
   Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff, Star, Search, Headphones } from "lucide-react";
 import HakawatiAdmin from "../hakawati/HakawatiAdmin";
+import WaqtiBackup from "./WaqtiBackup";
 import { useSeo } from "../../shared/useSeo";
 
 // ============================================================
@@ -775,6 +776,7 @@ export function AdminPage() {
     { id: "hakawati", label: "الحكواتي" },
     { id: "courses", label: "الدورات" }, { id: "clients", label: "العملاء" },
     { id: "texts", label: "النصوص" }, { id: "info", label: "الإعدادات" },
+    { id: "waqti", label: "وقتي" },
   ];
 
   return (
@@ -1137,6 +1139,8 @@ export function AdminPage() {
             </div>
           </div>
         )}
+
+        {activeTab === "waqti" && <WaqtiBackup user={user} />}
 
         {activeTab === "info" && siteInfo && (
           <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
