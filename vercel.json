@@ -9,6 +9,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/brief", "destination": "/brief.html" },
     { "source": "/hakawati", "destination": "/hakawati.html" },
     { "source": "/hakawati/(.*)", "destination": "/hakawati.html" },
     { "source": "/(.*)", "destination": "/index.html" }
