@@ -220,14 +220,14 @@ footer{color:var(--mute);font-size:14px;text-align:center}
   <div class="f" style="margin-top:18px"><div class="opts"><label class="opt"><input type="checkbox" id="agree" name="agree" value="نعم">اطّلعت على شروط التعامل وأوافق عليها</label></div><div class="err">يجب الموافقة على الشروط قبل الإرسال</div></div>
 
   <div class="actions">
-    <button type="submit" class="btn primary">مراجعة وإرسال البريف</button>
+    <button type="submit" class="btn primary" id="submitBtn">إرسال البريف</button>
     <button type="button" class="btn" id="clear">مسح النموذج</button>
   </div>
   <div class="saved" id="saved" aria-live="polite"></div>
 
   <div class="result" id="result" aria-live="polite">
-    <h3 style="font-size:22px;margin-bottom:6px">شكرًا، بريفك جاهز للإرسال</h3>
-    <p class="note" style="margin-top:0">اضغط «إرسال عبر واتساب» لتصلني الإجابات، أو انسخها وأرسلها بالطريقة التي تناسبك.</p>
+    <h3 style="font-size:22px;margin-bottom:6px" id="resTitle">شكرًا، وصلني بريفك</h3>
+    <p class="note" style="margin-top:0" id="resNote">سأراجع إجاباتك وأتواصل معك قريبًا. يمكنك أيضًا تنبيهي عبر واتساب أو الاحتفاظ بنسخة من إجاباتك.</p>
     <pre id="summary"></pre>
     <div class="actions">
       <a class="btn primary" id="wa" href="#" target="_blank" rel="noopener">إرسال عبر واتساب</a>
@@ -246,7 +246,7 @@ footer{color:var(--mute);font-size:14px;text-align:center}
 <script>
 {
 /* ===== إعدادات: ضع رقمك بالصيغة الدولية بدون + أو أصفار في البداية، مثال: 9689xxxxxxx ===== */
-const CONFIG = { whatsapp: "", email: "" };
+const CONFIG = { whatsapp: "96871227281", email: "" };
 
 const PACKS = [
   ["الانطلاق (مرة واحدة)","دراسة المنتج، السوق والجمهور، المنافسين، والاستراتيجية التسويقية"],
@@ -363,10 +363,44 @@ function summary(d){
   return out;
 }
 
-form.addEventListener("submit", e => {
+/* ===== الحفظ في Firebase (مجموعة briefs) ===== */
+const FB = { apiKey:"AIzaSyBvljyA9z5O6zQHRtLIDxKnwyCxCF2vqL8", authDomain:"mustapha-portfolio.firebaseapp.com", projectId:"mustapha-portfolio",
+  storageBucket:"mustapha-portfolio.firebasestorage.app", messagingSenderId:"597476763368", appId:"1:597476763368:web:48cdeccdc1bc21b22e0b5d" };
+const V = "11.9.0";
+let fsP = null;
+const firestore = () => fsP ||= Promise.all([
+  import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+  import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
+]).then(([a, f]) => ({ f, db: f.getFirestore(a.initializeApp(FB)) }));
+let sentKey = "";
+async function saveBrief(d, text){
+  const { f, db } = await firestore();
+  const one = k => Array.isArray(d[k]) ? d[k].join("، ") : (d[k] || "");
+  const answers = {};
+  for (const k in d) if (k !== "agree") answers[k] = one(k).slice(0, 3000);
+  await f.addDoc(f.collection(db, "briefs"), {
+    brand: one("brand").slice(0, 200), owner: one("owner").slice(0, 200), phone: one("phone").slice(0, 50),
+    pack: one("pack").slice(0, 100), summary: text.slice(0, 20000), answers,
+    status: "new", createdAt: f.serverTimestamp()
+  });
+}
+
+form.addEventListener("submit", async e => {
   e.preventDefault();
   if (!validate()) return;
-  const text = summary(collect());
+  const d = collect();
+  const text = summary(d);
+  const btn = document.getElementById("submitBtn");
+  let ok = sentKey === text;
+  if (!ok){
+    btn.disabled = true; btn.textContent = "جارٍ الإرسال...";
+    try { await saveBrief(d, text); ok = true; sentKey = text; } catch(err) { console.error(err); }
+    btn.disabled = false; btn.textContent = "إرسال البريف";
+  }
+  document.getElementById("resTitle").textContent = ok ? "شكرًا، وصلني بريفك" : "تعذّر الإرسال التلقائي";
+  document.getElementById("resNote").textContent = ok
+    ? "سأراجع إجاباتك وأتواصل معك قريبًا. يمكنك أيضًا تنبيهي عبر واتساب أو الاحتفاظ بنسخة من إجاباتك."
+    : "لم يصل البريف بسبب مشكلة في الاتصال. أرسله عبر واتساب بالزر أدناه، أو أعد المحاولة بعد قليل.";
   document.getElementById("summary").textContent = text;
   document.getElementById("wa").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
   const parts = [];
