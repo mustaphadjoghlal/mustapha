@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>بريف العميل — مصطفى جغلال</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: هادئ، مهني، واثق — ملف استقبال عميل من وكالة صغيرة محترفة
+   IDEA: ملف بريف ورقي (dossier) بعلامات أقسام مرقّمة يملؤه العميل
+   PICTURE: شريط تقدّم كبير في حقل لون النعناع يتعبأ مع كل قسم
+   COLOUR and TYPE: أبيض وأسود + حقل نعناع #b8f5d0؛ Readex Pro للعناوين و IBM Plex Sans Arabic للنص
+   LAYOUT: رأس بحقل لوني بعرض الشاشة، ثم نموذج بعمود واحد هادئ، ثم طريقة العمل والشروط والإرسال */
+:root{color-scheme:light dark;
+  --bg:light-dark(#ffffff,#0c0d0c);--ink:light-dark(#0c0d0c,#f2f4f2);--mute:light-dark(#5b615d,#a5ada8);
+  --line:light-dark(#e3e6e4,#262a27);--field:light-dark(#f6f7f6,#151816);--mint:#b8f5d0;--mintInk:#0c0d0c;
+  --acc:light-dark(#0c0d0c,#b8f5d0);--accInk:light-dark(#ffffff,#0c0d0c);--err:light-dark(#b42318,#ff8a80)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "IBM Plex Sans Arabic",Tahoma,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Readex Pro","IBM Plex Sans Arabic",sans-serif;margin:0;text-wrap:balance}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.wrap{max-width:760px;margin:0 auto}
+.hero{background:var(--mint);color:var(--mintInk)}
+.hero .wrap{display:grid;gap:22px}
+.who{display:flex;align-items:center;gap:12px;font-weight:600}
+.mark{width:44px;height:44px;border-radius:50%;background:var(--mintInk);color:var(--mint);display:grid;place-items:center;font-family:"Readex Pro";font-weight:700;font-size:20px}
+.who small{display:block;font-weight:400;opacity:.75;font-size:14px}
+.hero h1{font-size:clamp(34px,6vw,52px);line-height:1.1}
+.hero p{margin:0;max-width:60ch;font-size:17px}
+.meter{background:rgba(12,13,12,.12);border-radius:999px;height:14px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--mintInk);border-radius:999px;transition:width .5s ease}
+.meterRow{display:flex;justify-content:space-between;font-size:14px;margin-top:8px}
+.big{font-family:"Readex Pro";font-weight:700;font-size:clamp(40px,8vw,64px);line-height:1}
+.nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:10px 0}
+.nav a{flex:none;text-decoration:none;color:var(--mute);font-size:14px;padding:8px 12px;border-radius:999px;border:1px solid var(--line)}
+.nav a.done{background:var(--mint);color:var(--mintInk);border-color:transparent}
+section.sec{padding:36px 0 8px;border-bottom:1px solid var(--line)}
+.secHead{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.num{font-family:"Readex Pro";font-weight:700;font-size:15px;width:32px;height:32px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;flex:none}
+.secHead h2{font-size:26px;line-height:1.2}
+.hint{color:var(--mute);margin:0 0 18px;font-size:15px}
+.f{margin-bottom:20px}
+label.l{display:block;font-weight:600;margin-bottom:6px}
+.req{color:var(--err);white-space:nowrap}
+input[type=text],input[type=tel],input[type=email],input[type=url],input[type=date],select,textarea{
+  width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid var(--line);
+  border-radius:10px;padding:11px 14px;min-height:46px}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus,.opt:focus-within,a:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--field)}
+.opt input{width:18px;height:18px;accent-color:var(--ink);margin:0}
+.opt:has(input:checked){border-color:var(--ink);background:var(--mint);color:var(--mintInk)}
+.opt:has(input:checked) input{accent-color:var(--mintInk)}
+.svc{display:grid;gap:8px}
+.svc .opt{align-items:flex-start;padding:12px 14px}
+.svc .opt input{margin-top:5px}
+.svc b{display:block}.svc .d{display:block;color:var(--mute);font-size:14px}
+.svc .opt:has(input:checked) .d{color:var(--mintInk);opacity:.75}
+.comp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:10px;margin-bottom:10px}
+.err{color:var(--err);font-size:14px;margin-top:4px;display:none}
+.f.bad .err{display:block}.f.bad input,.f.bad textarea,.f.bad select{border-color:var(--err)}
+.weeks{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.weeks li{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.weeks li:first-child{border-top:0}
+.weeks .w{font-family:"Readex Pro";font-weight:700;font-size:18px;white-space:nowrap}
+.terms{margin:0;padding-inline-start:20px}.terms li{margin-bottom:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:12px 22px;border-radius:12px;font:inherit;font-weight:600;font-size:16px;cursor:pointer;text-decoration:none;border:2px solid var(--ink);background:var(--bg);color:var(--ink)}
+.btn.primary{background:var(--acc);color:var(--accInk);border-color:var(--acc)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.result{display:none;margin-top:24px;border:2px solid var(--ink);border-radius:16px;padding:22px;background:var(--field)}
+.result.show{display:block}
+.result pre{white-space:pre-wrap;font:14px/1.7 "IBM Plex Sans Arabic",sans-serif;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;max-height:320px;overflow:auto}
+.note{font-size:14px;color:var(--mute)}
+.saved{font-size:13px;color:var(--mute);min-height:1.4em}
+footer{color:var(--mute);font-size:14px;text-align:center}
+@media(max-width:600px){.row2,.comp{grid-template-columns:minmax(0,1fr)}.comp{padding-bottom:10px;border-bottom:1px dashed var(--line)}.weeks li{grid-template-columns:minmax(0,1fr);gap:2px}}
+@media(prefers-reduced-motion:reduce){.meter i{transition:none}}
+@media print{.nav,.actions,.saved,.hero .meterWrap{display:none}.result pre{max-height:none}}
+</style>
+</head>
+<body>
+
+<header class="hero band">
+  <div class="wrap">
+    <div class="who"><div class="mark">م</div><div>مصطفى جغلال<small>مسوّق · مصمم محتوى بصري · معلّق صوتي</small></div></div>
+    <h1>بريف العميل: لنبدأ علامتك على أساس واضح</h1>
+    <p>هذا النموذج هو الخطوة الأولى في العمل معًا. إجاباتك تبني دراسة المنتج والسوق والمنافسين، ومنها الاستراتيجية وخطة المحتوى. يستغرق ملؤه حوالي 10 دقائق، ويُحفظ ما تكتبه تلقائيًا على جهازك.</p>
+    <div class="meterWrap">
+      <div class="big" id="pct">0%</div>
+      <div class="meter" aria-hidden="true"><i id="bar"></i></div>
+      <div class="meterRow"><span id="secCount">0 من 6 أقسام مكتملة</span><span>الحقول المعلّمة بـ * مطلوبة</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav" aria-label="أقسام النموذج"><div class="wrap" id="navLinks"></div></nav>
+
+<main class="band" style="padding-top:8px">
+<form class="wrap" id="form" novalidate>
+
+<section class="sec" id="s1" data-title="العلامة">
+  <div class="secHead"><span class="num">1</span><h2>معلومات العلامة</h2></div>
+  <p class="hint">من أنتم وكيف نتواصل.</p>
+  <div class="row2">
+    <div class="f"><label class="l" for="brand">اسم العلامة <span class="req">*</span></label><input type="text" id="brand" name="brand" required><div class="err">اكتب اسم العلامة</div></div>
+    <div class="f"><label class="l" for="owner">اسم المسؤول <span class="req">*</span></label><input type="text" id="owner" name="owner" required><div class="err">اكتب اسم المسؤول</div></div>
+  </div>
+  <div class="row2">
+    <div class="f"><label class="l" for="phone">رقم الهاتف / واتساب <span class="req">*</span></label><input type="tel" id="phone" name="phone" dir="ltr" required><div class="err">نحتاج رقمًا للتواصل</div></div>
+    <div class="f"><label class="l" for="city">المدينة / الولاية</label><input type="text" id="city" name="city"></div>
+  </div>
+  <div class="f"><label class="l" for="field">مجال النشاط <span class="req">*</span></label><input type="text" id="field" name="field" placeholder="مثال: ملابس نسائية، مستحضرات تجميل، مطعم..." required><div class="err">حدّد مجال النشاط</div></div>
+  <div class="f"><label class="l" for="links">روابط الحسابات الحالية</label><textarea id="links" name="links" dir="auto" placeholder="إنستغرام، فيسبوك، تيك توك، الموقع..."></textarea></div>
+</section>
+
+<section class="sec" id="s2" data-title="المنتج">
+  <div class="secHead"><span class="num">2</span><h2>المنتج</h2></div>
+  <p class="hint">كلما كانت الإجابات أدق، كانت الدراسة أقوى.</p>
+  <div class="f"><label class="l" for="product">ما المنتج أو الخدمة التي تبيعونها؟ <span class="req">*</span></label><textarea id="product" name="product" required></textarea><div class="err">صف المنتج باختصار</div></div>
+  <div class="f"><label class="l" for="problem">ما المشكلة أو الحاجة التي يلبّيها للزبون؟</label><textarea id="problem" name="problem"></textarea></div>
+  <div class="f"><label class="l" for="usp">ما الذي يميّزكم عن غيركم؟</label><textarea id="usp" name="usp"></textarea></div>
+  <div class="row2">
+    <div class="f"><label class="l" for="price">نطاق الأسعار</label><input type="text" id="price" name="price" placeholder="مثال: من 2500 إلى 6000 دج"></div>
+    <div class="f"><label class="l" for="best">المنتج الأكثر مبيعًا</label><input type="text" id="best" name="best"></div>
+  </div>
+  <div class="f"><span class="l" style="display:block;font-weight:600;margin-bottom:6px">طريقة البيع</span>
+    <div class="opts" data-group="sell">
+      <label class="opt"><input type="checkbox" name="sell" value="توصيل لكل الولايات">توصيل لكل الولايات</label>
+      <label class="opt"><input type="checkbox" name="sell" value="محل فعلي">محل فعلي</label>
+      <label class="opt"><input type="checkbox" name="sell" value="متجر إلكتروني">متجر إلكتروني</label>
+      <label class="opt"><input type="checkbox" name="sell" value="طلبات عبر الرسائل">طلبات عبر الرسائل</label>
+    </div></div>
+  <div class="f"><label class="l" for="faq">أكثر سؤال أو شكوى تصلكم من الزبائن</label><textarea id="faq" name="faq"></textarea></div>
+</section>
+
+<section class="sec" id="s3" data-title="الجمهور">
+  <div class="secHead"><span class="num">3</span><h2>الجمهور والسوق</h2></div>
+  <p class="hint">من هو زبونكم المثالي؟</p>
+  <div class="row2">
+    <div class="f"><label class="l" for="age">الفئة العمرية الأساسية <span class="req">*</span></label>
+      <select id="age" name="age" required><option value="">اختر</option><option>أقل من 18</option><option>18 – 24</option><option>25 – 34</option><option>35 – 44</option><option>45 فما فوق</option><option>كل الأعمار</option></select><div class="err">اختر الفئة العمرية</div></div>
+    <div class="f"><label class="l" for="gender">الجنس</label>
+      <select id="gender" name="gender"><option value="">اختر</option><option>نساء أساسًا</option><option>رجال أساسًا</option><option>الجميع</option></select></div>
+  </div>
+  <div class="f"><label class="l" for="persona">صف زبونكم المعتاد في سطرين</label><textarea id="persona" name="persona" placeholder="مثال: أم عاملة في المدن الكبرى، تشتري أونلاين، يهمها السعر والجودة..."></textarea></div>
+  <div class="f"><label class="l" for="season">مواسم الذروة في مبيعاتكم</label><input type="text" id="season" name="season" placeholder="رمضان، الدخول المدرسي، الأعراس، الصيف..."></div>
+</section>
+
+<section class="sec" id="s4" data-title="المنافسون">
+  <div class="secHead"><span class="num">4</span><h2>المنافسون</h2></div>
+  <p class="hint">اذكر من تعتبرهم منافسيكم المباشرين، حتى لو واحدًا فقط.</p>
+  <div id="comps"></div>
+  <div class="f"><label class="l" for="compNote">ما الذي يعجبك أو لا يعجبك في تسويق منافسيك؟</label><textarea id="compNote" name="compNote"></textarea></div>
+</section>
+
+<section class="sec" id="s5" data-title="الأهداف">
+  <div class="secHead"><span class="num">5</span><h2>الأهداف والتسويق السابق</h2></div>
+  <p class="hint">ما الذي تريدون تحقيقه، وما الذي جُرّب من قبل.</p>
+  <div class="f"><span class="l" style="display:block;font-weight:600;margin-bottom:6px">الهدف الرئيسي <span class="req">*</span></span>
+    <div class="opts" data-group="goal">
+      <label class="opt"><input type="radio" name="goal" value="زيادة المبيعات">زيادة المبيعات</label>
+      <label class="opt"><input type="radio" name="goal" value="التعريف بالعلامة">التعريف بالعلامة</label>
+      <label class="opt"><input type="radio" name="goal" value="إطلاق منتج جديد">إطلاق منتج جديد</label>
+      <label class="opt"><input type="radio" name="goal" value="بناء مجتمع ومتابعين">بناء مجتمع ومتابعين</label>
+    </div><div class="err">اختر هدفًا رئيسيًا</div></div>
+  <div class="f"><label class="l" for="target">هدف بالأرقام خلال 3 أشهر</label><input type="text" id="target" name="target" placeholder="مثال: 50 طلبًا شهريًا، 5000 متابع..."></div>
+  <div class="f"><span class="l" style="display:block;font-weight:600;margin-bottom:6px">المنصات المطلوبة</span>
+    <div class="opts" data-group="platforms">
+      <label class="opt"><input type="checkbox" name="platforms" value="إنستغرام">إنستغرام</label>
+      <label class="opt"><input type="checkbox" name="platforms" value="فيسبوك">فيسبوك</label>
+      <label class="opt"><input type="checkbox" name="platforms" value="تيك توك">تيك توك</label>
+      <label class="opt"><input type="checkbox" name="platforms" value="يوتيوب">يوتيوب</label>
+      <label class="opt"><input type="checkbox" name="platforms" value="سناب شات">سناب شات</label>
+    </div></div>
+  <div class="f"><label class="l" for="past">ما الذي جرّبتموه في التسويق سابقًا؟ وما النتيجة؟</label><textarea id="past" name="past"></textarea></div>
+  <div class="f"><label class="l" for="adBudget">ميزانية الإعلانات الممولة الشهرية</label>
+    <input type="text" id="adBudget" name="adBudget" placeholder="مثال: 30000 دج شهريًا، أو: لم نحدد بعد">
+    <div class="note">تُدفع مباشرة للمنصة، وهي منفصلة عن أتعاب الخدمة.</div></div>
+</section>
+
+<section class="sec" id="s6" data-title="الخدمات">
+  <div class="secHead"><span class="num">6</span><h2>الخدمات والباقة</h2></div>
+  <p class="hint">اختر الباقة الأقرب لك، أو حدّد الخدمات التي تحتاجها بالضبط.</p>
+  <div class="f"><span class="l" style="display:block;font-weight:600;margin-bottom:6px">الباقة <span class="req">*</span></span>
+    <div class="svc" data-group="pack" id="packs"></div><div class="err">اختر باقة</div></div>
+  <div class="f" id="customWrap"><span class="l" style="display:block;font-weight:600;margin-bottom:6px">الخدمات المطلوبة</span>
+    <div class="svc" id="svcs"></div></div>
+  <div class="row2">
+    <div class="f"><label class="l" for="start">تاريخ البدء المرغوب</label><input type="date" id="start" name="start"></div>
+    <div class="f"><label class="l" for="contact">المسؤول عن الموافقة على المحتوى</label><input type="text" id="contact" name="contact"></div>
+  </div>
+  <div class="f"><label class="l" for="notes">ملاحظات أو طلبات إضافية</label><textarea id="notes" name="notes"></textarea></div>
+</section>
+
+<section class="sec" id="how" style="border-bottom:0">
+  <div class="secHead"><h2>كيف سنعمل في أول 30 يومًا</h2></div>
+  <ul class="weeks">
+    <li><span class="w">الأسبوع 1</span><span>توقيع الاتفاق والدفعة المقدمة، مراجعة هذا البريف، ودراسة المنتج.</span></li>
+    <li><span class="w">الأسبوع 2</span><span>دراسة السوق والجمهور، وتحليل المنافسين.</span></li>
+    <li><span class="w">الأسبوع 3</span><span>التحليل الرباعي ونقطة التميّز، الاستراتيجية، وتقويم المحتوى لموافقتك.</span></li>
+    <li><span class="w">الأسبوع 4</span><span>إنتاج المحتوى، بدء النشر، وإطلاق أول حملة ممولة.</span></li>
+    <li><span class="w">نهاية الشهر</span><span>أول تقرير بالأرقام: ما نجح، ما لم ينجح، وما سيتغير.</span></li>
+  </ul>
+
+  <h3 style="font-size:20px;margin:28px 0 10px">شروط التعامل</h3>
+  <ul class="terms">
+    <li>اتفاق مكتوب يحدد الخدمات والمدة والسعر قبل البدء.</li>
+    <li>دفعة مقدمة 50% قبل بداية العمل والباقي عند التسليم، وفي الباقات الشهرية يكون الدفع في بداية كل شهر.</li>
+    <li>تعديلان على كل تصميم أو فيديو، وما زاد يُحسب بسعر إضافي.</li>
+    <li>ملكية المحتوى تنتقل للعميل بعد سداد كامل المستحقات، مع حق عرضه في معرض أعمالي.</li>
+    <li>أي عمل خارج الباقة يُتفق عليه كتابيًا قبل تنفيذه.</li>
+  </ul>
+  <div class="f" style="margin-top:18px"><div class="opts"><label class="opt"><input type="checkbox" id="agree" name="agree" value="نعم">اطّلعت على شروط التعامل وأوافق عليها</label></div><div class="err">يجب الموافقة على الشروط قبل الإرسال</div></div>
+
+  <div class="actions">
+    <button type="submit" class="btn primary">مراجعة وإرسال البريف</button>
+    <button type="button" class="btn" id="clear">مسح النموذج</button>
+  </div>
+  <div class="saved" id="saved" aria-live="polite"></div>
+
+  <div class="result" id="result" aria-live="polite">
+    <h3 style="font-size:22px;margin-bottom:6px">شكرًا، بريفك جاهز للإرسال</h3>
+    <p class="note" style="margin-top:0">اضغط «إرسال عبر واتساب» لتصلني الإجابات، أو انسخها وأرسلها بالطريقة التي تناسبك.</p>
+    <pre id="summary"></pre>
+    <div class="actions">
+      <a class="btn primary" id="wa" href="#" target="_blank" rel="noopener">إرسال عبر واتساب</a>
+      <button type="button" class="btn" id="copy">نسخ الإجابات</button>
+      <button type="button" class="btn" id="print">حفظ PDF</button>
+    </div>
+    <p class="note" id="contactLine"></p>
+    <p class="note" id="copyMsg" aria-live="polite"></p>
+  </div>
+</section>
+</form>
+</main>
+
+<footer class="band">مصطفى جغلال · تسويق، محتوى، تعليق صوتي</footer>
+
+<script>
+{
+/* ===== إعدادات: ضع رقمك بالصيغة الدولية بدون + أو أصفار في البداية، مثال: 9689xxxxxxx ===== */
+const CONFIG = { whatsapp: "", email: "" };
+
+const PACKS = [
+  ["الانطلاق (مرة واحدة)","دراسة المنتج، السوق والجمهور، المنافسين، والاستراتيجية التسويقية"],
+  ["النمو (شهرية)","خطة المحتوى، صناعة المحتوى، إدارة الحسابات، والتقرير الشهري"],
+  ["الشاملة (شهرية)","كل الخدمات من الدراسة إلى الإعلانات والتقارير"],
+  ["مخصصة","أختار الخدمات التي أحتاجها بنفسي"]
+];
+const SVCS = [
+  ["دراسة المنتج","نقاط القوة، المشكلة التي يحلها، التسعير، تجربة الزبون"],
+  ["دراسة السوق والجمهور","الشرائح المستهدفة، سلوك الشراء، شخصيات الزبائن"],
+  ["تحليل المنافسين","مقارنة 3 إلى 5 منافسين وتحديد الفرص"],
+  ["الاستراتيجية التسويقية","الأهداف، الرسالة، نقطة التميز، القنوات"],
+  ["خطة المحتوى","تقويم نشر شهري بالأفكار والنصوص"],
+  ["صناعة المحتوى","تصاميم، فيديوهات، مونتاج، تعليق صوتي، UGC"],
+  ["إدارة الحسابات","النشر والرد على التعليقات والرسائل"],
+  ["الإعلانات الممولة","إعداد الحملات والاستهداف والاختبار والتحسين"],
+  ["القياس والتقارير","تقرير شهري بالأرقام والتوصيات"]
+];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const opt = (type,name,[t,d]) => `<label class="opt"><input type="${type}" name="${name}" value="${esc(t)}"><span><b>${esc(t)}</b><span class="d">${esc(d)}</span></span></label>`;
+document.getElementById("packs").innerHTML = PACKS.map(p => opt("radio","pack",p)).join("");
+document.getElementById("svcs").innerHTML = SVCS.map(s => opt("checkbox","svc",s)).join("");
+document.getElementById("comps").innerHTML = [1,2,3].map(i => `<div class="comp">
+  <input type="text" name="c${i}name" aria-label="اسم المنافس ${i}" placeholder="المنافس ${i}">
+  <input type="text" name="c${i}link" dir="auto" aria-label="رابط المنافس ${i}" placeholder="الرابط">
+  <input type="text" name="c${i}good" aria-label="ما يفعله المنافس ${i} جيدًا" placeholder="ما الذي يفعله جيدًا؟"></div>`).join("");
+
+const form = document.getElementById("form");
+const secs = [...document.querySelectorAll("section.sec[data-title]")];
+const KEY = "brief-draft-v1";
+
+document.getElementById("navLinks").innerHTML = secs.map((s,i) => `<a href="#${s.id}" data-s="${s.id}">${i+1}. ${s.dataset.title}</a>`).join("") + `<a href="#how">الإرسال</a>`;
+
+const filled = el => el.type === "checkbox" || el.type === "radio" ? el.checked : el.value.trim() !== "";
+function secDone(s){
+  const req = [...s.querySelectorAll("[required]")];
+  const groups = [...s.querySelectorAll("[data-group]")].filter(g => g.parentElement.querySelector(".req"));
+  const fields = [...s.querySelectorAll("input,textarea,select")];
+  const reqOk = req.every(filled) && groups.every(g => g.querySelector("input:checked"));
+  return reqOk && fields.some(filled);
+}
+function progress(){
+  const done = secs.filter(secDone).length;
+  const pct = Math.round(done / secs.length * 100);
+  document.getElementById("pct").textContent = pct + "%";
+  document.getElementById("bar").style.width = pct + "%";
+  document.getElementById("secCount").textContent = `${done} من ${secs.length} أقسام مكتملة`;
+  secs.forEach(s => document.querySelector(`.nav a[data-s="${s.id}"]`).classList.toggle("done", secDone(s)));
+  document.getElementById("customWrap").style.display = (form.querySelector('input[name=pack]:checked')?.value === "مخصصة") ? "" : "none";
+}
+
+function collect(){
+  const d = {};
+  for (const el of form.elements){
+    if (!el.name) continue;
+    if (el.type === "checkbox" || el.type === "radio"){ if (el.checked) (d[el.name] ||= []).push(el.value); }
+    else d[el.name] = el.value.trim();
+  }
+  return d;
+}
+function restore(d){
+  for (const el of form.elements){
+    if (!el.name || !(el.name in d)) continue;
+    if (el.type === "checkbox" || el.type === "radio") el.checked = d[el.name].includes(el.value);
+    else el.value = d[el.name];
+  }
+}
+let t;
+function save(){
+  clearTimeout(t);
+  t = setTimeout(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(collect())); document.getElementById("saved").textContent = "تم حفظ المسودة على هذا الجهاز"; } catch(e) {}
+  }, 400);
+}
+try { const raw = localStorage.getItem(KEY); if (raw) restore(JSON.parse(raw)); } catch(e) {}
+
+form.addEventListener("input", e => { const f = e.target.closest(".f"); if (f) f.classList.remove("bad"); progress(); save(); });
+form.addEventListener("change", () => { progress(); save(); });
+
+function validate(){
+  let first = null;
+  form.querySelectorAll(".f").forEach(f => f.classList.remove("bad"));
+  const mark = el => { const f = el.closest(".f"); f.classList.add("bad"); first ||= f; };
+  form.querySelectorAll("[required]").forEach(el => { if (!filled(el)) mark(el); });
+  ["goal","pack"].forEach(g => { const box = form.querySelector(`[data-group="${g}"]`); if (!box.querySelector("input:checked")) mark(box); });
+  const agree = document.getElementById("agree"); if (!agree.checked) mark(agree);
+  if (first) first.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"center"});
+  return !first;
+}
+
+const L = {brand:"اسم العلامة",owner:"المسؤول",phone:"الهاتف",city:"المدينة",field:"المجال",links:"الحسابات",
+  product:"المنتج",problem:"المشكلة التي يحلها",usp:"ما يميّزهم",price:"الأسعار",best:"الأكثر مبيعًا",sell:"طريقة البيع",faq:"أكثر سؤال/شكوى",
+  age:"الفئة العمرية",gender:"الجنس",persona:"الزبون المعتاد",season:"مواسم الذروة",compNote:"ملاحظات على المنافسين",
+  goal:"الهدف الرئيسي",target:"الهدف بالأرقام",platforms:"المنصات",past:"التسويق السابق",adBudget:"ميزانية الإعلانات",
+  pack:"الباقة",svc:"الخدمات المطلوبة",start:"تاريخ البدء",contact:"مسؤول الموافقة",notes:"ملاحظات"};
+const GROUPS = [["معلومات العلامة",["brand","owner","phone","city","field","links"]],["المنتج",["product","problem","usp","price","best","sell","faq"]],
+  ["الجمهور والسوق",["age","gender","persona","season"]],["المنافسون",["comps","compNote"]],["الأهداف",["goal","target","platforms","past","adBudget"]],
+  ["الخدمات",["pack","svc","start","contact","notes"]]];
+function summary(d){
+  const val = k => Array.isArray(d[k]) ? d[k].join("، ") : (d[k] || "");
+  let out = `*بريف عميل جديد — ${d.brand || ""}*\n`;
+  for (const [title, keys] of GROUPS){
+    out += `\n*${title}*\n`;
+    for (const k of keys){
+      if (k === "comps"){
+        [1,2,3].forEach(i => { if (d[`c${i}name`]) out += `• ${d[`c${i}name`]}${d[`c${i}link`] ? " — " + d[`c${i}link`] : ""}${d[`c${i}good`] ? " — " + d[`c${i}good`] : ""}\n`; });
+        continue;
+      }
+      if (k === "svc" && val("pack") !== "مخصصة") continue;
+      const v = val(k); if (v) out += `${L[k]}: ${v}\n`;
+    }
+  }
+  out += `\nالموافقة على شروط التعامل: نعم`;
+  return out;
+}
+
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  if (!validate()) return;
+  const text = summary(collect());
+  document.getElementById("summary").textContent = text;
+  document.getElementById("wa").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
+  const parts = [];
+  if (CONFIG.whatsapp) parts.push(`واتساب: +${CONFIG.whatsapp}`);
+  if (CONFIG.email) parts.push(`البريد: ${CONFIG.email}`);
+  document.getElementById("contactLine").textContent = parts.join(" · ");
+  const r = document.getElementById("result"); r.classList.add("show"); r.scrollIntoView({block:"start"});
+});
+
+document.getElementById("copy").addEventListener("click", async () => {
+  const msg = document.getElementById("copyMsg");
+  try { await navigator.clipboard.writeText(document.getElementById("summary").textContent); msg.textContent = "تم النسخ."; }
+  catch(e){ msg.textContent = "تعذّر النسخ التلقائي، حدّد النص أعلاه وانسخه يدويًا."; }
+});
+document.getElementById("print").addEventListener("click", () => {
+  try { window.print(); } catch(e) { document.getElementById("copyMsg").textContent = "الطباعة غير متاحة هنا، استخدم «نسخ الإجابات»."; }
+});
+document.getElementById("clear").addEventListener("click", () => {
+  const b = document.getElementById("clear");
+  if (b.dataset.sure !== "1"){ b.dataset.sure = "1"; b.textContent = "اضغط مرة أخرى للتأكيد"; setTimeout(() => { b.dataset.sure = ""; b.textContent = "مسح النموذج"; }, 3000); return; }
+  form.reset(); try { localStorage.removeItem(KEY); } catch(e) {}
+  b.dataset.sure = ""; b.textContent = "مسح النموذج";
+  document.getElementById("result").classList.remove("show"); document.getElementById("saved").textContent = ""; progress();
+});
+
+progress();
+}
+</script>
+</body>
+</html>
