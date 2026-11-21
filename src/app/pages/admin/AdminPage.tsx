@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebas
 import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader,
   Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff, Star, Search, Headphones } from "lucide-react";
 import HakawatiAdmin from "../hakawati/HakawatiAdmin";
+import BriefsAdmin from "./BriefsAdmin";
 import { useSeo } from "../../shared/useSeo";
 
 // ============================================================
@@ -770,6 +771,7 @@ export function AdminPage() {
   if (!user) return <LoginForm onLogin={signInWithEmailAndPassword} />;
 
   const tabs = [
+    { id: "briefs", label: "البريفات" },
     { id: "works", label: "الأعمال" }, { id: "experience", label: "الخبرات" },
     { id: "media", label: "المخرجات" }, { id: "articles", label: "المقالات" },
     { id: "hakawati", label: "الحكواتي" },
@@ -799,6 +801,8 @@ export function AdminPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 mt-8">
+
+        {activeTab === "briefs" && <BriefsAdmin />}
 
         {activeTab === "works" && (
           <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
