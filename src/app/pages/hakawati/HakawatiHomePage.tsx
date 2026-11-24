@@ -31,6 +31,10 @@ export function HakawatiHomePage() {
     const unsub = onSnapshot(q, (snap) => {
       setStories(snap.docs.map((d) => ({ id: d.id, ...d.data() } as HakawatiStory)));
       setLoaded(true);
+    }, (e) => {
+      // بدون هذا تبقى الصفحة في حالة التحميل للأبد إن رفضت قواعد Firestore القراءة
+      console.error("hakawati_stories:", e);
+      setLoaded(true);
     });
     return unsub;
   }, []);

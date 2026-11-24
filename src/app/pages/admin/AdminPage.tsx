@@ -486,57 +486,137 @@ function ArticlesSection({ articles, saving, sc, onAdd, onSave, onDelete }: {
 // ============================================================
 // Hakawati Stories Section with Rich Text Editor
 // ============================================================
-function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }: {
-  stories: HakawatiStory[]; saving: boolean; sc: string;
-  onAdd: (s: Partial<HakawatiStory>) => Promise<void>;
-  onSave: (s: HakawatiStory) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
+
+/** يحوّل خطأ Firestore إلى رسالة مفهومة بدل أن يضيع في الكونسول */
+function firestoreErrorText(e: unknown, action: string): string {
+  const code = (e as { code?: string })?.code || "";
+  if (code === "permission-denied")
+    return `رفض Firestore ${action} الحكاية (permission-denied). قواعد الأمان لا تسمح بمجموعة hakawati_stories — أضف لها قاعدة في Firebase Console ‹ Firestore ‹ Rules.`;
+  if (code === "unauthenticated") return "انتهت جلسة الدخول — سجّل الدخول من جديد ثم أعد المحاولة.";
+  if (code === "unavailable") return "لا يوجد اتصال بقاعدة البيانات — تحقّق من الإنترنت وأعد المحاولة.";
+  if (code === "invalid-argument") return "بيانات الحكاية غير صالحة (قد يكون النص كبيراً جداً، أكثر من 1 ميغابايت).";
+  return `تعذّر ${action} الحكاية${code ? ` (${code})` : ""}.`;
+}
+
+const STORY_DRAFT_KEY = "hakawati_story_draft";
+const emptyStory = (): Partial<HakawatiStory> => ({
+  title: "", excerpt: "", content: "", coverImage: "", videoUrl: "",
+  publishedAt: new Date().toISOString().split("T")[0], published: true,
+});
+
+/** نص عادي من HTML المحرر — لمعرفة إن كانت الحكاية فارغة فعلاً */
+const storyPlain = (html = "") => html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+
+function validateStory(s: Partial<HakawatiStory>): string {
+  if (!s.title?.trim()) return "اكتب عنوان الحكاية.";
+  if (!storyPlain(s.content)) return "نص الحكاية فارغ.";
+  if (!s.publishedAt) return "اختر تاريخ النشر.";
+  return "";
+}
+
+function HakawatiStoriesSection({ stories, loadError, saving, sc, onAdd, onSave, onDelete }: {
+  stories: HakawatiStory[]; loadError: string; saving: boolean; sc: string;
+  onAdd: (s: Partial<HakawatiStory>) => Promise<string>;
+  onSave: (s: HakawatiStory) => Promise<string>;
+  onDelete: (id: string) => Promise<string>;
 }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editingStory, setEditingStory] = useState<HakawatiStory | null>(null);
-  const [newStory, setNewStory] = useState<Partial<HakawatiStory>>({
-    title: "", excerpt: "", content: "", coverImage: "", videoUrl: "",
-    publishedAt: new Date().toISOString().split("T")[0], published: true,
+  // المسودة تُستعاد من المتصفح إن أُغلقت الصفحة قبل الحفظ
+  const [newStory, setNewStory] = useState<Partial<HakawatiStory>>(() => {
+    try { const d = localStorage.getItem(STORY_DRAFT_KEY); if (d) return { ...emptyStory(), ...JSON.parse(d) }; } catch { /* ignore */ }
+    return emptyStory();
   });
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [filter, setFilter] = useState<"all" | "published" | "hidden">("all");
+
+  const hasDraft = !!(newStory.title?.trim() || storyPlain(newStory.content));
+
+  useEffect(() => {
+    try {
+      if (hasDraft) localStorage.setItem(STORY_DRAFT_KEY, JSON.stringify(newStory));
+      else localStorage.removeItem(STORY_DRAFT_KEY);
+    } catch { /* ignore */ }
+  }, [newStory, hasDraft]);
+
+  const flash = (m: string) => { setNotice(m); setError(""); setTimeout(() => setNotice(""), 3500); };
 
   const handleAdd = async () => {
-    await onAdd(newStory);
+    const invalid = validateStory(newStory);
+    if (invalid) { setError(invalid); return; }
+    const err = await onAdd({ ...newStory, title: newStory.title!.trim(), excerpt: (newStory.excerpt || "").trim() || storyPlain(newStory.content).slice(0, 150) });
+    if (err) { setError(err); return; } // النموذج يبقى مفتوحاً بنصّه
     setShowAdd(false);
-    setNewStory({ title: "", excerpt: "", content: "", coverImage: "", videoUrl: "", publishedAt: new Date().toISOString().split("T")[0], published: true });
+    setNewStory(emptyStory());
+    flash(newStory.published ? "✓ أُضيفت الحكاية ونُشرت على الموقع" : "✓ حُفظت الحكاية (مخفية)");
   };
 
   const handleSave = async () => {
     if (!editingStory) return;
-    await onSave(editingStory);
+    const invalid = validateStory(editingStory);
+    if (invalid) { setError(invalid); return; }
+    const err = await onSave({ ...editingStory, title: editingStory.title.trim() });
+    if (err) { setError(err); return; }
     setEditingStory(null);
+    flash("✓ حُفظت التعديلات");
   };
+
+  const handleDelete = async (id: string) => {
+    const err = await onDelete(id);
+    if (err) setError(err);
+  };
+
+  const togglePublished = async (story: HakawatiStory) => {
+    const err = await onSave({ ...story, published: !story.published });
+    if (err) setError(err);
+    else flash(story.published ? "أُخفيت الحكاية" : "✓ نُشرت الحكاية");
+  };
+
+  const sorted = [...stories].sort((a, b) => (b.publishedAt || "").localeCompare(a.publishedAt || ""));
+  const visibleList = sorted.filter((s) => filter === "all" || (filter === "published" ? s.published : !s.published));
+  const publishedCount = stories.filter((s) => s.published).length;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="text-xl font-bold">حكايات الحكواتي ({stories.length})</h2>
-        <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-700 px-5 py-2 rounded-lg font-semibold text-sm">
-          <Plus size={16} /> إضافة حكاية
+        <button onClick={() => { setShowAdd(true); setEditingStory(null); setError(""); }} className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-700 px-5 py-2 rounded-lg font-semibold text-sm">
+          <Plus size={16} /> {hasDraft && !showAdd ? "متابعة المسودة" : "إضافة حكاية"}
         </button>
       </div>
+
+      {loadError && <div className="mb-4 rounded-lg border border-red-700 bg-red-950/40 px-4 py-3 text-sm text-red-300 leading-relaxed">⚠ {loadError}</div>}
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-700 bg-red-950/40 px-4 py-3 text-sm text-red-300 leading-relaxed flex justify-between gap-3">
+          <span>⚠ {error}</span>
+          <button onClick={() => setError("")}><X size={14} /></button>
+        </div>
+      )}
+      {notice && <div className="mb-4 rounded-lg border border-green-700 bg-green-950/40 px-4 py-3 text-sm text-green-300">{notice}</div>}
 
       {/* Add Form */}
       {showAdd && (
         <div className="bg-ink-850 border border-amber-700 rounded-xl p-5 mb-6 space-y-4">
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <h3 className="text-amber-400 font-bold">حكاية جديدة</h3>
-            <button onClick={() => setShowAdd(false)}><X size={16} className="text-gray-400" /></button>
+            <div className="flex items-center gap-3">
+              {hasDraft && <span className="text-xs text-gray-500">المسودة محفوظة في المتصفح تلقائياً</span>}
+              {hasDraft && (
+                <button onClick={() => { if (confirm("مسح المسودة والبدء من جديد؟")) setNewStory(emptyStory()); }} className="text-xs text-gray-400 hover:text-red-400">مسح المسودة</button>
+              )}
+              <button onClick={() => setShowAdd(false)} title="إغلاق (تبقى المسودة محفوظة)"><X size={16} className="text-gray-400" /></button>
+            </div>
           </div>
           <div className="grid md:grid-cols-2 gap-3">
-            <input value={newStory.title} onChange={(e) => setNewStory({ ...newStory, title: e.target.value })} placeholder="عنوان الحكاية" className={sc} />
+            <input value={newStory.title} onChange={(e) => setNewStory({ ...newStory, title: e.target.value })} placeholder="عنوان الحكاية *" className={sc} />
             <input value={newStory.publishedAt} onChange={(e) => setNewStory({ ...newStory, publishedAt: e.target.value })} type="date" className={sc} />
-            <textarea value={newStory.excerpt} onChange={(e) => setNewStory({ ...newStory, excerpt: e.target.value })} placeholder="مقتطف مختصر (يظهر في البطاقات)" rows={2} className={`${sc} resize-none md:col-span-2`} />
+            <textarea value={newStory.excerpt} onChange={(e) => setNewStory({ ...newStory, excerpt: e.target.value })} placeholder="مقتطف مختصر يظهر في البطاقات ونتائج جوجل — إن تركته فارغاً يؤخذ أول النص" rows={2} className={`${sc} resize-none md:col-span-2`} />
             <input value={newStory.videoUrl} onChange={(e) => setNewStory({ ...newStory, videoUrl: e.target.value })} placeholder="رابط فيديو (يوتيوب أو إنستغرام Reel) — اختياري" className={`${sc} md:col-span-2`} />
           </div>
 
-          {/* Rich Text Editor */}
           <div className="space-y-2">
-            <p className="text-gray-400 text-sm font-semibold">✍️ نص الحكاية</p>
+            <p className="text-gray-400 text-sm font-semibold">✍️ نص الحكاية *</p>
             <RichTextEditor value={newStory.content || ""} onChange={(html) => setNewStory(prev => ({ ...prev, content: html }))} />
           </div>
 
@@ -550,28 +630,38 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
             نشر الحكاية على الموقع فورًا
           </label>
 
-          <button onClick={handleAdd} disabled={saving} className="flex items-center gap-2 bg-amber-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700">
-            <Plus size={14} /> {saving ? "جارٍ..." : "إضافة"}
+          <button onClick={handleAdd} disabled={saving} className="flex items-center gap-2 bg-amber-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700 disabled:opacity-60">
+            <Plus size={14} /> {saving ? "جارٍ الحفظ..." : "إضافة"}
           </button>
+        </div>
+      )}
+
+      {/* فلترة */}
+      {stories.length > 0 && (
+        <div className="flex gap-2 mb-4 text-xs">
+          {([["all", `الكل (${stories.length})`], ["published", `منشورة (${publishedCount})`], ["hidden", `مخفية (${stories.length - publishedCount})`]] as const).map(([id, label]) => (
+            <button key={id} onClick={() => setFilter(id)}
+              className={`px-3 py-1 rounded-full border ${filter === id ? "bg-amber-600 border-amber-600 text-white" : "border-ink-700 text-gray-400 hover:text-white"}`}>{label}</button>
+          ))}
         </div>
       )}
 
       {/* Stories List */}
       <div className="space-y-3">
-        {stories.length === 0 && <p className="text-gray-500 text-center py-8">لا توجد حكايات بعد</p>}
-        {stories.map((story) => (
+        {stories.length === 0 && !loadError && <p className="text-gray-500 text-center py-8">لا توجد حكايات بعد</p>}
+        {visibleList.map((story) => (
           <div key={story.id} className="bg-ink-850 border border-ink-700 rounded-xl p-4">
             {editingStory?.id === story.id ? (
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-3">
-                  <input value={editingStory.title} onChange={(e) => setEditingStory({ ...editingStory, title: e.target.value })} className={sc} />
+                  <input value={editingStory.title} onChange={(e) => setEditingStory({ ...editingStory, title: e.target.value })} placeholder="عنوان الحكاية *" className={sc} />
                   <input value={editingStory.publishedAt} onChange={(e) => setEditingStory({ ...editingStory, publishedAt: e.target.value })} type="date" className={sc} />
-                  <textarea value={editingStory.excerpt} onChange={(e) => setEditingStory({ ...editingStory, excerpt: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
+                  <textarea value={editingStory.excerpt} onChange={(e) => setEditingStory({ ...editingStory, excerpt: e.target.value })} placeholder="مقتطف مختصر" rows={2} className={`${sc} resize-none md:col-span-2`} />
                   <input value={editingStory.videoUrl || ""} onChange={(e) => setEditingStory({ ...editingStory, videoUrl: e.target.value })} placeholder="رابط فيديو (اختياري)" className={`${sc} md:col-span-2`} />
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-gray-400 text-sm font-semibold">✍️ نص الحكاية</p>
+                  <p className="text-gray-400 text-sm font-semibold">✍️ نص الحكاية *</p>
                   <RichTextEditor value={editingStory.content} onChange={(html) => setEditingStory(prev => prev ? ({ ...prev, content: html }) : null)} />
                 </div>
 
@@ -583,8 +673,8 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
                 </label>
 
                 <div className="flex gap-2">
-                  <button onClick={handleSave} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700"><Save size={14} /> حفظ</button>
-                  <button onClick={() => setEditingStory(null)} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
+                  <button onClick={handleSave} disabled={saving} className="flex items-center gap-1 bg-green-600 px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 disabled:opacity-60"><Save size={14} /> {saving ? "جارٍ الحفظ..." : "حفظ"}</button>
+                  <button onClick={() => { setEditingStory(null); setError(""); }} className="flex items-center gap-1 bg-gray-600 px-4 py-1.5 rounded-lg text-sm"><X size={14} /> إلغاء</button>
                 </div>
               </div>
             ) : (
@@ -592,16 +682,22 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
                 {story.coverImage && <img src={story.coverImage} alt={story.title} className="w-16 h-16 rounded-lg object-cover border border-ink-600 flex-shrink-0" />}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-bold text-white text-sm truncate">{story.title}</p>
+                    <p className="font-bold text-white text-sm truncate">{story.title || "(بلا عنوان)"}</p>
                     {story.published
                       ? <span className="flex items-center gap-1 text-xs text-green-400"><Eye size={12} /> منشورة</span>
                       : <span className="flex items-center gap-1 text-xs text-gray-500"><EyeOff size={12} /> مخفية</span>}
                   </div>
                   <p className="text-gray-400 text-xs">{story.publishedAt}</p>
+                  {story.published && (
+                    <a href={`/hakawati/stories/${story.id}`} target="_blank" rel="noreferrer" className="text-xs text-amber-500 hover:underline">عرض على الموقع ↗</a>
+                  )}
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => setEditingStory(story)} className="p-1.5 text-gray-400 hover:text-royal-300 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
-                  <button onClick={() => onDelete(story.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
+                  <button onClick={() => togglePublished(story)} title={story.published ? "إخفاء" : "نشر"} className="p-1.5 text-gray-400 hover:text-amber-400 hover:bg-gray-700 rounded">
+                    {story.published ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                  <button onClick={() => { setEditingStory(story); setShowAdd(false); setError(""); }} className="p-1.5 text-gray-400 hover:text-royal-300 hover:bg-gray-700 rounded"><Pencil size={14} /></button>
+                  <button onClick={() => handleDelete(story.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded"><Trash2 size={14} /></button>
                 </div>
               </div>
             )}
@@ -681,6 +777,7 @@ export function AdminPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [hakawatiStories, setHakawatiStories] = useState<HakawatiStory[]>([]);
   const [hakawatiSubTab, setHakawatiSubTab] = useState<"stories" | "game">("stories");
+  const [hakawatiLoadError, setHakawatiLoadError] = useState("");
   const [clients, setClients] = useState<Client[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
@@ -717,7 +814,9 @@ export function AdminPage() {
       onSnapshot(collection(db, "experiences"), (s) => setExperiences(s.docs.map(d => ({ id: d.id, ...d.data() } as Experience)))),
       onSnapshot(collection(db, "mediaOutputs"), (s) => setMediaOutputs(s.docs.map(d => ({ id: d.id, ...d.data() } as MediaOutput)))),
       onSnapshot(collection(db, "articles"), (s) => setArticles(s.docs.map(d => ({ id: d.id, ...d.data() } as Article)))),
-      onSnapshot(collection(db, "hakawati_stories"), (s) => setHakawatiStories(s.docs.map(d => ({ id: d.id, ...d.data() } as HakawatiStory)))),
+      onSnapshot(collection(db, "hakawati_stories"),
+        (s) => { setHakawatiStories(s.docs.map(d => ({ id: d.id, ...d.data() } as HakawatiStory))); setHakawatiLoadError(""); },
+        (e) => { console.error(e); setHakawatiLoadError(firestoreErrorText(e, "قراءة")); }),
       onSnapshot(collection(db, "clients"), (s) => setClients(s.docs.map(d => ({ id: d.id, ...d.data() } as Client)))),
       onSnapshot(collection(db, "courses"), (s) => setCourses(s.docs.map(d => ({ id: d.id, ...d.data() } as Course)))),
       onSnapshot(collection(db, "siteInfo"), (s) => { if (!s.empty) setSiteInfo({ id: s.docs[0].id, ...s.docs[0].data() } as SiteInfo); }),
@@ -756,9 +855,30 @@ export function AdminPage() {
   const addArticle = async (a: Partial<Article>) => { setSaving(true); try { await addDoc(collection(db, "articles"), a); } catch (e) { console.error(e); } setSaving(false); };
   const saveArticle = async (a: Article) => { setSaving(true); try { await updateDoc(doc(db, "articles", a.id), a); } catch (e) { console.error(e); } setSaving(false); };
   const deleteArticle = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "articles", id)); };
-  const addHakawatiStory = async (s: Partial<HakawatiStory>) => { setSaving(true); try { await addDoc(collection(db, "hakawati_stories"), s); } catch (e) { console.error(e); } setSaving(false); };
-  const saveHakawatiStory = async (s: HakawatiStory) => { setSaving(true); try { await updateDoc(doc(db, "hakawati_stories", s.id), s); } catch (e) { console.error(e); } setSaving(false); };
-  const deleteHakawatiStory = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "hakawati_stories", id)); };
+  /** دوال الحكايات تُعيد رسالة الخطأ (أو "" عند النجاح) ليعرضها النموذج بدل أن يُغلق كأن شيئاً لم يحدث */
+  const addHakawatiStory = async (s: Partial<HakawatiStory>) => {
+    setSaving(true);
+    try {
+      const { id: _ignore, ...data } = s as HakawatiStory;
+      await addDoc(collection(db, "hakawati_stories"), { ...data, createdAt: new Date().toISOString() });
+      return "";
+    } catch (e) { console.error(e); return firestoreErrorText(e, "حفظ"); }
+    finally { setSaving(false); }
+  };
+  const saveHakawatiStory = async (s: HakawatiStory) => {
+    setSaving(true);
+    try {
+      const { id, ...data } = s;
+      await updateDoc(doc(db, "hakawati_stories", id), { ...data, updatedAt: new Date().toISOString() });
+      return "";
+    } catch (e) { console.error(e); return firestoreErrorText(e, "حفظ"); }
+    finally { setSaving(false); }
+  };
+  const deleteHakawatiStory = async (id: string) => {
+    if (!confirm("حذف هذه الحكاية نهائيًا؟")) return "";
+    try { await deleteDoc(doc(db, "hakawati_stories", id)); return ""; }
+    catch (e) { console.error(e); return firestoreErrorText(e, "حذف"); }
+  };
   const addCourse = async () => { setSaving(true); try { await addDoc(collection(db, "courses"), newCourse); setShowAddCourse(false); setNewCourse({ title: "", description: "", image: "", duration: "", students: "", level: "", modules: "", email: "" }); } catch (e) { console.error(e); } setSaving(false); };
   const saveCourse = async () => { if (!editingCourse) return; setSaving(true); try { await updateDoc(doc(db, "courses", editingCourse.id), editingCourse); setEditingCourse(null); } catch (e) { console.error(e); } setSaving(false); };
   const deleteCourse = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "courses", id)); };
@@ -951,6 +1071,7 @@ export function AdminPage() {
             {hakawatiSubTab === "stories" ? (
               <HakawatiStoriesSection
                 stories={hakawatiStories}
+                loadError={hakawatiLoadError}
                 saving={saving}
                 sc={sc}
                 onAdd={addHakawatiStory}
