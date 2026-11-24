@@ -37,6 +37,10 @@ export function HakawatiStoryPage() {
       if (d.exists()) setStory({ id: d.id, ...d.data() } as HakawatiStory);
       else setStory(null);
       setLoaded(true);
+    }, (e) => {
+      console.error("hakawati_stories:", e);
+      setStory(null);
+      setLoaded(true);
     });
     return unsub;
   }, [id]);

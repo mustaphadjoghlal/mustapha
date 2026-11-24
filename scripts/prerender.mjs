@@ -192,9 +192,14 @@ async function fetchContent() {
   });
   const db = getFirestore(app);
 
-  const [articlesSnap, worksSnap] = await Promise.all([
+  const [articlesSnap, worksSnap, storiesSnap] = await Promise.all([
     getDocs(collection(db, "articles")),
     getDocs(collection(db, "works")),
+    // الحكايات لا تُسقط البناء إن تعذّرت قراءتها — تُتجاهل وحدها
+    getDocs(collection(db, "hakawati_stories")).catch((e) => {
+      console.warn(`⚠ تعذّر قراءة الحكايات (${e.code || e.message})`);
+      return { docs: [] };
+    }),
   ]);
 
   const articles = articlesSnap.docs.map((d) => {
@@ -227,7 +232,22 @@ async function fetchContent() {
     };
   });
 
-  return { articles, works };
+  const stories = storiesSnap.docs
+    .filter((d) => d.data().published && d.data().title)
+    .map((d) => {
+      const s = d.data();
+      return {
+        path: `hakawati/stories/${d.id}`,
+        title: `${s.title} — الحكواتي`,
+        description: plain(s.excerpt || s.content),
+        image: s.coverImage || null,
+        type: "article",
+        lastmod: s.publishedAt || null,
+        quiet: true,
+      };
+    });
+
+  return { articles, works, stories };
 }
 
 /** يكتب خريطة الموقع كاملةً: الصفحات الثابتة + كل مقال وعمل */
@@ -259,10 +279,11 @@ build("hakawati.html", hakawatiPages);
 
 let dynamicPages = [];
 try {
-  const { articles, works } = await fetchContent();
-  dynamicPages = [...articles, ...works];
-  build("index.html", dynamicPages);
-  console.log(`✓ ${articles.length} مقالاً و${works.length} عملاً`);
+  const { articles, works, stories } = await fetchContent();
+  dynamicPages = [...articles, ...works, ...stories];
+  build("index.html", [...articles, ...works]);
+  build("hakawati.html", stories);
+  console.log(`✓ ${articles.length} مقالاً و${works.length} عملاً و${stories.length} حكاية`);
 } catch (e) {
   // لا نُسقط البناء إن تعذّر الوصول إلى قاعدة البيانات؛ يبقى الموقع كما هو
   console.warn(`⚠ تعذّر قراءة المحتوى من قاعدة البيانات (${e.code || e.message}) — بقيت الصفحات الثابتة وحدها.`);
@@ -275,6 +296,8 @@ const sitemap = [
     changefreq: "weekly",
     priority: p.path === "about" || p.path === "portfolio" ? "0.9" : "0.8",
   })),
+  { loc: `${SITE}/hakawati`, changefreq: "weekly", priority: "0.8" },
+  ...hakawatiPages.map((p) => ({ loc: `${SITE}/${p.path}`, changefreq: "weekly", priority: "0.7" })),
   ...dynamicPages.map((p) => ({
     loc: `${SITE}/${p.path}`,
     lastmod: p.lastmod,
