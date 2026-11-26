@@ -309,14 +309,23 @@ function HeavyImagesTool({ works }: { works: Work[] }) {
   const compressAll = async () => {
     setState("working");
     const totals = { before: 0, after: 0, count: 0, failed: 0 };
+    let firstError = "";
     for (let i = 0; i < heavy.length; i++) {
       const { url } = heavy[i];
       setLog(`(${i + 1}/${heavy.length}) جارٍ ضغط الصورة...`);
       try {
-        const blob = await (await fetch(url)).blob();
-        const name = decodeURIComponent(url.split("/o/")[1]?.split("?")[0] || "image").split("/").pop() || "image";
-        const { file, before, after } = await compressImage(new File([blob], name, { type: blob.type }));
+        // الضغط يجري على الخادم (api/compress-image): المتصفح ممنوع من قراءة صور التخزين مباشرة
+        const resp = await fetch(`/api/compress-image?url=${encodeURIComponent(url)}`);
+        if (!resp.ok) {
+          const msg = await resp.json().then((j) => j.error).catch(() => resp.statusText);
+          throw new Error(msg || `HTTP ${resp.status}`);
+        }
+        const blob = await resp.blob();
+        const before = heavy[i].size;
+        const after = blob.size;
         if (after >= before) continue;
+        const base = decodeURIComponent(url.split("/o/")[1]?.split("?")[0] || "image").split("/").pop() || "image";
+        const file = new File([blob], base.replace(/^\d+_/, "").replace(/\.[^.]+$/, "") + ".webp", { type: "image/webp" });
         const folder = decodeURIComponent(url.split("/o/")[1]?.split("?")[0] || "works/x").split("/").slice(0, -1).join("/") || "works";
         const task = uploadBytesResumable(ref(storage, `${folder}/${Date.now()}_${file.name}`), file);
         await new Promise<void>((res, rej) => task.on("state_changed", undefined, rej, () => res()));
@@ -336,16 +345,16 @@ function HeavyImagesTool({ works }: { works: Work[] }) {
       } catch (e) {
         console.error(e);
         totals.failed++;
+        if (!firstError) firstError = e instanceof Error ? e.message : String(e);
       }
       setSaved({ ...totals });
     }
     setHeavy([]);
     setState("done");
-    setLog(
-      totals.count
-        ? `ضُغطت ${totals.count} صورة: من ${formatSize(totals.before)} إلى ${formatSize(totals.after)}` + (totals.failed ? ` — تعذّر ضغط ${totals.failed} (أعد رفعها يدوياً)` : "")
-        : totals.failed ? `تعذّر ضغط ${totals.failed} صورة — أعد رفعها يدوياً من زر تعديل العمل` : "لا شيء يحتاج إلى ضغط"
-    );
+    const summary = totals.count
+      ? `ضُغطت ${totals.count} صورة: من ${formatSize(totals.before)} إلى ${formatSize(totals.after)}` + (totals.failed ? ` — تعذّر ضغط ${totals.failed} (أعد رفعها يدوياً)` : "")
+      : totals.failed ? `تعذّر ضغط ${totals.failed} صورة — أعد رفعها يدوياً من زر تعديل العمل` : "لا شيء يحتاج إلى ضغط";
+    setLog(summary + (firstError ? ` (السبب: ${firstError})` : ""));
   };
 
   return (
