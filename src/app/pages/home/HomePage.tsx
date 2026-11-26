@@ -367,10 +367,21 @@ function WorksCarousel({ works }: { works: Work[] }) {
 
   const go = useCallback((dir: number) => setActive((a) => (a + dir + count) % count), [count]);
 
+  // مواضع البطاقات في العرض السابق — لاكتشاف البطاقة التي تلتف من طرف إلى آخر
+  const prevOffsets = useRef<number[]>([]);
+  useEffect(() => {
+    prevOffsets.current = works.map((_, i) => {
+      let o = i - active;
+      if (o > count / 2) o -= count;
+      if (o < -count / 2) o += count;
+      return o;
+    });
+  });
+
   // يدور وحده كل أربع ثوانٍ، ويتوقف حين يمرّ المؤشر فوقه
   useEffect(() => {
     if (paused || count < 2 || reducedMotion()) return;
-    const id = window.setInterval(() => go(1), 4000);
+    const id = window.setInterval(() => go(1), 4500);
     return () => window.clearInterval(id);
   }, [paused, count, go]);
 
@@ -383,7 +394,8 @@ function WorksCarousel({ works }: { works: Work[] }) {
     if (o < -count / 2) o += count;
     return o;
   };
-  const range = wide ? 2 : 1;
+  // نُبقي بطاقة واحدة على الأقل خارج المسرح، فتلتف البطاقات من الطرف إلى الطرف وهي مخفية
+  const range = Math.max(1, Math.min(wide ? 2 : 1, Math.floor((count - 2) / 2)));
 
   return (
     <div
@@ -415,12 +427,15 @@ function WorksCarousel({ works }: { works: Work[] }) {
           const o = offsetOf(i);
           const a = Math.abs(o);
           const isActive = o === 0;
+          const prevO = prevOffsets.current[i];
+          const jump = prevO !== undefined && Math.abs(o - prevO) > 1;
           return (
             <Link
               key={work.id}
               to={`/portfolio/${work.id}`}
               draggable={false}
               data-active={isActive}
+              data-jump={jump}
               data-hidden={a > range}
               aria-hidden={a > range}
               tabIndex={isActive ? 0 : -1}
