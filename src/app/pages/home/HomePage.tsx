@@ -350,6 +350,9 @@ function Hero({ siteInfo, whatsappUrl, socials }: HeroProps) {
 
 /* ═══════════ معرض الأعمال الدوّار ═══════════ */
 
+/**
+ * المعرض الدوّار: العمل التالي ينتظر على اليمين، ويتحرك نحو الوسط فاليسار.
+ */
 function WorksCarousel({ works }: { works: Work[] }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -439,8 +442,8 @@ function WorksCarousel({ works }: { works: Work[] }) {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onKeyDown={(e) => {
-        if (e.key === "ArrowLeft") go(1);
-        if (e.key === "ArrowRight") go(-1);
+        if (e.key === "ArrowRight") go(1);
+        if (e.key === "ArrowLeft") go(-1);
       }}
     >
       <div
@@ -454,7 +457,7 @@ function WorksCarousel({ works }: { works: Work[] }) {
           const d = drag.current;
           if (!d || !d.moved) { drag.current = null; return; }
           const dx = e.clientX - d.x;
-          if (Math.abs(dx) > 40) go(dx > 0 ? 1 : -1);
+          if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1); // السحب نحو اليسار = التالي
           // يُترك drag.current لحظة حتى يمنع النقرَ التالي من فتح العمل
           window.setTimeout(() => { drag.current = null; }, 0);
         }}
@@ -478,7 +481,7 @@ function WorksCarousel({ works }: { works: Work[] }) {
                 if (!isActive) { e.preventDefault(); goTo(i); }
               }}
               className="ms-card group block overflow-hidden rounded-[1.4rem] border border-royal-200/10 bg-ink-850 shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
-              style={{ "--o": -o, "--a": a } as React.CSSProperties}
+              style={{ "--o": o, "--a": a } as React.CSSProperties}
             >
               <img
                 src={work.coverImage}
