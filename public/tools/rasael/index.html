@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رسائل Rasael — محادثات وإشعارات ثلاثية الأبعاد لبريمير | مصطفى جغلال</title>
+<meta name="description" content="إضافة Premiere Pro تصنع فقاعات محادثة وإشعارات ورسائل صوتية بحركة ثلاثية الأبعاد، وتضعها على التايم لاين كتسلسل صور شفاف.">
+<link rel="canonical" href="https://mustaphadjoghlal.com/tools/rasael">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mustaphadjoghlal.com/tools/rasael">
+<meta property="og:title" content="رسائل Rasael — محادثات وإشعارات ثلاثية الأبعاد لبريمير | مصطفى جغلال">
+<meta property="og:description" content="إضافة Premiere Pro تصنع فقاعات محادثة وإشعارات ورسائل صوتية بحركة ثلاثية الأبعاد، وتضعها على التايم لاين كتسلسل صور شفاف.">
+<meta property="og:image" content="https://mustaphadjoghlal.com/og-image.jpg">
+<meta property="og:locale" content="ar_AR">
+<meta name="author" content="مصطفى جغلال">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script>document.documentElement.className='js'</script>
+<style>
+  :root{
+    --bg:#0c1214; --bg2:#121b1e; --panel:#172226; --card:#1c2a2f; --line:#2b3d43;
+    --txt:#ecf5f3; --dim:#8fa7a5; --a:#22d3a0; --a2:#2dd4ee; --glow:rgba(34,211,160,.4); --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;overflow-x:hidden}
+  body{font-family:"Cairo","Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--txt);line-height:1.7;overflow-x:hidden;
+    background-image:radial-gradient(900px 520px at 88% -8%,rgba(34,211,160,.17),transparent 60%),
+                     radial-gradient(700px 420px at 0% 8%,rgba(45,212,238,.09),transparent 55%)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  .grad{background:linear-gradient(110deg,#2dd4ee,#22d3a0 55%,#a3f0c4);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(110deg,#22d3a0,#16b58a);color:#04231b;border:none;
+    padding:14px 26px;border-radius:12px;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;text-decoration:none;
+    transition:.25s;box-shadow:0 10px 30px -8px var(--glow)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px -8px var(--glow)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);box-shadow:none;font-weight:700}
+  .btn.ghost:hover{border-color:var(--a);color:var(--a);background:rgba(34,211,160,.07)}
+
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(12,18,20,.74);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px}
+  .logo .mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(145deg,#22d3a0,#0f9f7c);box-shadow:0 6px 18px -6px var(--glow)}
+  .navlinks{display:flex;gap:26px;font-size:15px}
+  .navlinks a{color:var(--dim);text-decoration:none;transition:.2s}
+  .navlinks a:hover{color:var(--txt)}
+  @media(max-width:760px){.navlinks{display:none}}
+
+  header{padding:60px 0 34px}
+  .hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:30px}}
+  .hero>*,.demo>*,.grid>*,.steps>*{min-width:0}
+  .tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--a);background:rgba(34,211,160,.1);
+    border:1px solid rgba(34,211,160,.3);padding:6px 14px;border-radius:999px;margin-bottom:22px;font-weight:600}
+  .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--a2);box-shadow:0 0 9px var(--a2)}
+  h1{font-size:clamp(38px,6vw,62px);font-weight:900;line-height:1.15;letter-spacing:-.4px}
+  .sub{color:var(--dim);font-size:clamp(16px,2.4vw,19px);margin:20px 0 30px;max-width:500px}
+  .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .meta{display:flex;gap:26px;margin-top:30px;color:var(--dim);font-size:14px;flex-wrap:wrap}
+  .meta b{color:var(--txt);font-weight:700;font-size:19px;display:block}
+
+  /* ===== phone ===== */
+  .stagewrap{display:grid;place-items:center;padding:10px;perspective:1300px}
+  .phone{width:300px;height:560px;border-radius:42px;padding:11px;background:linear-gradient(160deg,#2a3a40,#0e1618);
+    border:1px solid #3a4f56;box-shadow:0 50px 90px -30px #000,inset 0 1px 0 rgba(255,255,255,.12);
+    transition:transform .5s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d}
+  .screen{position:relative;width:100%;height:100%;border-radius:32px;overflow:hidden;background:#0b1316;display:flex;flex-direction:column;
+    transition:background .4s}
+  .notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:84px;height:22px;border-radius:14px;background:#000;z-index:5}
+  .status{display:flex;justify-content:space-between;padding:12px 22px 6px;font-size:11px;font-weight:700;color:#cfe6e2;z-index:4}
+  .chead{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03)}
+  .av{width:36px;height:36px;border-radius:50%;background:linear-gradient(140deg,#2dd4ee,#22d3a0);display:grid;place-items:center;font-weight:900;color:#04231b}
+  .chead b{font-size:14px;display:block;line-height:1.2}
+  .chead small{font-size:11px;color:#7fe0c3}
+  .feed{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;padding:12px;overflow:hidden}
+  .msg{max-width:80%;padding:9px 13px;border-radius:18px;font-size:13.5px;line-height:1.5;animation:pop .35s cubic-bezier(.2,.9,.3,1.2) both;word-break:break-word}
+  .msg.them{align-self:flex-start;background:#1f2e33;color:#e6f2f0;border-bottom-right-radius:5px}
+  .msg.me{align-self:flex-end;background:linear-gradient(135deg,#22d3a0,#16b58a);color:#04231b;font-weight:700;border-bottom-left-radius:5px}
+  .msg time{display:block;font-size:9.5px;opacity:.6;margin-top:3px;font-weight:600}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.85)}to{opacity:1;transform:none}}
+  .typing{align-self:flex-start;background:#1f2e33;border-radius:18px;border-bottom-right-radius:5px;padding:11px 14px;display:flex;gap:4px;animation:pop .25s both}
+  .typing i{width:6px;height:6px;border-radius:50%;background:#7fa39e;animation:bl 1s infinite}
+  .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+  @keyframes bl{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+  .composer{display:flex;gap:8px;align-items:center;padding:10px 12px 16px}
+  .composer div{flex:1;height:34px;border-radius:17px;background:rgba(255,255,255,.07);font-size:12px;color:#6f8a87;display:flex;align-items:center;padding:0 14px}
+  .composer span{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#22d3a0,#16b58a);display:grid;place-items:center}
+
+  /* voice bubble */
+  .voice{display:flex;align-items:center;gap:9px;min-width:190px}
+  .voice .pb{flex:none;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.28);display:grid;place-items:center;color:#fff}
+  .msg.me .voice .pb{background:rgba(4,35,27,.55)}
+  .wf{display:flex;align-items:center;gap:2px;height:26px;flex:1}
+  .wf i{display:block;width:3px;border-radius:2px;background:currentColor;opacity:.35;transition:opacity .15s}
+  .wf i.on{opacity:1}
+  .voice .d{font-size:11px;font-weight:700;opacity:.85;min-width:30px;text-align:left;direction:ltr}
+
+  /* notifications */
+  .notifs{flex:1;padding:42px 12px 12px;display:flex;flex-direction:column;gap:10px}
+  .notif{display:flex;gap:11px;align-items:flex-start;padding:12px 13px;border-radius:18px;background:rgba(36,52,58,.92);
+    border:1px solid rgba(255,255,255,.08);animation:drop .55s cubic-bezier(.2,.9,.3,1.15) both;box-shadow:0 14px 30px -14px #000}
+  .notif .ic{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px}
+  .notif b{font-size:13px;display:block;line-height:1.3}
+  .notif p{font-size:12.5px;color:#b7cfcc;line-height:1.45}
+  .notif small{margin-inline-start:auto;font-size:10px;color:#7f9a97;flex:none}
+  @keyframes drop{from{opacity:0;transform:translateY(-34px) scale(.9) rotateX(30deg)}to{opacity:1;transform:none}}
+
+  /* light theme */
+  .screen.light{background:#e9f1ef}
+  .light .status{color:#2a4b46}
+  .light .chead{background:#fff;border-bottom-color:#d3e1de;color:#0e2420}
+  .light .chead small{color:#16966f}
+  .light .msg.them{background:#fff;color:#18322e;box-shadow:0 2px 6px -3px rgba(0,0,0,.2)}
+  .light .typing{background:#fff}
+  .light .composer div{background:#fff;color:#8aa4a0}
+  .light .notif{background:rgba(255,255,255,.95);border-color:#d3e1de}
+  .light .notif b{color:#0e2420}.light .notif p{color:#4d6d68}.light .notif small{color:#7d9893}
+
+  section{padding:64px 0}
+  .shead{text-align:center;max-width:660px;margin:0 auto 44px}
+  .shead h2{font-size:clamp(26px,4vw,38px);font-weight:900;letter-spacing:-.4px}
+  .shead p{color:var(--dim);margin-top:12px;font-size:17px}
+  .kick{color:var(--a);font-weight:700;font-size:14px;letter-spacing:1px;margin-bottom:8px}
+
+  .demo{display:grid;grid-template-columns:300px 1fr;gap:34px;align-items:center}
+  @media(max-width:860px){.demo{grid-template-columns:1fr}}
+  .ctrl{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:18px}
+  .ctrl h4{font-size:13px;color:var(--dim);font-weight:700;margin-bottom:8px}
+  .seg{display:grid;gap:7px}.seg.c3{grid-template-columns:repeat(3,1fr)}.seg.c2{grid-template-columns:1fr 1fr}
+  .seg button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 4px;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;transition:.2s}
+  .seg button:hover{border-color:#4a6b70}
+  .seg button.on{background:linear-gradient(110deg,#22d3a0,#16b58a);border-color:var(--a);color:#04231b;box-shadow:0 10px 22px -10px var(--glow)}
+  .rng label{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);margin-bottom:3px}
+  .rng input{width:100%;direction:ltr;accent-color:#22d3a0}
+  #tiltV{direction:ltr;unicode-bidi:isolate}
+  .demo-stage{display:grid;place-items:center;padding:20px 10px;border-radius:24px;border:1px solid var(--line);
+    background:conic-gradient(#10191c 25%,#0d1416 0 50%,#10191c 0 75%,#0d1416 0) 0 0/22px 22px;perspective:1300px;min-height:640px}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:860px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .feat{background:linear-gradient(180deg,var(--card),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:24px;transition:.25s}
+  .feat:hover{transform:translateY(-4px);border-color:rgba(34,211,160,.5);box-shadow:0 24px 50px -28px #000}
+  .feat .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;background:rgba(34,211,160,.12);border:1px solid rgba(34,211,160,.3)}
+  .feat h3{font-size:18px;font-weight:800;margin-bottom:7px}
+  .feat p{color:var(--dim);font-size:14.5px}
+
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+  @media(max-width:820px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:460px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;position:relative}
+  .step .n{counter-increment:s;position:absolute;top:-14px;inset-inline-start:20px;width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(110deg,#22d3a0,#16b58a);color:#04231b;font-weight:900;display:grid;place-items:center;box-shadow:0 8px 20px -8px var(--glow)}
+  .step .n::after{content:counter(s)}
+  .step h4{font-size:16px;font-weight:800;margin:10px 0 6px}
+  .step p{color:var(--dim);font-size:14px}
+
+  .band{background:linear-gradient(120deg,#0d8a6a,#22d3a0 55%,#2dd4ee);border-radius:26px;padding:52px 34px;text-align:center;position:relative;overflow:hidden;box-shadow:0 40px 90px -40px var(--glow)}
+  .band::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 240px at 15% -20%,rgba(255,255,255,.28),transparent 60%)}
+  .band h2{font-size:clamp(26px,4vw,38px);font-weight:900;color:#04231b;position:relative}
+  .band p{color:rgba(4,35,27,.82);margin:12px 0 26px;position:relative;font-size:17px;font-weight:600}
+  .band .btn{background:#04231b;color:var(--a);position:relative;box-shadow:none}
+
+  .install{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:30px;max-width:720px;margin:0 auto}
+  .install ol{margin:0;padding-inline-start:22px;display:grid;gap:12px;color:var(--dim)}
+  .install ol b{color:var(--txt)}
+  .code{display:inline-block;background:#080d0f;border:1px solid var(--line);border-radius:7px;padding:3px 10px;color:var(--a);font-size:13.5px;direction:ltr}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--dim);text-align:center;font-size:14px}
+  footer b{color:var(--txt)}
+  .js .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .js .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="logo"><span class="mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#04231b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></span> رسائل</div>
+  <div class="navlinks">
+    <a href="#demo">جرّبها</a>
+    <a href="#features">المزايا</a>
+    <a href="#how">كيف تعمل</a>
+    <a href="#install">التثبيت</a>
+  </div>
+  <a href="#install" class="btn" style="padding:10px 20px;font-size:14px">تثبيت</a>
+</div></nav>
+
+<header><div class="wrap"><div class="hero">
+  <div>
+    <span class="tag"><span class="dot"></span> إضافة Premiere Pro</span>
+    <h1>محادثات تبدو <span class="grad">حقيقية</span><br>في فيديوهاتك.</h1>
+    <p class="sub">رسائل تصنع فقاعات محادثة وبطاقات إشعارات بحركة ثلاثية الأبعاد، وتضيف رسائل صوتية بطول ملفك الصوتي،
+       ثم تضعها على التايم لاين كتسلسل صور جاهز.</p>
+    <div class="cta">
+      <a href="#demo" class="btn">جرّبها الآن</a>
+      <a href="#install" class="btn ghost">طريقة التثبيت</a>
+    </div>
+    <div class="meta">
+      <div><b>3 أنماط</b> محادثة · إشعارات · صوت</div>
+      <div><b>ثلاثي الأبعاد</b> بحركة سلسة</div>
+      <div><b>تلقائي</b> على التايم لاين</div>
+    </div>
+  </div>
+  <div class="stagewrap reveal"><div class="phone" style="transform:rotateY(-14deg) rotateX(4deg)"><div class="screen" id="heroScreen"></div></div></div>
+</div></div></header>
+
+<section id="demo">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">جرّبها بنفسك</div>
+      <h2>اختر النمط والمظهر وشاهد الحركة</h2>
+      <p>عرض تجريبي لفكرة الإضافة: خلفية المربعات تعني أن الناتج شفاف.</p>
+    </div>
+    <div class="demo reveal">
+      <div class="ctrl">
+        <div><h4>النمط</h4>
+          <div class="seg c3" id="modes">
+            <button data-m="chat" class="on">محادثة</button>
+            <button data-m="notif">إشعارات</button>
+            <button data-m="voice">صوتية</button>
+          </div></div>
+        <div><h4>المظهر</h4>
+          <div class="seg c2" id="themes"><button data-t="dark" class="on">داكن</button><button data-t="light">فاتح</button></div></div>
+        <div class="rng"><label><span>ميلان ثلاثي الأبعاد</span><span id="tiltV">-14°</span></label>
+          <input type="range" id="tilt" min="-40" max="40" value="-14"></div>
+        <button class="btn" id="replay" style="justify-content:center">↻ أعد التشغيل</button>
+      </div>
+      <div class="demo-stage"><div class="phone" id="demoPhone" style="transform:rotateY(-14deg) rotateX(4deg)"><div class="screen" id="demoScreen"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">لماذا رسائل</div><h2>من الفكرة إلى اللقطة بلا برامج وسيطة</h2></div>
+    <div class="grid">
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22d3a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+        <h3>فقاعات محادثة</h3><p>رسائل تظهر واحدة تلو الأخرى كما في تطبيقات المحادثة، مع مؤشر الكتابة.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22d3a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+        <h3>بطاقات إشعارات</h3><p>إشعارات تنزل من الأعلى بحركة ثلاثية الأبعاد، مناسبة للتنبيهات والأخبار.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22d3a0" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></div>
+        <h3>رسالة صوتية</h3><p>اختر ملف MP3 أو WAV، فيُؤخذ طول الرسالة من الملف نفسه وتوضع تلقائياً دون ضبط يدوي.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22d3a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg></div>
+        <h3>أبعاد ثلاثية</h3><p>ميلان ومنظور يعطيان عمقاً للبطاقات والفقاعات فتبدو جزءاً من المشهد.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22d3a0" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/></svg></div>
+        <h3>تسلسل صور شفاف</h3><p>تُصدَّر الحركة إطارات شفافة تُوضع فوق أي فيديو دون خلفية.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22d3a0" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg></div>
+        <h3>تثبيت بلا أدمن</h3><p>ملف تثبيت واحد يضع الإضافة في مجلد المستخدم دون صلاحيات خاصة.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">أربع خطوات</div><h2>من النص إلى التايم لاين</h2></div>
+    <div class="steps">
+      <div class="step reveal"><div class="n"></div><h4>✍️ اكتب الرسائل</h4><p>أضف المحادثة أو الإشعارات بنصوصك وأسماء المرسلين.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>🎙️ أضف صوتاً</h4><p>اختر ملف MP3 أو WAV لتصير رسالة صوتية بطوله.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>🎨 اضبط المظهر</h4><p>داكن أو فاتح، وميلان ثلاثي الأبعاد يناسب مشهدك.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>🎬 على التايم لاين</h4><p>تُصدَّر الحركة وتوضع جاهزة فوق الفيديو.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap"><div class="band reveal">
+    <h2>اجعل كل محادثة تُروى بصرياً</h2>
+    <p>من رسالة بسيطة إلى مشهد كامل بلمسة واحدة.</p>
+    <a href="#install" class="btn">ابدأ التثبيت الآن</a>
+  </div></div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">بدون صلاحيات أدمن</div><h2>التثبيت</h2></div>
+    <div class="install reveal">
+      <ol>
+        <li><b>فكّ الضغط</b> عن الملف كاملاً في أي مكان على جهازك.</li>
+        <li><b>شغّل</b> <span class="code">install.bat</span> — تُثبَّت الإضافة في مجلد المستخدم.</li>
+        <li><b>أعد تشغيل Premiere Pro</b>، ثم افتحها من قائمة <span class="code">Window ▸ Extensions</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <div class="logo" style="justify-content:center;margin-bottom:10px">رسائل · Rasael</div>
+  إضافة Premiere من تصميم وتطوير <b>مصطفى</b>.
+</div></footer>
+
+<script>
+(function(){
+  var SCRIPT=[
+    {k:'t',txt:'السلام عليكم، وصلت الطلبية؟'},
+    {k:'m',txt:'وعليكم السلام، نعم وصلت الحمد لله ✅'},
+    {k:'tv',dur:'0:12'},
+    {k:'m',txt:'ممتاز، شكراً لك على السرعة 🙏'}
+  ];
+  var NOTIFS=[
+    {ic:'💬',bg:'#22d3a0',t:'سارة',p:'وصلتني رسالتك، سأرد بعد قليل 👌',tm:'الآن'},
+    {ic:'⏰',bg:'#f59e0b',t:'تذكير',p:'اجتماع الفريق الساعة 4 مساءً',tm:'قبل دقيقة'},
+    {ic:'✉️',bg:'#2dd4ee',t:'بريد جديد',p:'تم تأكيد حجزك بنجاح',tm:'قبل 3 د'}
+  ];
+  var PLAY='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg>';
+  var HEADER='<div class="notch"></div><div class="status"><span>9:41</span><span>●●● ▮</span></div>';
+  var CHEAD='<div class="chead"><div class="av">س</div><div><b>سارة</b><small>متصلة الآن</small></div></div>';
+  var COMPOSER='<div class="composer"><div>اكتب رسالة…</div><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#04231b" stroke-width="2.6" stroke-linecap="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></span></div>';
+  function wait(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  function wfHTML(n){var h='';for(var i=0;i<n;i++){var v=6+Math.round(Math.abs(Math.sin(i*1.7)*Math.cos(i*.6))*18);h+='<i style="height:'+v+'px"></i>';}return h;}
+
+  function Player(screen){
+    var token=0,feed=null;
+    function clear(){screen.innerHTML='';feed=null;}
+    function trim(){while(feed.scrollHeight>feed.clientHeight+1&&feed.children.length>1)feed.removeChild(feed.firstChild);}
+    function add(cls,html){var d=document.createElement('div');d.className=cls;d.innerHTML=html;feed.appendChild(d);trim();return d;}
+    function voiceHTML(dur){return '<div class="voice"><span class="pb">'+PLAY+'</span><div class="wf">'+wfHTML(24)+'</div><span class="d">'+dur+'</span></div>';}
+    async function playVoice(el,my){
+      var bars=el.querySelectorAll('.wf i'),d=el.querySelector('.d'),N=bars.length,total=12;
+      for(var i=0;i<N;i++){
+        if(my!==token)return;
+        bars[i].classList.add('on');
+        var s=Math.round((i+1)/N*total);d.textContent='0:'+(s<10?'0':'')+s;
+        await wait(110);
+      }
+    }
+    this.play=async function(mode){
+      var my=++token;clear();
+      if(mode==='notif'){
+        screen.innerHTML=HEADER+'<div class="notifs"></div>';
+        var box=screen.querySelector('.notifs');
+        for(var i=0;i<NOTIFS.length;i++){
+          if(my!==token)return;await wait(i?700:300);
+          var n=NOTIFS[i],d=document.createElement('div');d.className='notif';
+          d.innerHTML='<div class="ic" style="background:'+n.bg+'">'+n.ic+'</div><div><b>'+n.t+'</b><p>'+n.p+'</p></div><small>'+n.tm+'</small>';
+          box.appendChild(d);
+        }
+        await wait(3800);if(my===token)this.play(mode);return;
+      }
+      screen.innerHTML=HEADER+CHEAD+'<div class="feed"></div>'+COMPOSER;
+      feed=screen.querySelector('.feed');
+      var list=mode==='voice'?[{k:'tv',dur:'0:12'},{k:'m',txt:'وصلتني، سأسمعها الآن 🎧'}]:SCRIPT;
+      for(var j=0;j<list.length;j++){
+        if(my!==token)return;
+        var m=list[j];
+        if(m.k==='t'||m.k==='tv'){
+          var ty=add('typing','<i></i><i></i><i></i>');await wait(850);if(my!==token)return;ty.remove();
+          if(m.k==='tv'){var v=add('msg them',voiceHTML(m.dur));await wait(350);await playVoice(v,my);}
+          else add('msg them',m.txt+'<time>9:4'+j+'</time>');
+        }else{await wait(1100);if(my!==token)return;add('msg me',m.txt+'<time>9:4'+j+'</time>');}
+        await wait(650);
+      }
+      await wait(3200);if(my===token)this.play(mode);
+    };
+  }
+
+  var hero=new Player(document.getElementById('heroScreen'));hero.play('chat');
+  var demoScreen=document.getElementById('demoScreen'),demo=new Player(demoScreen),mode='chat';
+  demo.play(mode);
+  document.querySelectorAll('#modes button').forEach(function(b){b.addEventListener('click',function(){
+    document.querySelectorAll('#modes button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+    mode=b.dataset.m;demo.play(mode);});});
+  document.querySelectorAll('#themes button').forEach(function(b){b.addEventListener('click',function(){
+    document.querySelectorAll('#themes button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+    demoScreen.classList.toggle('light',b.dataset.t==='light');});});
+  var ph=document.getElementById('demoPhone');
+  document.getElementById('tilt').addEventListener('input',function(e){
+    var v=+e.target.value;document.getElementById('tiltV').textContent=v+'°';
+    ph.style.transform='rotateY('+v+'deg) rotateX('+(v/3.5)+'deg)';});
+  document.getElementById('replay').addEventListener('click',function(){demo.play(mode);});
+
+  var els=document.querySelectorAll('.reveal');
+  function showAll(){els.forEach(function(el){el.classList.add('in');});}
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.05});
+    els.forEach(function(el){io.observe(el);});setTimeout(showAll,2500);
+  }else showAll();
+})();
+</script>
+<script src="/tools/tools.js" data-tool="rasael" defer></script>
+</body>
+</html>

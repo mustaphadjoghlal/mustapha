@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { db, auth, storage } from "../../../firebase";
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, deleteField } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, getMetadata } from "firebase/storage";
 import { compressImage, formatSize } from "../../shared/compressImage";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
@@ -9,6 +9,7 @@ import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader,
 import HakawatiAdmin from "../hakawati/HakawatiAdmin";
 import BriefsAdmin from "./BriefsAdmin";
 import { useSeo } from "../../shared/useSeo";
+import { TOOLS, type ToolDownload } from "../../shared/tools";
 
 // ============================================================
 // Rich Text Editor Component
@@ -182,11 +183,13 @@ function SingleImageUploader({ url, onChange, folder = "images", label = "رفع
   );
 }
 
-function AudioUploader({ url, onChange, onFileName, onVideoAspect, folder = "audio", label = "رفع ملف صوتي أو فيديو", accept = "audio/*,video/*", doneLabel = "✓ ملف صوتي مرفوع" }: {
+function AudioUploader({ url, onChange, onFileName, onVideoAspect, onFile, folder = "audio", label = "رفع ملف صوتي أو فيديو", accept = "audio/*,video/*", doneLabel = "✓ ملف صوتي مرفوع" }: {
   url: string; onChange: (url: string) => void; onFileName?: (name: string) => void; folder?: string; label?: string;
   accept?: string; doneLabel?: string;
   /** للفيديو: يقرأ أبعاده قبل الرفع ويحدد هل هو عمودي أم أفقي أم مربع */
   onVideoAspect?: (aspect: "vertical" | "horizontal" | "square") => void;
+  /** يُستدعى بالملف نفسه قبل الرفع (لمعرفة حجمه واسمه) */
+  onFile?: (file: File) => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -195,6 +198,7 @@ function AudioUploader({ url, onChange, onFileName, onVideoAspect, folder = "aud
   const handleFile = async (file: File) => {
     setUploading(true);
     if (onFileName) onFileName(file.name.replace(/\.[^/.]+$/, ""));
+    if (onFile) onFile(file);
     if (onVideoAspect && file.type.startsWith("video/")) {
       const probe = document.createElement("video");
       probe.preload = "metadata";
@@ -274,6 +278,83 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * تبويب «الإضافات»: لكل إضافة ملف ZIP يُرفع هنا، فيظهر رابطه تلقائياً في زر التحميل
+ * بصفحة هبوطها (public/tools/<slug>) عبر siteInfo.tools[slug].
+ */
+function ToolsAdmin({ siteInfoId, tools }: { siteInfoId: string; tools: Record<string, ToolDownload> }) {
+  const [drafts, setDrafts] = useState<Record<string, { version: string; file?: File }>>({});
+  const [saved, setSaved] = useState("");
+
+  const save = async (slug: string, data: ToolDownload | null) => {
+    await updateDoc(doc(db, "siteInfo", siteInfoId), { [`tools.${slug}`]: data ?? deleteField() });
+    setSaved(slug);
+    setTimeout(() => setSaved(""), 2500);
+  };
+
+  return (
+    <div className="bg-ink-900 border border-ink-700 rounded-2xl p-6 sm:p-8 space-y-5">
+      <div>
+        <h2 className="text-xl font-bold">الإضافات والبرامج</h2>
+        <p className="text-sm text-gray-400 mt-1">ارفع ملف ZIP لكل إضافة، فيصير زر «تحميل» في صفحة هبوطها يعمل فوراً. رفع ملف جديد يستبدل القديم.</p>
+      </div>
+      {TOOLS.map((tool) => {
+        const cur = tools?.[tool.slug];
+        const draft = drafts[tool.slug] || { version: cur?.version || "" };
+        return (
+          <div key={tool.slug} className="rounded-xl border border-ink-700 bg-ink-950/40 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg text-lg font-bold" style={{ background: `${tool.color}22`, color: tool.color }}>{tool.glyph}</span>
+                <div>
+                  <p className="font-bold">{tool.name} <span className="text-xs text-gray-500 font-normal" dir="ltr">{tool.host}</span></p>
+                  <p className="text-xs text-gray-400">
+                    {cur?.url
+                      ? <>✓ الملف مرفوع{cur.version ? ` · الإصدار ${cur.version}` : ""}{cur.size ? ` · ${formatSize(cur.size)}` : ""}{cur.updatedAt ? ` · ${new Date(cur.updatedAt).toLocaleDateString("ar")}` : ""}</>
+                      : tool.slug === "jidari" ? "يُستعمل الملف المرفق بالموقع (الإصدار 7) ما لم ترفع ملفاً هنا" : <span className="text-amber-400">لم يُرفع ملف بعد — الزر يعرض «اطلبها عبر واتساب»</span>}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2 text-sm">
+                <a href={`/tools/${tool.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-ink-600 px-3 py-1.5 hover:border-royal-500">عرض الصفحة ↗</a>
+                {cur?.url && <a href={cur.url} className="rounded-lg border border-ink-600 px-3 py-1.5 hover:border-royal-500">تنزيل الملف</a>}
+                {cur?.url && <button onClick={() => confirm("إزالة رابط التحميل؟") && save(tool.slug, null)} className="rounded-lg border border-ink-600 px-3 py-1.5 text-red-400 hover:border-red-500">إزالة</button>}
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-[10rem_1fr]">
+              <input
+                value={draft.version}
+                onChange={(e) => setDrafts({ ...drafts, [tool.slug]: { ...draft, version: e.target.value } })}
+                onBlur={() => cur?.url && draft.version !== (cur.version || "") && save(tool.slug, { ...cur, version: draft.version })}
+                placeholder="رقم الإصدار (اختياري)"
+                className="bg-ink-950 border border-ink-700 rounded-lg px-3 py-2 text-sm"
+              />
+              <AudioUploader
+                url=""
+                folder={`works/tools/${tool.slug}`}
+                accept=".zip,application/zip,application/x-zip-compressed"
+                label={cur?.url ? "استبدال ملف ZIP" : "رفع ملف ZIP"}
+                onFile={(f) => setDrafts((d) => ({ ...d, [tool.slug]: { ...(d[tool.slug] || { version: cur?.version || "" }), file: f } }))}
+                onChange={(url) => {
+                  const d = drafts[tool.slug];
+                  save(tool.slug, {
+                    url,
+                    version: d?.version || cur?.version || "",
+                    size: d?.file?.size,
+                    fileName: d?.file?.name,
+                    updatedAt: new Date().toISOString(),
+                  });
+                }}
+              />
+            </div>
+            {saved === tool.slug && <p className="mt-2 text-xs text-green-400">✓ حُفظ — زر التحميل في الصفحة يعمل الآن</p>}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -914,6 +995,7 @@ export function AdminPage() {
     { id: "works", label: "الأعمال" }, { id: "experience", label: "الخبرات" },
     { id: "media", label: "المخرجات" }, { id: "articles", label: "المقالات" },
     { id: "hakawati", label: "الحكواتي" },
+    { id: "tools", label: "الإضافات" },
     { id: "courses", label: "الدورات" }, { id: "clients", label: "العملاء" },
     { id: "texts", label: "النصوص" }, { id: "info", label: "الإعدادات" },
   ];
@@ -1211,6 +1293,10 @@ export function AdminPage() {
               {clients.length === 0 && <p className="text-gray-500 text-sm text-center py-8">لا يوجد عملاء مضافون بعد</p>}
             </div>
           </div>
+        )}
+
+        {activeTab === "tools" && siteInfo && (
+          <ToolsAdmin siteInfoId={siteInfo.id} tools={(siteInfo as any).tools || {}} />
         )}
 
         {activeTab === "texts" && siteInfo && (

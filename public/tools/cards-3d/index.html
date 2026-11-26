@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cards 3D — بطاقات صور وفيديو ثلاثية الأبعاد لبريمير | مصطفى جغلال</title>
+<meta name="description" content="إضافة Premiere Pro تعرض صورك وفيديوهاتك في أشكال ثلاثية الأبعاد: حلقة ولولب ورزمة ونفق ودوامة، وتصدّرها تسلسل PNG شفافاً إلى التايم لاين.">
+<link rel="canonical" href="https://mustaphadjoghlal.com/tools/cards-3d">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mustaphadjoghlal.com/tools/cards-3d">
+<meta property="og:title" content="Cards 3D — بطاقات صور وفيديو ثلاثية الأبعاد لبريمير | مصطفى جغلال">
+<meta property="og:description" content="إضافة Premiere Pro تعرض صورك وفيديوهاتك في أشكال ثلاثية الأبعاد: حلقة ولولب ورزمة ونفق ودوامة، وتصدّرها تسلسل PNG شفافاً إلى التايم لاين.">
+<meta property="og:image" content="https://mustaphadjoghlal.com/og-image.jpg">
+<meta property="og:locale" content="ar_AR">
+<meta name="author" content="مصطفى جغلال">
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0e14;--bg2:#14161c;--card:#1a1d26;--line:#2a2e3b;--tx:#eceef5;--mu:#9097a8;--v:#9d8fff;--v2:#7a6af0;--p:#ff5fa2;--g:#3ee6a0;--o:#ffb04a}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:Cairo,"Segoe UI",Tahoma,sans-serif;line-height:1.8;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(60% 40% at 80% -5%,rgba(157,143,255,.22),transparent 70%),radial-gradient(50% 35% at 5% 25%,rgba(255,95,162,.12),transparent 70%);pointer-events:none;z-index:-1}
+a{color:inherit;text-decoration:none}
+img,video{display:block;max-width:100%}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:50;background:rgba(13,14,20,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-weight:900;font-size:19px;display:flex;align-items:center;gap:9px}
+.logo i{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--v),var(--p));display:inline-block;transform:rotate(-8deg)}
+nav ul{display:flex;gap:22px;list-style:none;font-size:14px;color:var(--mu)}
+nav ul a:hover{color:var(--tx)}
+.btn{display:inline-block;border:0;border-radius:12px;padding:12px 24px;font:700 15px Cairo,sans-serif;cursor:pointer;transition:.25s}
+.btn.pri{background:linear-gradient(135deg,var(--v2),var(--p));color:#fff;box-shadow:0 10px 30px rgba(122,106,240,.35)}
+.btn.pri:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(122,106,240,.5)}
+.btn.gh{background:transparent;border:1px solid var(--line);color:var(--tx)}
+.btn.gh:hover{border-color:var(--v)}
+section{padding:84px 0}
+.eyebrow{color:var(--v);font-weight:700;font-size:14px;text-align:center;letter-spacing:.5px}
+h2{font-size:clamp(26px,4vw,40px);font-weight:900;text-align:center;line-height:1.35;margin:6px 0 12px}
+.sub{color:var(--mu);text-align:center;max-width:640px;margin:0 auto 38px;font-size:16px}
+.hero{padding:70px 0 40px;text-align:center}
+.pill{display:inline-block;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 16px;font-size:13px;color:var(--mu);margin-bottom:22px}
+.pill b{color:var(--g)}
+h1{font-size:clamp(34px,6.4vw,70px);font-weight:900;line-height:1.2;margin-bottom:18px}
+h1 span{background:linear-gradient(120deg,var(--v),var(--p) 55%,var(--o));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{color:var(--mu);font-size:clamp(16px,2vw,19px);max-width:620px;margin:0 auto 28px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:46px}
+.screen{position:relative;max-width:900px;margin:0 auto;border-radius:20px;border:1px solid var(--line);overflow:hidden;background:var(--bg2);box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.03) inset}
+.screen:before{content:"";display:block;height:30px;background:#0f1117;border-bottom:1px solid var(--line)}
+.screen .dots{position:absolute;top:10px;right:14px;display:flex;gap:6px}
+.screen .dots i{width:9px;height:9px;border-radius:50%;background:#2c3040}
+.screen video{width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--bg2)}
+.stats{display:flex;justify-content:center;gap:clamp(20px,5vw,56px);flex-wrap:wrap;margin-top:44px}
+.stats div{text-align:center}.stats b{display:block;font-size:34px;font-weight:900;background:linear-gradient(135deg,var(--v),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stats span{font-size:13px;color:var(--mu)}
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:26px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:10px;padding:8px 20px;font:600 15px Cairo,sans-serif;cursor:pointer;transition:.2s}
+.chip:hover{border-color:var(--v)}
+.chip.on{background:linear-gradient(135deg,var(--v2),var(--p));border-color:transparent;color:#fff}
+.demo{display:grid;grid-template-columns:1.15fr 1fr;gap:26px;align-items:center}
+.stage{border-radius:18px;border:1px solid var(--line);background:#14161c;overflow:hidden;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center}
+.stage video,.stage img{width:100%;height:100%;object-fit:contain}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}
+.panel h3{font-size:22px;font-weight:900;margin-bottom:6px}
+.panel p{color:var(--mu);font-size:15px;margin-bottom:14px}
+.tags{display:flex;flex-wrap:wrap;gap:7px}
+.tags span{font-size:12.5px;border:1px solid var(--line);border-radius:7px;padding:2px 10px;color:var(--mu);background:var(--bg2)}
+.tags span b{color:var(--v);font-weight:600}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.fig{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--bg2)}
+.fig img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.fig figcaption{padding:10px 12px;font-size:13.5px;color:var(--mu);text-align:center}
+.fig figcaption b{display:block;color:var(--tx);font-size:15px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
+.f{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+.f .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:linear-gradient(135deg,rgba(157,143,255,.25),rgba(255,95,162,.2));margin-bottom:10px}
+.f h4{font-size:17px;font-weight:700;margin-bottom:4px}.f p{font-size:14px;color:var(--mu)}
+.scene{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);aspect-ratio:1/1}
+.scene .bgc{position:absolute;inset:0}
+.scene.footage .bgc{background:radial-gradient(60% 50% at 30% 30%,#f5b66a,transparent 60%),radial-gradient(50% 60% at 80% 70%,#2a6f97,transparent 65%),linear-gradient(160deg,#1c2a3a,#3a2a4a 60%,#10131a)}
+.scene.check .bgc{background-color:#14161c;background-image:linear-gradient(45deg,#1d2029 25%,transparent 25%,transparent 75%,#1d2029 75%),linear-gradient(45deg,#1d2029 25%,transparent 25%,transparent 75%,#1d2029 75%);background-size:22px 22px;background-position:0 0,11px 11px}
+.scene img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .3s}
+.scene .lab{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);border-radius:8px;padding:2px 12px;font-size:12.5px;z-index:2}
+.frames{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:12px}.frames figure{flex:0 0 auto;text-align:center}.frames img{height:150px;width:auto;border-radius:10px;border:1px solid var(--line);background:#14161c;object-fit:cover}.frames figcaption{font-size:13px;color:var(--mu);margin-top:6px}.frames figcaption b{display:block;color:var(--tx)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:s}
+.st{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;position:relative}
+.st:before{counter-increment:s;content:counter(s);position:absolute;top:-14px;right:18px;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--v2),var(--p));display:grid;place-items:center;font-weight:900;font-size:14px}
+.st h4{font-size:16px;margin:6px 0 4px}.st p{font-size:13.5px;color:var(--mu)}
+.note{margin-top:22px;border:1px dashed var(--line);border-radius:14px;padding:16px 20px;color:var(--mu);font-size:14px}
+.note b{color:var(--tx)}
+code{direction:ltr;unicode-bidi:embed;background:#0b0c11;border:1px solid var(--line);border-radius:6px;padding:1px 8px;font-size:13px;color:var(--g)}
+.band{background:linear-gradient(135deg,#2a2160,#6a2a63 60%,#a2365f);border-radius:26px;padding:56px 26px;text-align:center;position:relative;overflow:hidden}
+.band h2{margin-top:0}.band p{color:rgba(255,255,255,.8);max-width:520px;margin:0 auto 24px}
+.band .btn{background:#fff;color:#2a2160}
+.band:after{content:"";position:absolute;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.08);left:-90px;bottom:-140px}
+footer{padding:36px 0 50px;color:var(--mu);font-size:13.5px;text-align:center;border-top:1px solid var(--line)}
+.js .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
+.js .reveal.in{opacity:1;transform:none}
+@media(max-width:860px){nav ul{display:none}section{padding:60px 0}.demo,.two{grid-template-columns:1fr}.grid4{grid-template-columns:1fr 1fr}.feat{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr;row-gap:26px}}
+@media(max-width:520px){.steps{grid-template-columns:1fr}.chip{padding:7px 14px;font-size:14px}.stats b{font-size:28px}}
+</style>
+</head>
+<body>
+<script>document.documentElement.className='js'</script>
+<nav><div class="wrap"><a href="#top" class="logo"><i></i>Cards 3D</a>
+<ul><li><a href="#shapes">الأشكال</a></li><li><a href="#style">التصميم</a></li><li><a href="#motion">الحركة</a></li><li><a href="#output">التصدير</a></li><li><a href="#install">التنصيب</a></li></ul>
+<a href="#install" class="btn pri" style="padding:8px 20px;font-size:14px">ابدأ الآن</a></div></nav>
+
+<header class="hero" id="top"><div class="wrap">
+<span class="pill"><b>●</b> إضافة لبريمير برو · Adobe Premiere Pro</span>
+<h1>حوّل صورك وفيديوهاتك إلى <span>بطاقات ثلاثية الأبعاد</span></h1>
+<p class="lead">حلقة، مروحة، نفق، موجة… اختر الشكل، اسحب بالماوس للتدوير، ثم صدّر حركة شفافة تنزل على التايم لاين مباشرة.</p>
+<div class="cta"><a href="#shapes" class="btn pri">شاهد الأشكال</a><a href="#install" class="btn gh">طريقة التنصيب</a></div>
+<div class="screen"><div class="dots"><i></i><i></i><i></i></div><video id="heroVid" src="/tools/cards-3d/assets/hero.mp4" poster="/tools/cards-3d/assets/hero.jpg" autoplay muted loop playsinline></video></div>
+<div class="stats"><div><b>7</b><span>أشكال للبطاقات</span></div><div><b>4</b><span>مقاسات للإطار</span></div><div><b>PNG</b><span>بخلفية شفافة</span></div><div><b>1</b><span>نقرة للتايم لاين</span></div></div>
+</div></header>
+
+<section id="shapes"><div class="wrap">
+<div class="reveal"><div class="eyebrow">سبعة أشكال</div><h2>اختر الشكل الذي يناسب فكرتك</h2><p class="sub">كل شكل له إعداداته الخاصة. هذه المقاطع مُصيَّرة من محرك الإضافة نفسه.</p></div>
+<div class="chips reveal" id="lc"></div>
+<div class="demo reveal"><div class="stage"><video id="lv" autoplay muted loop playsinline></video></div>
+<div class="panel"><h3 id="lt"></h3><p id="ld"></p><div class="tags" id="lg"></div></div></div>
+</div></section>
+
+<section id="style" style="background:linear-gradient(180deg,transparent,rgba(20,22,28,.7),transparent)"><div class="wrap">
+<div class="reveal"><div class="eyebrow">شكل البطاقة</div><h2>صمّم البطاقة نفسها</h2><p class="sub">استدارة الحواف، إطار بلون تختاره، وتلاشي للخلفية — كلها بمنزلق واحد.</p></div>
+<div class="grid4 reveal">
+<figure class="fig"><img src="/tools/cards-3d/assets/card_r0.jpg" alt="" loading="lazy"><figcaption><b>حواف حادة</b>استدارة 0%</figcaption></figure>
+<figure class="fig"><img src="/tools/cards-3d/assets/card_r100.jpg" alt="" loading="lazy"><figcaption><b>حواف مستديرة</b>استدارة عالية</figcaption></figure>
+<figure class="fig"><img src="/tools/cards-3d/assets/card_bord.jpg" alt="" loading="lazy"><figcaption><b>إطار ملوّن</b>سُمك ولون حسب اختيارك</figcaption></figure>
+<figure class="fig"><img src="/tools/cards-3d/assets/card_feath.jpg" alt="" loading="lazy"><figcaption><b>تلاشي الخلفية</b>حواف ناعمة</figcaption></figure>
+</div>
+<div class="feat reveal">
+<div class="f"><div class="ic">▭</div><h4>أبعاد البطاقة</h4><p>9:16 طولي، 4:5، 3:4، مربع 1:1، أو عرضي 16:9.</p></div>
+<div class="f"><div class="ic">◐</div><h4>سطوع الوجه الخلفي</h4><p>تحكّم في ظهور ظهر البطاقة أثناء الدوران.</p></div>
+<div class="f"><div class="ic">🎬</div><h4>صور وفيديوهات</h4><p>اخلط بينها: كل بطاقة يمكن أن تكون مقطع MP4 يعمل داخل البطاقة.</p></div>
+</div>
+</div></section>
+
+<section id="motion"><div class="wrap"><div class="two">
+<div class="reveal"><div class="eyebrow" style="text-align:right">الحركة</div><h2 style="text-align:right">دوران مستمر، أو بطاقة بعد بطاقة</h2>
+<p class="sub" style="text-align:right;margin:0 0 18px">وضع «بطاقة بعد بطاقة» يتوقف عند كل بطاقة ثم ينتقل للتالية بحركة ناعمة. تتحكّم بزمن التوقف والمدة والاتجاه.</p>
+<div class="tags"><span><b>دوران مستمر</b> بزاوية 30°–720°</span><span><b>بطاقة بعد بطاقة</b> مع زمن توقف</span><span>حركة عائمة</span><span>اتجاه يمين/يسار</span><span>مدة 1–30 ثانية</span></div></div>
+<div class="stage reveal"><video src="/tools/cards-3d/assets/step.mp4" poster="/tools/cards-3d/assets/step.jpg" autoplay muted loop playsinline></video></div>
+</div></div></section>
+
+<section id="cam" style="background:linear-gradient(180deg,transparent,rgba(20,22,28,.7),transparent)"><div class="wrap">
+<div class="reveal"><div class="eyebrow">الكاميرا والزاوية</div><h2>اسحب وغيّر الزاوية كما تشاء</h2><p class="sub">ميل X، دوران Y، لفّ Z، موضع، تقريب، وزاوية العدسة. اسحب على المعاينة للتدوير والعجلة للتقريب.</p></div>
+<div class="chips reveal" id="xc"></div>
+<div class="demo reveal"><div class="stage"><img id="xi" alt=""></div><div class="panel"><h3 id="xt"></h3><p id="xd"></p><div class="tags"><span><b>ميل X</b> ±90°</span><span><b>دوران Y</b> ±360°</span><span><b>لفّ Z</b> ±180°</span><span><b>التقريب</b> 0.3–3×</span><span><b>العدسة</b> 10°–80°</span></div></div></div>
+</div></section>
+
+<section id="output"><div class="wrap">
+<div class="reveal"><div class="eyebrow">التصدير</div><h2>شفافة… جاهزة فوق أي مشهد</h2><p class="sub">تُصدَّر الحركة كسلسلة صور PNG بقناة ألفا، فتضعها فوق فيديو أو خلفية وتعدّل عليها كأي مقطع.</p></div>
+<div class="two">
+<div class="reveal"><div class="chips" style="justify-content:flex-start"><button class="chip on" data-b="footage">فوق مشهد</button><button class="chip" data-b="check">الشفافية</button><button class="chip" data-f="fan">مروحة</button><button class="chip on" data-f="ring">حلقة</button></div>
+<div class="scene footage" id="sc"><div class="bgc"></div><img id="tp" src="/tools/cards-3d/assets/tp_ring.png" alt=""><span class="lab" id="sl">فوق مشهد</span></div></div>
+<div class="reveal"><div class="eyebrow" style="text-align:right">مقاسات الإطار</div>
+<div class="frames">
+<figure><img src="/tools/cards-3d/assets/frame_9x16.jpg" alt="" style="aspect-ratio:9/16" loading="lazy"><figcaption><b>9:16</b><span dir="ltr">1080×1920</span></figcaption></figure>
+<figure><img src="/tools/cards-3d/assets/frame_4x5.jpg" alt="" style="aspect-ratio:4/5" loading="lazy"><figcaption><b>4:5</b><span dir="ltr">1080×1350</span></figcaption></figure>
+<figure><img src="/tools/cards-3d/assets/frame_1x1.jpg" alt="" style="aspect-ratio:1/1" loading="lazy"><figcaption><b>1:1</b><span dir="ltr">1080×1080</span></figcaption></figure>
+<figure><img src="/tools/cards-3d/assets/frame_16x9.jpg" alt="" style="aspect-ratio:16/9" loading="lazy"><figcaption><b>16:9</b><span dir="ltr">1920×1080</span></figcaption></figure>
+</div></div></div>
+<div class="steps reveal" style="margin-top:56px">
+<div class="st"><h4>أضف ملفاتك</h4><p>زر «إضافة صور / فيديو»، أو حدّدها في Project واضغط «من المشروع».</p></div>
+<div class="st"><h4>اختر الشكل</h4><p>حلقة، مروحة، نفق… وعدّل الانحناء والمسافة والصفوف.</p></div>
+<div class="st"><h4>اضبط الحركة</h4><p>المدة والاتجاه ونوع الدوران، مع معاينة حيّة.</p></div>
+<div class="st"><h4>صدّر</h4><p>24 / 25 / 30 / 60 إطار، بدقة كاملة أو أسرع. تدخل التايم لاين تلقائياً.</p></div>
+</div>
+<div class="note reveal"><b>أين تُحفظ الملفات؟</b> في مجلد <code>Cards3D_Renders</code> داخل مجلد المستخدم، وتُستورد تلقائياً إلى مجلد Cards3D في Project، وتوضع عند مؤشر التشغيل على آخر مسار فيديو إن فعّلت الخيار.</div>
+</div></section>
+
+<section id="install" style="background:linear-gradient(180deg,transparent,rgba(20,22,28,.7),transparent)"><div class="wrap" style="max-width:820px">
+<div class="reveal"><div class="eyebrow">التنصيب</div><h2>دقيقة واحدة وبدون صلاحيات أدمن</h2></div>
+<div class="steps reveal" style="grid-template-columns:1fr 1fr;row-gap:26px;margin-top:34px">
+<div class="st"><h4>فكّ الضغط</h4><p>فك ضغط الملف كاملاً في أي مكان، مثل سطح المكتب.</p></div>
+<div class="st"><h4>install.bat</h4><p>اضغط عليه مرتين لتنصيب الإضافة.</p></div>
+<div class="st"><h4>أعد تشغيل بريمير</h4><p>أغلقه تماماً ثم افتحه.</p></div>
+<div class="st"><h4>افتح اللوحة</h4><p><code>Window ▸ Extensions ▸ Cards 3D</code> وفي الإصدارات الأحدث ضمن Extensions (Legacy).</p></div>
+</div>
+<div class="note reveal">للإزالة شغّل <code>uninstall.bat</code>. إن ظهرت السلسلة بسرعة غير صحيحة: كليك يمين على المقطع ▸ Modify ▸ Interpret Footage ▸ Assume this frame rate، ثم اختر نفس قيمة الإطار/الثانية.</div>
+</div></section>
+
+<section style="padding-top:30px"><div class="wrap"><div class="band reveal"><h2>اجعل صورك تدور في الفضاء</h2><p>أضف ملفاتك، اختر الشكل، وصدّر في دقائق.</p><a href="#install" class="btn">ثبّت Cards 3D</a></div></div></section>
+<footer><div class="wrap">Cards 3D · إضافة بريمير مخصصة من تصميم مصطفى · تعمل على Windows</div></footer>
+
+<script>
+(function(){
+var L=[
+['ring','حلقة','بطاقات تدور حول محور مثل أسطوانة. تتحكم بالقوس المرئي وعدد الصفوف والمسافة.',['الانحناء','القوس المرئي','عدد الصفوف','المسافة']],
+['spiral','حلزون','بطاقات تلتفّ صاعدة في حلزون ثلاثي الأبعاد.',['الانحناء','المسافة','عدد البطاقات']],
+['stack','رصّة','بطاقات متراصّة كأوراق خلف بعضها، تنكشف بالدوران.',['الانحناء','المسافة']],
+['fan','مروحة','بطاقات تنفتح من الأسفل مثل أوراق اللعب. الانتشار هو زاوية الفتح.',['الانتشار','الانحناء']],
+['tunnel','نفق','حلقات من البطاقات تواجه المحور من الداخل. عدد الحلقات هو عدد الصفوف.',['عدد الصفوف','الانحناء','المسافة']],
+['wave','موجة','شريط بطاقات يتموّج، والدوران يجعل الموجة تسري. لموجة عمودية استخدم لفّ Z.',['الانتشار','المسافة','لفّ Z']],
+['vortex','دوامة','بطاقات تدور وتبتعد في العمق. الدوران يلفّها حول المحور.',['الانتشار','الانحناء']]
+];
+var lc=document.getElementById('lc'),lv=document.getElementById('lv');
+function setL(i){
+  var o=L[i];lv.src='/tools/cards-3d/assets/layout_'+o[0]+'.mp4';lv.poster='/tools/cards-3d/assets/layout_'+o[0]+'.jpg';lv.play&&lv.play().catch(function(){});
+  document.getElementById('lt').textContent=o[1];document.getElementById('ld').textContent=o[2];
+  document.getElementById('lg').innerHTML=o[3].map(function(t){return '<span><b>●</b> '+t+'</span>'}).join('');
+  [].forEach.call(lc.children,function(c,j){c.classList.toggle('on',j===i)});
+}
+L.forEach(function(o,i){var b=document.createElement('button');b.className='chip';b.textContent=o[1];b.onclick=function(){setL(i)};lc.appendChild(b)});
+setL(0);
+var X=[['tilt0','من الأمام','ميل X = 0° — عرض مباشر للبطاقات بدون ميل.'],['tilt40','من الأعلى','ميل X = −40° — ترى داخل الحلقة من فوق.'],['roll','موجة عمودية','لفّ Z = 90° — يقلب الموجة لتصبح عمودية.'],['zoomin','تقريب','زيادة التقريب لإبراز بطاقتين أو ثلاث.']];
+var xc=document.getElementById('xc'),xi=document.getElementById('xi');
+function setX(i){var o=X[i];xi.src='/tools/cards-3d/assets/xf_'+o[0]+'.jpg';document.getElementById('xt').textContent=o[1];document.getElementById('xd').textContent=o[2];[].forEach.call(xc.children,function(c,j){c.classList.toggle('on',j===i)})}
+X.forEach(function(o,i){var b=document.createElement('button');b.className='chip';b.textContent=o[1];b.onclick=function(){setX(i)};xc.appendChild(b)});
+setX(0);
+var sc=document.getElementById('sc'),tp=document.getElementById('tp');
+[].forEach.call(document.querySelectorAll('[data-b]'),function(b){b.onclick=function(){
+  sc.className='scene '+b.getAttribute('data-b');document.getElementById('sl').textContent=b.textContent;
+  [].forEach.call(document.querySelectorAll('[data-b]'),function(x){x.classList.toggle('on',x===b)})}});
+[].forEach.call(document.querySelectorAll('[data-f]'),function(b){b.onclick=function(){
+  tp.src='/tools/cards-3d/assets/tp_'+b.getAttribute('data-f')+'.png';
+  [].forEach.call(document.querySelectorAll('[data-f]'),function(x){x.classList.toggle('on',x===b)})}});
+function showAll(){[].forEach.call(document.querySelectorAll('.reveal'),function(e){e.classList.add('in')})}
+if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.08});
+[].forEach.call(document.querySelectorAll('.reveal'),function(e){io.observe(e)});}else showAll();
+setTimeout(showAll,2500);
+})();
+</script>
+<script src="/tools/tools.js" data-tool="cards-3d" defer></script>
+</body>
+</html>

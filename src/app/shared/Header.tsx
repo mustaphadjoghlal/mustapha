@@ -8,6 +8,7 @@ const navPaths = [
   { path: "/", textKey: "nav.home" },
   { path: "/about", textKey: "nav.about" },
   { path: "/portfolio", textKey: "nav.portfolio" },
+  { path: "/tools", textKey: "nav.tools" },
   { path: "/courses", textKey: "nav.courses" },
   { path: "/articles", textKey: "nav.articles" },
 ];

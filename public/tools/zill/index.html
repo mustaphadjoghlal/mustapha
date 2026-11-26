@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ظل Zill — إضافة فوتوشوب لظلال واقعية بنقرة واحدة | مصطفى جغلال</title>
+<meta name="description" content="إضافة فوتوشوب عربية تبني ظلاً واقعياً لأي جسم مقصوص: إسقاط وطويل ومنظوري وأرضي، تُضاف كطبقة Multiply جاهزة دون المساس بالأصل.">
+<link rel="canonical" href="https://mustaphadjoghlal.com/tools/zill">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mustaphadjoghlal.com/tools/zill">
+<meta property="og:title" content="ظل Zill — إضافة فوتوشوب لظلال واقعية بنقرة واحدة | مصطفى جغلال">
+<meta property="og:description" content="إضافة فوتوشوب عربية تبني ظلاً واقعياً لأي جسم مقصوص: إسقاط وطويل ومنظوري وأرضي، تُضاف كطبقة Multiply جاهزة دون المساس بالأصل.">
+<meta property="og:image" content="https://mustaphadjoghlal.com/og-image.jpg">
+<meta property="og:locale" content="ar_AR">
+<meta name="author" content="مصطفى جغلال">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1b1c1f; --bg2:#232428; --panel:#2c2e33; --card:#303237; --line:#3c3f45;
+    --txt:#ececef; --dim:#9aa0a8; --acc:#2f8cff; --acc2:#4da0ff;
+    --ok:#5fd18b; --glow:rgba(47,140,255,.45); --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Cairo","Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--txt);
+    line-height:1.7;overflow-x:hidden;
+    background-image:radial-gradient(900px 500px at 85% -10%,rgba(47,140,255,.18),transparent 60%),
+                     radial-gradient(700px 400px at 0% 10%,rgba(47,140,255,.08),transparent 55%);
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;background:var(--acc);color:#fff;border:none;
+    padding:14px 26px;border-radius:12px;font-family:inherit;font-weight:700;font-size:16px;
+    cursor:pointer;text-decoration:none;transition:.25s;box-shadow:0 10px 30px -8px var(--glow);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px -8px var(--glow);background:var(--acc2)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);box-shadow:none}
+  .btn.ghost:hover{border-color:var(--acc);color:var(--acc2);background:rgba(47,140,255,.06)}
+
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(27,28,31,.72);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px}
+  .logo .mark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+     background:linear-gradient(145deg,#2f8cff,#1667d6);box-shadow:0 6px 18px -6px var(--glow);font-size:18px}
+  .navlinks{display:flex;gap:26px;font-size:15px}
+  .navlinks a{color:var(--dim);text-decoration:none;transition:.2s}
+  .navlinks a:hover{color:var(--txt)}
+  @media(max-width:760px){.navlinks{display:none}}
+
+  header{padding:70px 0 40px}
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:30px}}
+  .tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--acc2);
+     background:rgba(47,140,255,.1);border:1px solid rgba(47,140,255,.25);
+     padding:6px 14px;border-radius:999px;margin-bottom:22px;font-weight:600}
+  .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  h1{font-size:clamp(38px,6vw,64px);font-weight:900;line-height:1.12;letter-spacing:-.5px}
+  h1 .big{display:inline-block;background:linear-gradient(120deg,#fff 20%,#8ec2ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--dim);font-size:clamp(16px,2.4vw,19px);margin:20px 0 30px;max-width:520px}
+  .cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .meta{display:flex;gap:24px;margin-top:30px;color:var(--dim);font-size:14px;flex-wrap:wrap}
+  .meta b{color:var(--txt);font-weight:700;font-size:19px;display:block}
+
+  /* ===== Shared scene pieces (bottle + floor) ===== */
+  .scene{position:relative;overflow:hidden;border-radius:24px;border:1px solid var(--line);
+     box-shadow:0 30px 70px -30px #000;
+     background:linear-gradient(180deg,#f3efe7 0%,#e9e4d9 48%,#d6cdba 48.2%,#cfc5b0 100%)}
+  .scene .bottle{position:absolute;left:50%;transform:translateX(-50%);width:96px;height:188px;z-index:3}
+  .bottle .body{position:absolute;bottom:0;width:96px;height:140px;border-radius:16px 16px 20px 20px;
+     background:linear-gradient(120deg,#3a7bd5,#2f8cff 55%,#1c5fb0);
+     box-shadow:inset -10px -8px 22px rgba(0,0,0,.28),inset 10px 8px 18px rgba(255,255,255,.3)}
+  .bottle .shine{position:absolute;bottom:14px;right:16px;width:20px;height:96px;border-radius:40px;
+     background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0));filter:blur(1px)}
+  .bottle .neck{position:absolute;bottom:138px;left:50%;transform:translateX(-50%);width:34px;height:26px;
+     background:linear-gradient(120deg,#2a6ec0,#2f8cff);border-radius:4px}
+  .bottle .cap{position:absolute;bottom:160px;left:50%;transform:translateX(-50%);width:44px;height:30px;border-radius:7px;
+     background:linear-gradient(120deg,#d7dde6,#aab4c2);
+     box-shadow:inset -4px -3px 8px rgba(0,0,0,.25),inset 4px 3px 8px rgba(255,255,255,.6)}
+  .scene .pill{position:absolute;bottom:14px;right:14px;z-index:5;font-size:12.5px;font-weight:700;color:#2a2a2a;
+     background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.08);padding:6px 13px;border-radius:999px}
+
+  /* Hero stage: floor starts at 48%; bottle base on floor */
+  .hero-stage{height:420px}
+  .hero-stage .bottle{bottom:150px}
+  .hero-stage .hs-contact{position:absolute;left:50%;bottom:138px;transform:translateX(-50%);width:130px;height:26px;border-radius:50%;z-index:2;
+     background:radial-gradient(ellipse at center,rgba(20,18,14,.62),rgba(20,18,14,0) 70%)}
+  .hero-stage .hs-cast{position:absolute;left:50%;bottom:150px;width:96px;height:188px;z-index:1;border-radius:14px;
+     transform-origin:50% 100%;filter:blur(7px);
+     background:linear-gradient(to top,rgba(20,18,14,.5),rgba(20,18,14,0) 92%);
+     animation:sway 7s ease-in-out infinite}
+  @keyframes sway{
+    0%,100%{transform:translateX(-50%) skewX(-52deg) scaleY(.42)}
+    50%{transform:translateX(-50%) skewX(-18deg) scaleY(.5)}
+  }
+
+  /* ===== Sections ===== */
+  section{padding:66px 0}
+  .shead{text-align:center;max-width:660px;margin:0 auto 46px}
+  .shead h2{font-size:clamp(26px,4vw,38px);font-weight:900;letter-spacing:-.4px}
+  .shead p{color:var(--dim);margin-top:12px;font-size:17px}
+  .kick{color:var(--acc2);font-weight:700;font-size:14px;letter-spacing:1px;margin-bottom:8px}
+
+  /* ===== Before / After ===== */
+  .ba{position:relative;max-width:780px;margin:0 auto;height:440px;user-select:none;cursor:ew-resize;touch-action:pan-y}
+  .ba .layer{position:absolute;inset:0;border-radius:24px;overflow:hidden;
+     background:linear-gradient(180deg,#f3efe7 0%,#e9e4d9 50%,#d6cdba 50.2%,#cfc5b0 100%)}
+  .ba .box{position:absolute;left:50%;bottom:132px;transform:translateX(-50%);width:150px;height:190px;border-radius:12px;z-index:3;
+     background:linear-gradient(120deg,#ecaa45,#d6832a 60%,#b9681f);
+     box-shadow:inset -12px -10px 26px rgba(0,0,0,.28),inset 12px 10px 20px rgba(255,255,255,.28)}
+  .ba .box::before{content:"";position:absolute;top:0;left:0;right:0;height:22px;border-radius:12px 12px 0 0;
+     background:linear-gradient(120deg,#f6c068,#e39d3a)}
+  /* AFTER shadows */
+  .ba .a-cast{position:absolute;left:50%;bottom:132px;width:150px;height:190px;z-index:1;border-radius:10px;
+     transform-origin:50% 100%;transform:translateX(-50%) skewX(-48deg) scaleY(.5);filter:blur(7px);
+     background:linear-gradient(to top,rgba(15,13,10,.62),rgba(15,13,10,0) 95%)}
+  .ba .a-contact{position:absolute;left:50%;bottom:116px;transform:translateX(-50%);width:196px;height:34px;border-radius:50%;z-index:2;
+     background:radial-gradient(ellipse at center,rgba(15,13,10,.78),rgba(15,13,10,0) 70%)}
+  .ba .after{clip-path:inset(0 50% 0 0)}
+  .ba .lbl{position:absolute;top:16px;font-size:12.5px;font-weight:800;padding:6px 12px;border-radius:999px;z-index:6}
+  .ba .lbl.b{right:16px;background:rgba(0,0,0,.6);color:#fff}
+  .ba .lbl.a{left:16px;background:var(--acc);color:#fff}
+  .ba .handle{position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff;z-index:7;box-shadow:0 0 14px rgba(0,0,0,.5)}
+  .ba .grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;
+     background:#fff;color:var(--acc);display:grid;place-items:center;font-size:18px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+
+  /* ===== Shadow types ===== */
+  .types{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+  @media(max-width:860px){.types{grid-template-columns:1fr}}
+  .ttabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+  .ttabs button{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:11px 0;
+     font-family:inherit;font-weight:800;font-size:15px;cursor:pointer;transition:.2s}
+  .ttabs button:hover{border-color:#5a5f68}
+  .ttabs button.on{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 10px 24px -10px var(--glow)}
+  .tinfo h3{font-size:24px;font-weight:900;margin-bottom:6px}
+  .tinfo p{color:var(--dim);font-size:15.5px;margin-bottom:16px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chips span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:13.5px;color:#cfd3d9}
+  .type-stage{height:380px}
+  .type-stage .bottle{bottom:128px}
+  .type-stage .sh{position:absolute;opacity:0;transition:opacity .35s;pointer-events:none}
+  .type-stage[data-t="drop"] .sh.drop,
+  .type-stage[data-t="long"] .sh.long,
+  .type-stage[data-t="persp"] .sh.persp,
+  .type-stage[data-t="contact"] .sh.contact{opacity:1}
+  /* إسقاط: نسخة مزاحة ناعمة */
+  .sh.drop{left:50%;bottom:128px;width:96px;height:188px;z-index:2;border-radius:16px 16px 20px 20px;
+     transform:translate(calc(-50% + 22px),-14px);background:rgba(15,13,10,.5);filter:blur(11px)}
+  /* طويل: شريط قطري يتلاشى */
+  .sh.long{left:calc(50% - 40px);top:calc(100% - 128px);width:340px;height:92px;z-index:1;
+     clip-path:polygon(0 0,26% 0,100% 100%,72% 100%);
+     background:linear-gradient(to right,rgba(15,13,10,.5),rgba(15,13,10,0) 95%)}
+  /* منظوري: ممتد خلف الجسم، يتنعّم عند الطرف البعيد */
+  .sh.persp{left:50%;bottom:128px;width:96px;height:188px;z-index:1;border-radius:14px;
+     transform-origin:50% 100%;transform:translateX(-50%) skewX(-50deg) scaleY(.5);filter:blur(7px);
+     background:linear-gradient(to top,rgba(15,13,10,.62),rgba(15,13,10,0) 92%)}
+  /* أرضي: ظل تلامس تحت القاعدة */
+  .sh.contact{left:50%;bottom:114px;transform:translateX(-50%);width:132px;height:30px;border-radius:50%;z-index:2;
+     background:radial-gradient(ellipse at center,rgba(15,13,10,.75),rgba(15,13,10,0) 70%)}
+
+  /* ===== Features ===== */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:860px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .feat{background:linear-gradient(180deg,var(--card),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:24px;transition:.25s}
+  .feat:hover{transform:translateY(-4px);border-color:rgba(47,140,255,.4);box-shadow:0 24px 50px -28px #000}
+  .feat .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;
+     background:rgba(47,140,255,.12);border:1px solid rgba(47,140,255,.25)}
+  .feat h3{font-size:18px;font-weight:800;margin-bottom:7px}
+  .feat p{color:var(--dim);font-size:14.5px}
+
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+  @media(max-width:820px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:460px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;position:relative}
+  .step .n{counter-increment:s;position:absolute;top:-14px;inset-inline-start:20px;width:34px;height:34px;border-radius:9px;
+     background:var(--acc);color:#fff;font-weight:900;display:grid;place-items:center;box-shadow:0 8px 20px -8px var(--glow)}
+  .step .n::after{content:counter(s)}
+  .step h4{font-size:16px;font-weight:800;margin:10px 0 6px}
+  .step p{color:var(--dim);font-size:14px}
+
+  .showcase{display:grid;grid-template-columns:1fr 340px;gap:40px;align-items:center}
+  @media(max-width:860px){.showcase{grid-template-columns:1fr;justify-items:center}}
+  .showcase ul{list-style:none;display:grid;gap:14px}
+  .showcase li{display:flex;gap:12px;align-items:flex-start;font-size:15.5px}
+  .showcase li .ck{flex:none;width:24px;height:24px;border-radius:7px;background:rgba(95,209,139,.14);
+     border:1px solid rgba(95,209,139,.4);color:var(--ok);display:grid;place-items:center;font-weight:900;font-size:13px;margin-top:3px}
+
+  .panel{width:320px;background:#323232;border:1px solid #4a4a4a;border-radius:12px;padding:10px;
+     box-shadow:0 40px 80px -30px #000;font-size:12px;color:#e6e6e6}
+  .panel .ph1{font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .panel .ph1 small{color:#a8a8a8;font-weight:400;font-size:11px}
+  .panel .pv{height:150px;border-radius:6px;border:1px solid #4a4a4a;margin-bottom:7px;position:relative;overflow:hidden;
+     background:linear-gradient(180deg,#f0ece3 0%,#e4ded1 55%,#d3cab8 55.2%,#cbc1ac 100%)}
+  .panel .pobj{position:absolute;left:50%;bottom:52px;transform:translateX(-50%);width:44px;height:72px;border-radius:8px;z-index:3;
+     background:linear-gradient(120deg,#3a7bd5,#2f8cff)}
+  .panel .pcast{position:absolute;left:50%;bottom:52px;width:44px;height:72px;z-index:1;transform-origin:50% 100%;
+     transform:translateX(-50%) skewX(-50deg) scaleY(.5);filter:blur(3px);
+     background:linear-gradient(to top,rgba(20,18,14,.6),transparent 92%)}
+  .panel .pcont{position:absolute;left:50%;bottom:46px;transform:translateX(-50%);width:62px;height:14px;border-radius:50%;z-index:2;
+     background:radial-gradient(ellipse,rgba(20,18,14,.7),transparent 70%)}
+  .panel .pline{position:absolute;left:12%;right:12%;bottom:52px;height:2px;background:#2f8cff;opacity:.9;z-index:4}
+  .panel .pbar{margin-bottom:8px}
+  .panel .pbar b{display:inline-block;background:#3a3a3a;border:1px solid #4a4a4a;border-radius:4px;padding:5px 9px;font-weight:600;font-size:11px}
+  .panel .ptabs{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:8px}
+  .panel .ptabs b{background:#3a3a3a;border:1px solid #4a4a4a;border-radius:4px;padding:6px 0;text-align:center;font-weight:600;font-size:11px}
+  .panel .ptabs b.on{background:#2f8cff;border-color:#2f8cff;color:#fff}
+  .panel .pcard{background:#3a3a3a;border:1px solid #4a4a4a;border-radius:6px;padding:8px;margin-bottom:7px}
+  .panel .prow{display:flex;justify-content:space-between;align-items:center;margin:6px 0;color:#a8a8a8}
+  .panel .prow .bar{flex:1;height:4px;border-radius:3px;background:#2a2a2a;margin:0 8px;position:relative}
+  .panel .prow .bar i{position:absolute;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:#2f8cff}
+  .panel .pact{display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px}
+  .panel .pact b{text-align:center;padding:8px 0;border-radius:4px;font-weight:700;font-size:11px;background:#3a3a3a;border:1px solid #4a4a4a}
+  .panel .pact b.pri{background:#2f8cff;border-color:#2f8cff;color:#fff}
+
+  .band{background:linear-gradient(135deg,#1f66cc,#2f8cff);border-radius:26px;padding:52px 34px;text-align:center;position:relative;overflow:hidden;box-shadow:0 40px 90px -40px var(--glow)}
+  .band::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 240px at 15% -20%,rgba(255,255,255,.22),transparent 60%)}
+  .band h2{font-size:clamp(26px,4vw,38px);font-weight:900;color:#fff;position:relative}
+  .band p{color:rgba(255,255,255,.88);margin:12px 0 26px;position:relative;font-size:17px}
+  .band .btn{background:#fff;color:#1667d6;position:relative}
+  .band .btn:hover{background:#eef4ff}
+
+  .install{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:30px}
+  .install ol{margin:0;padding-inline-start:22px;display:grid;gap:12px;color:var(--dim)}
+  .install ol b{color:var(--txt)}
+  .code{display:inline-block;background:#141518;border:1px solid var(--line);border-radius:7px;padding:3px 10px;color:var(--acc2);font-size:13.5px;direction:ltr}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--dim);text-align:center;font-size:14px}
+  footer b{color:var(--txt)}
+  .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="logo"><span class="mark">ظ</span> Zill</div>
+  <div class="navlinks">
+    <a href="#types">أنواع الظلال</a>
+    <a href="#features">المزايا</a>
+    <a href="#how">كيف يعمل</a>
+    <a href="#install">التثبيت</a>
+  </div>
+  <a href="#install" class="btn" style="padding:10px 20px;font-size:14px">تثبيت</a>
+</div></nav>
+
+<header><div class="wrap">
+  <div class="hero">
+    <div>
+      <span class="tag"><span class="dot"></span> إضافة فوتوشوب · الإصدار 1.6</span>
+      <h1>ظلال <span class="big">واقعية</span><br>بنقرة واحدة.</h1>
+      <p class="sub">«ظل» يبني ظلاً منظورياً وأرضياً مقنعاً لأي جسم مقصوص — يتبع قاعدة كل جزء،
+         يتنعّم كلما ابتعد، ويوضع في فوتوشوب كطبقة جاهزة دون أن تلمس الأصل.</p>
+      <div class="cta">
+        <a href="#install" class="btn">ثبّت الإضافة
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+        </a>
+        <a href="#types" class="btn ghost">استعرض أنواع الظلال</a>
+      </div>
+      <div class="meta">
+        <div><b>4 أنواع</b> ظلال جاهزة</div>
+        <div><b>Multiply</b> طبقة جاهزة</div>
+        <div><b>الأصل محميّ</b> لا يتغيّر أبداً</div>
+      </div>
+    </div>
+
+    <div class="scene hero-stage" aria-label="عرض حي للظل">
+      <div class="hs-cast"></div>
+      <div class="hs-contact"></div>
+      <div class="bottle"><div class="cap"></div><div class="neck"></div><div class="body"><div class="shine"></div></div></div>
+      <div class="pill">ظل منظوري + ظل تلامس</div>
+    </div>
+  </div>
+</div></header>
+
+<section id="compare">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">الفرق واضح</div>
+      <h2>جسم طافٍ… أم جسم على الأرض؟</h2>
+      <p>اسحب الفاصل: على اليمين الجسم بلا ظل فيبدو ملصوقاً، وعلى اليسار نفسه بظل «ظل».</p>
+    </div>
+    <div class="ba reveal" id="ba">
+      <div class="layer before"><div class="box"></div></div>
+      <div class="layer after" id="afterLayer">
+        <div class="a-cast"></div><div class="a-contact"></div><div class="box"></div>
+      </div>
+      <div class="lbl b">قبل · بلا ظل</div>
+      <div class="lbl a">بعد · ظل «ظل»</div>
+      <div class="handle" id="baHandle"><div class="grip">⇄</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="types">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">أنواع الظلال</div>
+      <h2>أربعة أنواع لكل مشهد</h2>
+      <p>اضغط على كل نوع وشاهد شكل الظل مباشرة.</p>
+    </div>
+    <div class="types reveal">
+      <div>
+        <div class="ttabs" id="ttabs">
+          <button data-t="drop">إسقاط</button>
+          <button data-t="long">طويل</button>
+          <button data-t="persp" class="on">منظوري</button>
+          <button data-t="contact">أرضي</button>
+        </div>
+        <div class="tinfo" id="tinfo"></div>
+      </div>
+      <div class="scene type-stage" id="tstage" data-t="persp">
+        <div class="sh drop"></div>
+        <div class="sh long"></div>
+        <div class="sh persp"></div>
+        <div class="sh contact"></div>
+        <div class="bottle"><div class="cap"></div><div class="neck"></div><div class="body"><div class="shine"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">مبنيّ على فهم الصورة</div>
+      <h2>ليس فلتر ظل عادي</h2>
+      <p>كل خيار مصمّم ليعطي نتيجة يصدّقها العين.</p>
+    </div>
+    <div class="grid">
+      <div class="feat reveal"><div class="ic">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4da0ff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M13 7h8M3 17h8"/></svg>
+      </div><h3>أربعة أنواع ظلال</h3><p>إسقاط، طويل، منظوري، وأرضي — اختر الأنسب لكل مشهد وبدّل بينها بنقرة.</p></div>
+
+      <div class="feat reveal"><div class="ic">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4da0ff" stroke-width="2" stroke-linecap="round"><path d="M3 17h18"/><path d="M6 17l3-9 3 5 2-3 4 7"/></svg>
+      </div><h3>خط الأرض التلقائي</h3><p>يكتشف نقطة ارتكاز الجسم وميلانها، فيبني الظل حتى لو كان أسفل الصورة مائلاً.</p></div>
+
+      <div class="feat reveal"><div class="ic">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4da0ff" stroke-width="2" stroke-linecap="round"><rect x="3" y="10" width="5" height="9"/><rect x="10" y="6" width="5" height="13"/><rect x="17" y="12" width="4" height="7"/></svg>
+      </div><h3>ظل منظوري لكل جسم</h3><p>عدة أجسام على أعماق مختلفة؟ ظل كل واحد يبدأ من قاعدته، حاداً عند التلامس وناعماً كلما ابتعد.</p></div>
+
+      <div class="feat reveal"><div class="ic">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4da0ff" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="16" rx="8" ry="3.5"/><path d="M12 4v8"/></svg>
+      </div><h3>ظل التلامس الداكن</h3><p>ظل تماس غامق أسفل كل جسم مع انتشار ناعم حوله — هو ما يثبّت الجسم على الأرض.</p></div>
+
+      <div class="feat reveal"><div class="ic">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4da0ff" stroke-width="2" stroke-linecap="round"><path d="M4 8h10M18 8h2M4 16h2M10 16h10"/><circle cx="16" cy="8" r="2"/><circle cx="8" cy="16" r="2"/></svg>
+      </div><h3>تحكّم كامل</h3><p>زاوية، طول، نعومة، تلاشٍ وكثافة — منزلقات تعدّل المعاينة فوراً.</p></div>
+
+      <div class="feat reveal"><div class="ic">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4da0ff" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M4 9h5"/></svg>
+      </div><h3>طبقة Multiply جاهزة</h3><p>الظل يُرسم بالدقة الكاملة ويوضع كطبقة مقصوصة فوق الأصل — مطابق تماماً للمعاينة.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">أربع خطوات</div>
+      <h2>من القصّ إلى الظل المقنع</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="n"></div><h4>📷 التقاط</h4><p>اختر طبقة الجسم المقصوصة بخلفية شفافة، واضغط التقاط للمعاينة.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>🎯 اختر النوع</h4><p>إسقاط أو طويل أو منظوري أو أرضي — حسب مشهدك.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>🎚️ اضبط</h4><p>حرّك المنزلقات — المعاينة تتغيّر فوراً أمامك.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>✅ تطبيق</h4><p>يُضاف الظل كطبقة جاهزة دون المساس بالأصل.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="panel">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">واجهة عربية بالكامل</div>
+      <h2>كل شيء في لوحة واحدة</h2>
+    </div>
+    <div class="showcase">
+      <ul class="reveal">
+        <li><span class="ck">✓</span> معاينة حيّة داخل اللوحة مع خلفيات متعددة لاختبار الظل.</li>
+        <li><span class="ck">✓</span> منزلقات فورية: زاوية، طول، نعومة، تلاشٍ وكثافة ولون.</li>
+        <li><span class="ck">✓</span> مزامنة فوتوشوب تلقائياً بعد كل تعديل إن رغبت.</li>
+        <li><span class="ck">✓</span> احفظ إعداداتك المفضّلة واسترجعها باسمها في أي وقت.</li>
+        <li><span class="ck">✓</span> أزرار تطبيق / استبدال / حذف لإدارة الظل بسهولة.</li>
+        <li><span class="ck">✓</span> تثبيت بدون صلاحيات أدمن — نقرة واحدة على ملف التثبيت.</li>
+      </ul>
+      <div class="panel reveal">
+        <div class="ph1">ظل <small>Zill · ظلال واقعية</small></div>
+        <div class="pv"><div class="pcast"></div><div class="pcont"></div><div class="pobj"></div><div class="pline"></div></div>
+        <div class="pbar"><b>📷 التقاط</b></div>
+        <div class="ptabs"><b>إسقاط</b><b>طويل</b><b class="on">منظوري</b><b>أرضي</b></div>
+        <div class="pcard">
+          <div class="prow"><span>الطول</span><span class="bar"><i style="right:60%"></i></span><span>60</span></div>
+          <div class="prow"><span>الميل</span><span class="bar"><i style="right:30%"></i></span><span>50</span></div>
+          <div class="prow"><span>الكثافة</span><span class="bar"><i style="right:25%"></i></span><span>75%</span></div>
+        </div>
+        <div class="pact"><b class="pri">تطبيق في فوتوشوب</b><b>استبدال</b><b>حذف</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap"><div class="band reveal">
+    <h2>جرّب «ظل» على أول صورة لك</h2>
+    <p>تثبيت في أقل من دقيقة، ونتيجة تلاحظها من أول ظل.</p>
+    <a href="#install" class="btn">ابدأ التثبيت الآن</a>
+  </div></div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">بدون صلاحيات أدمن</div>
+      <h2>التثبيت في 3 خطوات</h2>
+    </div>
+    <div class="install reveal" style="max-width:720px;margin:0 auto">
+      <ol>
+        <li><b>فكّ الضغط</b> عن الملف كاملاً في أي مكان على جهازك.</li>
+        <li><b>انقر مرتين</b> على <span class="code">install-silent.vbs</span> — يستبدل النسخة القديمة تلقائياً.</li>
+        <li><b>أعد تشغيل فوتوشوب</b>، ثم افتح: <span class="code">Window ▸ Extensions (Legacy) ▸ Zill - ظل</span></li>
+      </ol>
+      <p style="color:var(--dim);margin-top:18px;font-size:14px">للإزالة: شغّل <span class="code">uninstall.bat</span>. متوافق مع Photoshop 2019 فأحدث.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="logo" style="justify-content:center;margin-bottom:10px">
+      <span class="mark" style="width:30px;height:30px;font-size:16px">ظ</span> Zill — ظل
+    </div>
+    إضافة فوتوشوب من تصميم وتطوير <b>مصطفى</b> · ظلال واقعية في ثوانٍ.
+  </div>
+</footer>
+
+<script>
+  // Before/After: "after" is the LEFT part, up to the handle
+  (function(){
+    var ba=document.getElementById('ba'), h=document.getElementById('baHandle'), af=document.getElementById('afterLayer');
+    function set(p){p=Math.max(5,Math.min(95,p));h.style.left=p+'%';af.style.clipPath='inset(0 '+(100-p)+'% 0 0)';}
+    var drag=false;
+    function pos(e){var r=ba.getBoundingClientRect();var x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;set(x/r.width*100);}
+    ba.addEventListener('mousedown',function(e){drag=true;pos(e);});
+    window.addEventListener('mousemove',function(e){if(drag)pos(e);});
+    window.addEventListener('mouseup',function(){drag=false;});
+    ba.addEventListener('touchstart',function(e){drag=true;pos(e);},{passive:true});
+    ba.addEventListener('touchmove',function(e){if(drag)pos(e);},{passive:true});
+    ba.addEventListener('touchend',function(){drag=false;});
+    set(50);
+  })();
+
+  // Shadow types
+  (function(){
+    var info={
+      drop:{t:'إسقاط',d:'ظل ناعم مزاح خلف الجسم كأنه يطفو فوق السطح — الأنسب للمنتجات والأيقونات والبطاقات.',c:['زاوية الضوء','المسافة','النعومة','التمدد','عدد المراحل','الكثافة']},
+      long:{t:'طويل',d:'ظل قطري ممتد يتلاشى تدريجياً — يعطي طابعاً جرافيكياً جريئاً للإعلانات والبوسترات.',c:['زاوية الضوء','الطول','النعومة','التلاشي','الكثافة']},
+      persp:{t:'منظوري',d:'ظل يمتد على الأرض خلف الجسم أو أمامه ويتنعّم عند طرفه البعيد — الأكثر واقعية للمشاهد الطبيعية.',c:['اتجاه الظل','الطول','الميل','نعومة الطرف البعيد','التلاشي','إزاحة رأسية','الكثافة']},
+      contact:{t:'أرضي',d:'ظل تلامس داكن تحت القاعدة مع انتشار ناعم حوله — يثبّت الجسم على الأرض بصرياً.',c:['العرض','الانتشار تحت القاعدة','إزاحة رأسية','النعومة','الكثافة']}
+    };
+    var tabs=document.querySelectorAll('#ttabs button'), box=document.getElementById('tinfo'), st=document.getElementById('tstage');
+    function show(k){
+      tabs.forEach(function(b){b.classList.toggle('on',b.dataset.t===k);});
+      st.setAttribute('data-t',k);
+      var o=info[k];
+      box.innerHTML='<h3>'+o.t+'</h3><p>'+o.d+'</p><div class="chips">'+o.c.map(function(x){return '<span>'+x+'</span>';}).join('')+'</div>';
+    }
+    tabs.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.t);});});
+    show('persp');
+  })();
+
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+</script>
+<script src="/tools/tools.js" data-tool="zill" defer></script>
+</body>
+</html>

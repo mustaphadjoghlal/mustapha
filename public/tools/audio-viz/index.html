@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Viz — مرئيات صوت متفاعلة لبريمير | مصطفى جغلال</title>
+<meta name="description" content="إضافة Premiere Pro تحوّل أي ملف صوتي إلى مرئيات تتفاعل مع الإيقاع: أعمدة ودائري وموجة ونقاط، تُصدَّر تسلسل PNG شفافاً متزامناً وتوضع على التايم لاين.">
+<link rel="canonical" href="https://mustaphadjoghlal.com/tools/audio-viz">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mustaphadjoghlal.com/tools/audio-viz">
+<meta property="og:title" content="Audio Viz — مرئيات صوت متفاعلة لبريمير | مصطفى جغلال">
+<meta property="og:description" content="إضافة Premiere Pro تحوّل أي ملف صوتي إلى مرئيات تتفاعل مع الإيقاع: أعمدة ودائري وموجة ونقاط، تُصدَّر تسلسل PNG شفافاً متزامناً وتوضع على التايم لاين.">
+<meta property="og:image" content="https://mustaphadjoghlal.com/og-image.jpg">
+<meta property="og:locale" content="ar_AR">
+<meta name="author" content="مصطفى جغلال">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f0f17; --bg2:#161622; --panel:#1c1c2b; --card:#202033; --line:#32324a;
+    --txt:#eeeefa; --dim:#9a9ab8; --a:#8b5cf6; --b:#22d3ee; --c:#ec4899;
+    --glow:rgba(139,92,246,.45); --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"Cairo","Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--txt);line-height:1.7;overflow-x:hidden;
+    background-image:radial-gradient(900px 520px at 88% -8%,rgba(139,92,246,.22),transparent 60%),
+                     radial-gradient(700px 420px at 0% 8%,rgba(34,211,238,.10),transparent 55%)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  .grad{background:linear-gradient(110deg,#22d3ee,#8b5cf6 55%,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(110deg,#8b5cf6,#6d4be0);color:#fff;border:none;
+    padding:14px 26px;border-radius:12px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none;
+    transition:.25s;box-shadow:0 10px 30px -8px var(--glow)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px -8px var(--glow)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);box-shadow:none}
+  .btn.ghost:hover{border-color:var(--a);color:#c4b0ff;background:rgba(139,92,246,.08)}
+
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(15,15,23,.72);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:21px}
+  .logo .mark{width:34px;height:34px;border-radius:9px;display:flex;gap:2.5px;align-items:center;justify-content:center;
+    background:linear-gradient(145deg,#8b5cf6,#4f35b8);box-shadow:0 6px 18px -6px var(--glow)}
+  .logo .mark i{display:block;width:3.5px;border-radius:2px;background:#fff}
+  .navlinks{display:flex;gap:26px;font-size:15px}
+  .navlinks a{color:var(--dim);text-decoration:none;transition:.2s}
+  .navlinks a:hover{color:var(--txt)}
+  @media(max-width:760px){.navlinks{display:none}}
+
+  header{padding:64px 0 34px}
+  .hero{display:grid;grid-template-columns:1fr 1.05fr;gap:44px;align-items:center}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:28px}}
+  .tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#c4b0ff;background:rgba(139,92,246,.12);
+    border:1px solid rgba(139,92,246,.3);padding:6px 14px;border-radius:999px;margin-bottom:22px;font-weight:600}
+  .tag .dot{width:7px;height:7px;border-radius:50%;background:#22d3ee;box-shadow:0 0 9px #22d3ee}
+  h1{font-size:clamp(38px,6vw,62px);font-weight:900;line-height:1.12;letter-spacing:-.5px}
+  .sub{color:var(--dim);font-size:clamp(16px,2.4vw,19px);margin:20px 0 30px;max-width:500px}
+  .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .meta{display:flex;gap:26px;margin-top:30px;color:var(--dim);font-size:14px;flex-wrap:wrap}
+  .meta b{color:var(--txt);font-weight:700;font-size:19px;display:block}
+
+  /* viz canvas frames */
+  .vz{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 70px -30px #000;
+    background:
+      conic-gradient(#1a1a28 25%,#14141f 0 50%,#1a1a28 0 75%,#14141f 0) 0 0/22px 22px}
+  .vz canvas{display:block;width:100%;height:100%}
+  .vz .badge{position:absolute;top:12px;right:12px;font-size:11.5px;font-weight:700;color:#cfcfe8;background:rgba(0,0,0,.5);
+    border:1px solid var(--line);padding:4px 11px;border-radius:999px}
+  .hero-vz{height:400px}
+
+  section{padding:64px 0}
+  .shead{text-align:center;max-width:660px;margin:0 auto 44px}
+  .shead h2{font-size:clamp(26px,4vw,38px);font-weight:900;letter-spacing:-.4px}
+  .shead p{color:var(--dim);margin-top:12px;font-size:17px}
+  .kick{color:#c4b0ff;font-weight:700;font-size:14px;letter-spacing:1px;margin-bottom:8px}
+
+  /* demo */
+  .demo{display:grid;grid-template-columns:260px 1fr;gap:26px;align-items:stretch}
+  @media(max-width:860px){.demo{grid-template-columns:1fr}}
+  .ctrl{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:18px}
+  .ctrl h4{font-size:13px;color:var(--dim);font-weight:700;margin-bottom:8px}
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .modes button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 0;
+    font-family:inherit;font-weight:800;font-size:14.5px;cursor:pointer;transition:.2s}
+  .modes button:hover{border-color:#5a5a80}
+  .modes button.on{background:linear-gradient(110deg,#8b5cf6,#6d4be0);border-color:#8b5cf6;color:#fff;box-shadow:0 10px 22px -10px var(--glow)}
+  .sw{display:flex;gap:9px;flex-wrap:wrap}
+  .sw button{width:34px;height:34px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:.2s}
+  .sw button.on{border-color:#fff;transform:scale(1.1)}
+  .rng{display:grid;gap:4px}
+  .rng label{display:flex;justify-content:space-between;font-size:13px;color:var(--dim)}
+  .rng input{width:100%;direction:ltr;accent-color:#8b5cf6}
+  .demo-vz{height:420px}
+
+  /* features */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:860px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .feat{background:linear-gradient(180deg,var(--card),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:24px;transition:.25s}
+  .feat:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.5);box-shadow:0 24px 50px -28px #000}
+  .feat .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;
+    background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.3)}
+  .feat h3{font-size:18px;font-weight:800;margin-bottom:7px}
+  .feat p{color:var(--dim);font-size:14.5px}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+  @media(max-width:820px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:460px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;position:relative}
+  .step .n{counter-increment:s;position:absolute;top:-14px;inset-inline-start:20px;width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(110deg,#8b5cf6,#6d4be0);color:#fff;font-weight:900;display:grid;place-items:center;box-shadow:0 8px 20px -8px var(--glow)}
+  .step .n::after{content:counter(s)}
+  .step h4{font-size:16px;font-weight:800;margin:10px 0 6px}
+  .step p{color:var(--dim);font-size:14px}
+
+  /* gallery of four */
+  .four{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:860px){.four{grid-template-columns:repeat(2,1fr)}}
+  .four .cell{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--panel);transition:.25s}
+  .four .cell:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.5)}
+  .four .cell .vz{border-radius:0;border:none;box-shadow:none;height:170px}
+  .four .cell p{padding:11px 14px;font-weight:800;font-size:15px;display:flex;justify-content:space-between}
+  .four .cell p small{color:var(--dim);font-weight:600;font-size:12.5px}
+
+  .band{background:linear-gradient(120deg,#5b3bd1,#8b5cf6 55%,#c026a3);border-radius:26px;padding:52px 34px;text-align:center;position:relative;overflow:hidden;box-shadow:0 40px 90px -40px var(--glow)}
+  .band::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 240px at 15% -20%,rgba(255,255,255,.24),transparent 60%)}
+  .band h2{font-size:clamp(26px,4vw,38px);font-weight:900;color:#fff;position:relative}
+  .band p{color:rgba(255,255,255,.9);margin:12px 0 26px;position:relative;font-size:17px}
+  .band .btn{background:#fff;color:#5b3bd1;position:relative}
+
+  .install{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:30px;max-width:720px;margin:0 auto}
+  .install ol{margin:0;padding-inline-start:22px;display:grid;gap:12px;color:var(--dim)}
+  .install ol b{color:var(--txt)}
+  .code{display:inline-block;background:#0b0b12;border:1px solid var(--line);border-radius:7px;padding:3px 10px;color:#c4b0ff;font-size:13.5px;direction:ltr}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--dim);text-align:center;font-size:14px}
+  footer b{color:var(--txt)}
+  .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="logo"><span class="mark"><i style="height:9px"></i><i style="height:18px"></i><i style="height:13px"></i><i style="height:21px"></i><i style="height:11px"></i></span> Audio Viz</div>
+  <div class="navlinks">
+    <a href="#demo">جرّبها</a>
+    <a href="#features">المزايا</a>
+    <a href="#how">كيف تعمل</a>
+    <a href="#install">التثبيت</a>
+  </div>
+  <a href="#install" class="btn" style="padding:10px 20px;font-size:14px">تثبيت</a>
+</div></nav>
+
+<header><div class="wrap"><div class="hero">
+  <div>
+    <span class="tag"><span class="dot"></span> إضافة Premiere Pro</span>
+    <h1>اجعل صوتك <span class="grad">يُرى</span><br>ويتحرّك.</h1>
+    <p class="sub">Audio Viz يحوّل أي ملف صوتي إلى مرئيات متفاعلة مع الإيقاع، ويصدّرها تسلسل صور PNG شفاف متزامناً مع الصوت،
+       ويضعها على التايم لاين جاهزة فوق الفيديو.</p>
+    <div class="cta">
+      <a href="#demo" class="btn">جرّبها الآن</a>
+      <a href="#install" class="btn ghost">طريقة التثبيت</a>
+    </div>
+    <div class="meta">
+      <div><b>4 أنماط</b> أعمدة · دائري · موجة · نقاط</div>
+      <div><b>PNG شفاف</b> فوق أي خلفية</div>
+      <div><b>متزامن</b> مع الصوت</div>
+    </div>
+  </div>
+  <div class="vz hero-vz reveal"><canvas id="heroCv"></canvas><span class="badge">معاينة حيّة</span></div>
+</div></div></header>
+
+<section id="demo">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">جرّبها بنفسك</div>
+      <h2>اختر النمط واللون وشاهد الإيقاع</h2>
+      <p>المربعات في الخلفية تعني أن النتيجة شفافة — تُوضع مباشرة فوق الفيديو.</p>
+    </div>
+    <div class="demo reveal">
+      <div class="ctrl">
+        <div><h4>النمط</h4>
+          <div class="modes" id="modes">
+            <button data-m="bars" class="on">أعمدة</button>
+            <button data-m="radial">دائري</button>
+            <button data-m="wave">موجة</button>
+            <button data-m="dots">نقاط</button>
+          </div></div>
+        <div><h4>اللون</h4>
+          <div class="sw" id="sw"></div></div>
+        <div class="rng"><label><span>الحساسية</span><span id="sensV">70%</span></label>
+          <input type="range" id="sens" min="20" max="100" value="70"></div>
+        <div class="rng"><label><span>السرعة</span><span id="spdV">1.0×</span></label>
+          <input type="range" id="spd" min="4" max="20" value="10"></div>
+      </div>
+      <div class="vz demo-vz"><canvas id="demoCv"></canvas><span class="badge">PNG شفاف</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">أربعة أنماط</div>
+      <h2>لكل محتوى شكله</h2>
+    </div>
+    <div class="four reveal">
+      <div class="cell"><div class="vz"><canvas data-m="bars"></canvas></div><p>أعمدة <small>بودكاست · موسيقى</small></p></div>
+      <div class="cell"><div class="vz"><canvas data-m="radial"></canvas></div><p>دائري <small>شعار · مقدمة</small></p></div>
+      <div class="cell"><div class="vz"><canvas data-m="wave"></canvas></div><p>موجة <small>صوت · تعليق</small></p></div>
+      <div class="cell"><div class="vz"><canvas data-m="dots"></canvas></div><p>نقاط <small>ريلز · أغاني</small></p></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">لماذا Audio Viz</div>
+      <h2>من الصوت إلى التايم لاين بلا برامج وسيطة</h2>
+    </div>
+    <div class="grid">
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4b0ff" stroke-width="2" stroke-linecap="round"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></svg></div>
+        <h3>يتفاعل مع الإيقاع</h3><p>الحركة تتبع مستوى الصوت الفعلي، فكل نبرة وكل ضربة تظهر في الشكل.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4b0ff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/></svg></div>
+        <h3>تسلسل PNG شفاف</h3><p>يُصدَّر كل إطار بخلفية شفافة، فيندمج فوق أي فيديو أو خلفية دون أي حواف.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4b0ff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>متزامن مع الصوت</h3><p>تسلسل الصور مبني على الملف الصوتي نفسه، فلا تحتاج لضبط التزامن يدوياً.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4b0ff" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h13"/></svg></div>
+        <h3>استيراد إلى التايم لاين</h3><p>بعد التصدير تُضاف الصور إلى المشروع مباشرة وتصير جاهزة على المسار.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4b0ff" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M11 8h9M4 16h9"/></svg></div>
+        <h3>تحكّم بالشكل واللون</h3><p>اختر النمط واللون وحساسية الاستجابة لتطابق هوية المشروع.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4b0ff" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg></div>
+        <h3>تثبيت بلا أدمن</h3><p>ملف تثبيت واحد يضع الإضافة في مجلد المستخدم، دون صلاحيات خاصة.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">أربع خطوات</div><h2>من الملف الصوتي إلى الشاشة</h2></div>
+    <div class="steps">
+      <div class="step reveal"><div class="n"></div><h4>🎙️ اختر الصوت</h4><p>حدّد ملف الصوت الذي تريد تحويله إلى مرئيات.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>🎨 اختر الشكل</h4><p>نمط ولون وحساسية — وشاهد المعاينة فوراً.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>📦 صدّر</h4><p>يُنتَج تسلسل PNG شفاف متزامن مع الصوت.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>🎬 على التايم لاين</h4><p>يُستورد جاهزاً فوق الفيديو، لتكمل مونتاجك.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap"><div class="band reveal">
+    <h2>اجعل كل مقطع صوتي يستحق المشاهدة</h2>
+    <p>تثبيت سريع ونتيجة احترافية من أول تصدير.</p>
+    <a href="#install" class="btn">ابدأ التثبيت الآن</a>
+  </div></div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">بدون صلاحيات أدمن</div><h2>التثبيت</h2></div>
+    <div class="install reveal">
+      <ol>
+        <li><b>فكّ الضغط</b> عن الملف كاملاً في أي مكان على جهازك.</li>
+        <li><b>شغّل</b> <span class="code">install.bat</span> — تُثبَّت الإضافة في مجلد المستخدم.</li>
+        <li><b>أعد تشغيل Premiere Pro</b>، ثم افتحها من قائمة <span class="code">Window ▸ Extensions</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <div class="logo" style="justify-content:center;margin-bottom:10px">Audio Viz</div>
+  إضافة Premiere من تصميم وتطوير <b>مصطفى</b>.
+</div></footer>
+
+<script>
+(function(){
+  var PAL=[['#22d3ee','#8b5cf6'],['#f97316','#ec4899'],['#34d399','#22d3ee'],['#facc15','#f97316'],['#ffffff','#a5b4fc']];
+  var state={m:'bars',pal:0,sens:.7,spd:1};
+
+  // simulated audio spectrum (a musical-looking envelope)
+  function levels(t,n){
+    var beat=Math.pow(Math.max(0,Math.sin(t*3.2)),6);
+    var phr=.55+.45*Math.sin(t*.7);
+    var out=new Array(n);
+    for(var i=0;i<n;i++){
+      var x=i/(n-1);
+      var body=Math.exp(-Math.pow((x-.28-.1*Math.sin(t*.5)),2)*9)*.85+.22*Math.exp(-Math.pow((x-.72),2)*14);
+      var v=body*(.45+.55*beat)*phr
+           +.16*Math.abs(Math.sin(t*5.1+i*.9))*(1-x*.6)
+           +.1*Math.abs(Math.sin(t*9.3+i*1.7));
+      out[i]=Math.max(.03,Math.min(1,v));
+    }
+    return out;
+  }
+  function grad(ctx,x0,y0,x1,y1,p){var g=ctx.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,p[0]);g.addColorStop(1,p[1]);return g;}
+  function rr(ctx,x,y,w,h,r){r=Math.min(r,w/2,Math.abs(h)/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+  function draw(ctx,w,h,m,t,p,sens){
+    ctx.clearRect(0,0,w,h);
+    var N,L,i,v;
+    if(m==='bars'){
+      N=Math.max(18,Math.floor(w/16));L=levels(t,N);
+      var bw=w/N*.62,gap=w/N;ctx.fillStyle=grad(ctx,0,h*.15,0,h*.85,p);
+      for(i=0;i<N;i++){v=L[i]*sens*h*.72;rr(ctx,i*gap+(gap-bw)/2,h/2-v/2,bw,Math.max(bw,v),bw/2);ctx.fill();}
+    }else if(m==='radial'){
+      N=72;L=levels(t,N/2);var cx=w/2,cy=h/2,r0=Math.min(w,h)*.22,R=Math.min(w,h)*.26;
+      ctx.lineCap='round';ctx.lineWidth=Math.max(2,Math.min(w,h)*.014);
+      for(i=0;i<N;i++){
+        var a=i/N*Math.PI*2-Math.PI/2,k=i<N/2?i:N-1-i;v=L[k]*sens*R;
+        ctx.strokeStyle=grad(ctx,cx-r0,cy-r0,cx+r0,cy+r0,p);
+        ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*r0,cy+Math.sin(a)*r0);ctx.lineTo(cx+Math.cos(a)*(r0+v),cy+Math.sin(a)*(r0+v));ctx.stroke();
+      }
+      ctx.beginPath();ctx.arc(cx,cy,r0-6,0,7);ctx.strokeStyle=p[0];ctx.globalAlpha=.35;ctx.lineWidth=2;ctx.stroke();ctx.globalAlpha=1;
+    }else if(m==='wave'){
+      var pts=90;L=levels(t,pts);ctx.lineWidth=Math.max(2.5,h*.012);ctx.lineJoin='round';
+      for(var pass=0;pass<3;pass++){
+        ctx.beginPath();
+        for(i=0;i<pts;i++){
+          var x=i/(pts-1)*w;
+          var s=Math.sin(i*.55+t*(4+pass))*.55+Math.sin(i*.21-t*2.4)*.45;
+          var y=h/2+s*L[i]*sens*h*.34*(1-pass*.24);
+          i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+        }
+        ctx.strokeStyle=grad(ctx,0,0,w,0,p);ctx.globalAlpha=1-pass*.33;ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+    }else{
+      var cols=Math.max(14,Math.floor(w/22)),rows=Math.max(6,Math.floor(h/22));L=levels(t,cols);
+      var cw=w/cols,ch=h/rows;
+      for(var c=0;c<cols;c++){
+        var lit=Math.round(L[c]*sens*rows*.92);
+        for(var r=0;r<rows;r++){
+          var on=r<lit/2||r<lit&&false;
+          var fromMid=Math.abs(r-rows/2+.5);
+          on=fromMid<lit/2;
+          var rad=Math.min(cw,ch)*(on?.34:.1);
+          ctx.fillStyle=on?grad(ctx,0,0,w,0,p):'rgba(255,255,255,.12)';
+          ctx.beginPath();ctx.arc(c*cw+cw/2,r*ch+ch/2,rad,0,7);ctx.fill();
+        }
+      }
+    }
+  }
+
+  var items=[];
+  function reg(cv,getM,getP,getS,getSp){items.push({cv:cv,ctx:cv.getContext('2d'),getM:getM,getP:getP,getS:getS,getSp:getSp,w:0,h:0,vis:true});}
+  function fit(it){
+    var r=it.cv.parentElement.getBoundingClientRect(),d=window.devicePixelRatio||1;
+    it.w=r.width;it.h=r.height;it.cv.width=Math.round(r.width*d);it.cv.height=Math.round(r.height*d);it.ctx.setTransform(d,0,0,d,0,0);
+  }
+  reg(document.getElementById('heroCv'),function(){return 'bars'},function(){return PAL[0]},function(){return .78},function(){return 1});
+  // hero cycles through modes
+  items[0].getM=function(){var s=Math.floor(performance.now()/6000)%4;return ['bars','radial','wave','dots'][s];};
+  reg(document.getElementById('demoCv'),function(){return state.m},function(){return PAL[state.pal]},function(){return state.sens},function(){return state.spd});
+  var extra=[PAL[0],PAL[1],PAL[2],PAL[4]];
+  document.querySelectorAll('.four canvas').forEach(function(cv,idx){
+    reg(cv,function(){return cv.dataset.m},function(){return extra[idx]},function(){return .8},function(){return 1});
+  });
+  items.forEach(function(it){fit(it);});
+  window.addEventListener('resize',function(){items.forEach(fit);});
+
+  var io2=new IntersectionObserver(function(es){es.forEach(function(e){items.forEach(function(it){if(it.cv.parentElement===e.target)it.vis=e.isIntersecting;});});});
+  items.forEach(function(it){io2.observe(it.cv.parentElement);});
+
+  var t0=performance.now();
+  (function loop(){
+    var t=(performance.now()-t0)/1000;
+    items.forEach(function(it){if(it.vis)draw(it.ctx,it.w,it.h,it.getM(),t*it.getSp(),it.getP(),it.getS());});
+    requestAnimationFrame(loop);
+  })();
+
+  // controls
+  var sw=document.getElementById('sw');
+  PAL.forEach(function(p,i){var b=document.createElement('button');b.style.background='linear-gradient(135deg,'+p[0]+','+p[1]+')';if(!i)b.className='on';
+    b.addEventListener('click',function(){state.pal=i;sw.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');});sw.appendChild(b);});
+  document.querySelectorAll('#modes button').forEach(function(b){b.addEventListener('click',function(){
+    state.m=b.dataset.m;document.querySelectorAll('#modes button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');});});
+  document.getElementById('sens').addEventListener('input',function(e){state.sens=e.target.value/100;document.getElementById('sensV').textContent=e.target.value+'%';});
+  document.getElementById('spd').addEventListener('input',function(e){state.spd=e.target.value/10;document.getElementById('spdV').textContent=(e.target.value/10).toFixed(1)+'×';});
+
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+})();
+</script>
+<script src="/tools/tools.js" data-tool="audio-viz" defer></script>
+</body>
+</html>

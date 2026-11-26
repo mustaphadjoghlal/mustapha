@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>كشيدة Kashida — تطويل الكلمة العربية بحركة لبريمير | مصطفى جغلال</title>
+<meta name="description" content="إضافة Premiere Pro تطوّل الكلمة العربية بالكشيدة الأصيلة كما يفعل الخطّاط وتحوّلها إلى حركة سلسة جاهزة للمونتاج.">
+<link rel="canonical" href="https://mustaphadjoghlal.com/tools/kashida">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mustaphadjoghlal.com/tools/kashida">
+<meta property="og:title" content="كشيدة Kashida — تطويل الكلمة العربية بحركة لبريمير | مصطفى جغلال">
+<meta property="og:description" content="إضافة Premiere Pro تطوّل الكلمة العربية بالكشيدة الأصيلة كما يفعل الخطّاط وتحوّلها إلى حركة سلسة جاهزة للمونتاج.">
+<meta property="og:image" content="https://mustaphadjoghlal.com/og-image.jpg">
+<meta property="og:locale" content="ar_AR">
+<meta name="author" content="مصطفى جغلال">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Aref+Ruqaa:wght@700&family=Cairo:wght@400;600;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12100e; --bg2:#1a1714; --panel:#201c18; --card:#272119; --line:#3a3128;
+    --txt:#f4ecdf; --dim:#a99c88; --gold:#e3b45e; --ember:#e8743b; --glow:rgba(227,180,94,.38); --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"Cairo","Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--txt);line-height:1.7;overflow-x:hidden;
+    background-image:radial-gradient(900px 520px at 90% -8%,rgba(227,180,94,.16),transparent 60%),
+                     radial-gradient(700px 420px at 0% 6%,rgba(232,116,59,.10),transparent 55%)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  .grad{background:linear-gradient(110deg,#f6d58b,#e3b45e 45%,#e8743b);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(110deg,#e3b45e,#d49a3e);color:#1b1408;border:none;
+    padding:14px 26px;border-radius:12px;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;text-decoration:none;
+    transition:.25s;box-shadow:0 10px 30px -8px var(--glow)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px -8px var(--glow)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);box-shadow:none;font-weight:700}
+  .btn.ghost:hover{border-color:var(--gold);color:var(--gold);background:rgba(227,180,94,.07)}
+
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(18,16,14,.74);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px}
+  .logo .mark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-family:"Amiri",serif;font-size:21px;color:#1b1408;
+    background:linear-gradient(145deg,#f1c978,#d49a3e);box-shadow:0 6px 18px -6px var(--glow);padding-bottom:3px}
+  .navlinks{display:flex;gap:26px;font-size:15px}
+  .navlinks a{color:var(--dim);text-decoration:none;transition:.2s}
+  .navlinks a:hover{color:var(--txt)}
+  @media(max-width:760px){.navlinks{display:none}}
+
+  header{padding:64px 0 36px}
+  .hero{display:grid;grid-template-columns:1fr 1.1fr;gap:44px;align-items:center}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:28px}}
+  .tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--gold);background:rgba(227,180,94,.1);
+    border:1px solid rgba(227,180,94,.3);padding:6px 14px;border-radius:999px;margin-bottom:22px;font-weight:600}
+  .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--ember);box-shadow:0 0 9px var(--ember)}
+  h1{font-size:clamp(38px,6vw,62px);font-weight:900;line-height:1.15;letter-spacing:-.4px}
+  .sub{color:var(--dim);font-size:clamp(16px,2.4vw,19px);margin:20px 0 30px;max-width:500px}
+  .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .meta{display:flex;gap:26px;margin-top:30px;color:var(--dim);font-size:14px;flex-wrap:wrap}
+  .meta b{color:var(--txt);font-weight:700;font-size:19px;display:block}
+
+  .stage{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 70px -30px #000;
+    background:radial-gradient(600px 300px at 50% 40%,rgba(227,180,94,.12),transparent 70%),linear-gradient(180deg,#1d1914,#15120f);
+    display:grid;place-items:center;padding:20px}
+  .stage::before{content:"";position:absolute;inset:0;opacity:.5;
+    background:repeating-linear-gradient(0deg,transparent 0 39px,rgba(255,255,255,.03) 39px 40px)}
+  .hero-stage{height:380px}
+  .word{position:relative;white-space:nowrap;line-height:1.25;text-align:center;font-family:"Amiri",serif;font-weight:700;color:var(--gold);
+    text-shadow:0 8px 40px rgba(227,180,94,.28);display:inline-block}
+  .hero-stage .word{font-size:clamp(70px,11vw,128px)}
+  .stage .pill{position:absolute;bottom:14px;right:14px;z-index:2;font-size:12.5px;font-weight:700;color:var(--dim);
+    background:rgba(0,0,0,.45);border:1px solid var(--line);padding:5px 13px;border-radius:999px}
+
+  section{padding:64px 0}
+  .shead{text-align:center;max-width:660px;margin:0 auto 44px}
+  .shead h2{font-size:clamp(26px,4vw,38px);font-weight:900;letter-spacing:-.4px}
+  .shead p{color:var(--dim);margin-top:12px;font-size:17px}
+  .kick{color:var(--gold);font-weight:700;font-size:14px;letter-spacing:1px;margin-bottom:8px}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:820px;margin:0 auto}
+  @media(max-width:620px){.compare{grid-template-columns:1fr}}
+  .cmp{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px 16px;text-align:center;position:relative}
+  .cmp small{position:absolute;top:12px;right:14px;font-size:12px;font-weight:800;padding:3px 11px;border-radius:999px;background:rgba(255,255,255,.07);color:var(--dim)}
+  .cmp.after{border-color:rgba(227,180,94,.5);box-shadow:0 20px 50px -30px var(--glow)}
+  .cmp.after small{background:var(--gold);color:#1b1408}
+  .cmp .word{font-size:clamp(54px,9vw,88px);margin-top:12px}
+  .cmp.before .word{color:#cfc4b2;text-shadow:none}
+
+  .demo{display:grid;grid-template-columns:290px 1fr;gap:24px;align-items:stretch}
+  @media(max-width:860px){.demo{grid-template-columns:1fr}}
+  .ctrl{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:17px}
+  .ctrl h4{font-size:13px;color:var(--dim);font-weight:700;margin-bottom:7px}
+  .ctrl input[type=text]{width:100%;background:#15120f;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 12px;
+    font-family:"Amiri",serif;font-size:22px;text-align:center}
+  .ctrl input[type=text]:focus{outline:none;border-color:var(--gold)}
+  .rng label{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);margin-bottom:3px}
+  .rng input{width:100%;direction:ltr;accent-color:#e3b45e}
+  .fonts{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .fonts button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 0;font-size:17px;cursor:pointer;transition:.2s}
+  .fonts button:hover{border-color:#6b5a40}
+  .fonts button.on{background:linear-gradient(110deg,#e3b45e,#d49a3e);border-color:var(--gold);color:#1b1408}
+  .sw{display:flex;gap:9px;flex-wrap:wrap}
+  .sw button{width:32px;height:32px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:.2s}
+  .sw button.on{border-color:#fff;transform:scale(1.1)}
+  .demo-stage{min-height:360px}
+  .demo-stage .word{font-size:120px}
+
+  .examples{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.examples{grid-template-columns:repeat(2,1fr)}}
+  .ex{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 10px 14px;text-align:center;transition:.25s}
+  .ex:hover{transform:translateY(-4px);border-color:rgba(227,180,94,.5)}
+  .ex .word{font-size:clamp(40px,6vw,64px)}
+  .ex p{color:var(--dim);font-size:13px;margin-top:4px}
+
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  .feat{background:linear-gradient(180deg,var(--card),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:24px;transition:.25s}
+  .feat:hover{transform:translateY(-4px);border-color:rgba(227,180,94,.5);box-shadow:0 24px 50px -28px #000}
+  .feat .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;background:rgba(227,180,94,.12);border:1px solid rgba(227,180,94,.3)}
+  .feat h3{font-size:18px;font-weight:800;margin-bottom:7px}
+  .feat p{color:var(--dim);font-size:14.5px}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:s}
+  @media(max-width:760px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;position:relative}
+  .step .n{counter-increment:s;position:absolute;top:-14px;inset-inline-start:20px;width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(110deg,#e3b45e,#d49a3e);color:#1b1408;font-weight:900;display:grid;place-items:center;box-shadow:0 8px 20px -8px var(--glow)}
+  .step .n::after{content:counter(s)}
+  .step h4{font-size:16px;font-weight:800;margin:10px 0 6px}
+  .step p{color:var(--dim);font-size:14px}
+
+  .band{background:linear-gradient(120deg,#b5701f,#e3b45e 55%,#e8743b);border-radius:26px;padding:52px 34px;text-align:center;position:relative;overflow:hidden;box-shadow:0 40px 90px -40px var(--glow)}
+  .band::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 240px at 15% -20%,rgba(255,255,255,.28),transparent 60%)}
+  .band h2{font-size:clamp(26px,4vw,38px);font-weight:900;color:#1b1408;position:relative}
+  .band p{color:rgba(27,20,8,.82);margin:12px 0 26px;position:relative;font-size:17px;font-weight:600}
+  .band .btn{background:#1b1408;color:var(--gold);position:relative;box-shadow:none}
+
+  .install{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:30px;max-width:720px;margin:0 auto}
+  .install ol{margin:0;padding-inline-start:22px;display:grid;gap:12px;color:var(--dim)}
+  .install ol b{color:var(--txt)}
+  .code{display:inline-block;background:#0d0b09;border:1px solid var(--line);border-radius:7px;padding:3px 10px;color:var(--gold);font-size:13.5px;direction:ltr}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--dim);text-align:center;font-size:14px}
+  footer b{color:var(--txt)}
+  /* حرف كشيدة مخصص لخط الرقعة (حرف الكشيدة الأصلي فيه بعرض صفر) */
+  @font-face{font-family:'RuqaaK';src:url(data:font/ttf;base64,AAEAAAAKAIAAAwAgT1MvMmc2RxQAAAEoAAAAYGNtYXAADAaTAAABkAAAADRnbHlmXf2e0wAAAcwAAAAYaGVhZC59PmgAAACsAAAANmhoZWEEwwC7AAAA5AAAACRobXR4AyAAAAAAAYgAAAAIbG9jYQAMAAAAAAHEAAAABm1heHAABAAGAAABCAAAACBuYW1l65TxegAAAeQAAABdcG9zdKOfN6sAAAJEAAAALgABAAAAAQAAj8/zTF8PPPUAAQPoAAAAAOcefmUAAAAA5x5+Zf/4ACgBNACWAAAAAwACAAAAAAAAAAEAAAOE/tQAAAH0AAD/8AE8AAEAAAAAAAAAAAAAAAAAAAACAAEAAAACAAQAAQAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAwGQAZAABQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAPz8/PwAABkAGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAB9AAAASwAAAAAAAIAAAADAAAAFAADAAEAAAAUAAQAIAAAAAQABAABAAAGQP//AAAGQP//+cEAAQAAAAAAAAAAAAwAAAAB//gAKAE0AJYAAwAAJzUhFQgBPChubgAAAAQANgABAAAAAAABAAYAAAABAAAAAAACAAcABgADAAEECQABAAwADQADAAEECQACAA4AGVJ1cWFhS1JlZ3VsYXIAUgB1AHEAYQBhAEsAUgBlAGcAdQBsAGEAcgAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAECB3VuaTA2NDAAAA==) format('truetype');unicode-range:U+0640}
+  .js .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .js .reveal.in{opacity:1;transform:none}
+  html{overflow-x:hidden}
+  .hero>*,.demo>*,.examples>*,.compare>*,.grid>*,.steps>*{min-width:0}
+  .stage,.cmp,.ex{overflow:hidden}
+  #inP{direction:rtl}
+</style>
+<script>document.documentElement.className='js'</script>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="logo"><span class="mark">ـ</span> كشيدة</div>
+  <div class="navlinks">
+    <a href="#demo">جرّبها</a>
+    <a href="#examples">أمثلة</a>
+    <a href="#features">المزايا</a>
+    <a href="#install">التثبيت</a>
+  </div>
+  <a href="#install" class="btn" style="padding:10px 20px;font-size:14px">تثبيت</a>
+</div></nav>
+
+<header><div class="wrap"><div class="hero">
+  <div>
+    <span class="tag"><span class="dot"></span> إضافة Premiere Pro</span>
+    <h1>الكلمة العربية<br><span class="grad">تمتدّ بجمال.</span></h1>
+    <p class="sub">كشيدة تطوّل الكلمة العربية بالمدّ الأصيل كما يفعل الخطّاط، مثل <b style="color:var(--gold)">السعر</b> إلى <b style="color:var(--gold)">السعــــر</b>،
+       وتحوّله إلى حركة سلسة تضعها في مونتاجك دون تشويه للحروف.</p>
+    <div class="cta">
+      <a href="#demo" class="btn">جرّب المدّ بنفسك</a>
+      <a href="#install" class="btn ghost">طريقة التثبيت</a>
+    </div>
+    <div class="meta">
+      <div><b>كشيدة أصيلة</b> لا تمديد مشوّه</div>
+      <div><b>حركة</b> جاهزة للمونتاج</div>
+      <div><b>عربي</b> بالكامل</div>
+    </div>
+  </div>
+  <div class="stage hero-stage reveal"><span class="word" id="heroWord">السعر</span><span class="pill">معاينة حيّة</span></div>
+</div></div></header>
+
+<section>
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">الفرق في سطر</div>
+      <h2>كلمة جامدة… وكلمة تتنفّس</h2>
+      <p>المدّ بالكشيدة يحفظ اتصال الحروف وشكلها، فيبدو النص خطّاً لا صورة مطّاطة.</p>
+    </div>
+    <div class="compare reveal">
+      <div class="cmp before"><small>قبل</small><span class="word">السعر</span></div>
+      <div class="cmp after"><small>بعد</small><span class="word">السعــــر</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">جرّبها بنفسك</div>
+      <h2>اكتب كلمتك وشاهدها تمتدّ</h2>
+      <p>عرض تجريبي لفكرة المدّ: اختر الكلمة والموضع والخط.</p>
+    </div>
+    <div class="demo reveal">
+      <div class="ctrl">
+        <div><h4>الكلمة</h4><input type="text" id="inWord" value="مبروك" maxlength="14" autocomplete="off"></div>
+        <div class="rng"><label><span>طول المدّ</span><span id="nV">6</span></label><input type="range" id="inN" min="0" max="16" value="6"></div>
+        <div class="rng"><label><span>موضع المدّ</span><span id="pV">—</span></label><input type="range" id="inP" min="0" max="0" value="0"></div>
+        <div><h4>الخط</h4>
+          <div class="fonts" id="fonts">
+            <button data-f="Amiri" class="on" style="font-family:Amiri">أميري</button>
+            <button data-f="Aref Ruqaa" style="font-family:'Aref Ruqaa'">رقعة</button>
+            <button data-f="Reem Kufi" style="font-family:'Reem Kufi'">كوفي</button>
+            <button data-f="Cairo" style="font-family:Cairo;font-weight:900">القاهرة</button>
+          </div></div>
+        <div><h4>اللون</h4><div class="sw" id="sw"></div></div>
+        <button class="btn" id="play" style="justify-content:center">▶ شغّل الحركة</button>
+      </div>
+      <div class="stage demo-stage"><span class="word" id="demoWord">مبروك</span><span class="pill">عرض تجريبي</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="examples">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">أمثلة</div><h2>كلمات تطلب المدّ</h2><p>للعروض والعناوين والمقدّمات.</p></div>
+    <div class="examples reveal" id="exGrid"></div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">لماذا كشيدة</div><h2>خطّ عربي، لا تمديد صورة</h2></div>
+    <div class="grid">
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e3b45e" stroke-width="2" stroke-linecap="round"><path d="M3 14h18M6 10c2 0 3 4 5 4s3-4 5-4"/></svg></div>
+        <h3>مدّ أصيل</h3><p>تُطوَّل الكلمة بالكشيدة الحقيقية بين الحروف، كما في الخط العربي، فتبقى سليمة الشكل.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e3b45e" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>حركة سلسة</h3><p>تمتدّ الكلمة تدريجياً بحركة ناعمة تلفت العين دون إزعاج.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e3b45e" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h13"/></svg></div>
+        <h3>داخل بريمير</h3><p>لوحة تعمل داخل Premiere Pro، فتنتقل النتيجة إلى المونتاج دون برامج وسيطة.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e3b45e" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg></div>
+        <h3>تثبيت بلا أدمن</h3><p>ملف تثبيت واحد، ومعه ملف إزالة متى أردت.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap"><div class="band reveal">
+    <h2>اجعل كلماتك تمتدّ بجمال</h2>
+    <p>عناوين وعروض وأسعار بلمسة خطّاط.</p>
+    <a href="#install" class="btn">ابدأ التثبيت الآن</a>
+  </div></div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">بدون صلاحيات أدمن</div><h2>التثبيت</h2></div>
+    <div class="install reveal">
+      <ol>
+        <li><b>فكّ الضغط</b> عن الملف كاملاً في أي مكان على جهازك.</li>
+        <li><b>شغّل</b> <span class="code">install.bat</span> — تُثبَّت الإضافة في مجلد المستخدم.</li>
+        <li><b>أعد تشغيل Premiere Pro</b>، ثم افتحها من قائمة <span class="code">Window ▸ Extensions</span></li>
+      </ol>
+      <p style="color:var(--dim);margin-top:18px;font-size:14px">للإزالة: شغّل <span class="code">uninstall.bat</span>.</p>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <div class="logo" style="justify-content:center;margin-bottom:10px"><span class="mark" style="width:30px;height:30px;font-size:18px">ـ</span> كشيدة · Kashida</div>
+  إضافة Premiere من تصميم وتطوير <b>مصطفى</b>.
+</div></footer>
+
+<script>
+(function(){
+  var TAT='ـ';
+  var NON='ادذرزوؤءةىأإآ';
+  function isAr(c){return c&&/[ء-ي]/.test(c);}
+  function eligible(w){
+    var r=[];
+    for(var i=0;i<w.length-1;i++){
+      var c=w[i],n=w[i+1];
+      if(!isAr(c)||c===TAT||NON.indexOf(c)>-1||!isAr(n)) continue;
+      if(c==='ل'&&'اأإآ'.indexOf(n)>-1) continue;
+      r.push(i);
+    }
+    return r;
+  }
+  function stretch(w,n,pi){
+    var e=eligible(w); if(!e.length||n<=0) return w;
+    var i=e[Math.max(0,Math.min(e.length-1,pi===undefined?e.length-1:pi))];
+    return w.slice(0,i+1)+new Array(n+1).join(TAT)+w.slice(i+1);
+  }
+  function ease(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;}
+
+  // fit a word inside its container (never overflow)
+  function fitWord(el,pad){
+    var box=el.parentElement;el.style.fontSize='';
+    var base=parseFloat(getComputedStyle(el).fontSize),avail=box.clientWidth-(pad||40),w=el.getBoundingClientRect().width;
+    if(avail>0&&w>avail) el.style.fontSize=Math.floor(base*avail/w)+'px';
+  }
+
+  // hero loop: font size is fixed per word (measured at full stretch) so it never shrinks mid-animation
+  var words=['السعر','مبروك','جديد','الخصم','تخفيضات','عرض'];
+  var hero=document.getElementById('heroWord'),start=performance.now(),last='',curCyc=-1,heroFs='';
+  (function loop(now){
+    var t=Math.max(0,((now||performance.now())-start)/1000),T=4.6,ph=t%T,cyc=Math.floor(t/T);
+    var w=words[cyc%words.length],k;
+    if(cyc!==curCyc){
+      curCyc=cyc;hero.textContent=stretch(w,7);fitWord(hero,50);heroFs=hero.style.fontSize;last='';
+    }
+    if(ph<.5)k=0;else if(ph<1.9)k=ease((ph-.5)/1.4);else if(ph<3.5)k=1;else if(ph<4.4)k=1-ease((ph-3.5)/.9);else k=0;
+    var s=stretch(w,Math.round(k*7));
+    if(s!==last){hero.textContent=s;hero.style.fontSize=heroFs;last=s;}
+    requestAnimationFrame(loop);
+  })();
+
+  // demo
+  var inW=document.getElementById('inWord'),inN=document.getElementById('inN'),inP=document.getElementById('inP'),
+      dW=document.getElementById('demoWord'),nV=document.getElementById('nV'),pV=document.getElementById('pV'),
+      stage=dW.parentElement,anim=null;
+  var COLORS=['#e3b45e','#f4ecdf','#e8743b','#7dd3a8','#8fb8ff'];
+  function curWord(){return inW.value.trim()||'كشيدة';}
+  // render with n tatweels; font size is measured at the full N so it stays steady while animating
+  function render(n){
+    var w=curWord(),p=parseInt(inP.value,10)||0,N=parseInt(inN.value,10)||0;
+    dW.textContent=stretch(w,N,p);fitWord(dW,60);var fs=dW.style.fontSize;
+    dW.textContent=stretch(w,n,p);dW.style.fontSize=fs;
+  }
+  // slider range must be set BEFORE assigning its value (otherwise the value is clamped to 0)
+  function setP(toLast){
+    var e=eligible(curWord());
+    inP.max=Math.max(0,e.length-1);
+    if(toLast) inP.value=Math.max(0,e.length-1);
+    else if(parseInt(inP.value,10)>e.length-1) inP.value=Math.max(0,e.length-1);
+    inP.disabled=e.length<2;
+    pV.textContent=e.length?(parseInt(inP.value,10)+1)+' من '+e.length:'—';
+  }
+  function full(){nV.textContent=inN.value;render(parseInt(inN.value,10));}
+  inW.addEventListener('input',function(){if(anim)cancelAnimationFrame(anim);setP(true);full();});
+  inN.addEventListener('input',function(){if(anim)cancelAnimationFrame(anim);full();});
+  inP.addEventListener('input',function(){if(anim)cancelAnimationFrame(anim);setP(false);full();});
+  document.getElementById('play').addEventListener('click',function(){
+    if(anim)cancelAnimationFrame(anim);
+    var N=parseInt(inN.value,10),t0=performance.now(),D=1300;
+    (function step(now){
+      var k=Math.min(1,(now-t0)/D);render(Math.round(ease(k)*N));
+      if(k<1)anim=requestAnimationFrame(step);
+    })(t0);
+  });
+  document.querySelectorAll('#fonts button').forEach(function(b){b.addEventListener('click',function(){
+    document.querySelectorAll('#fonts button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+    dW.style.fontFamily=b.dataset.f==='Aref Ruqaa'?"'RuqaaK','Aref Ruqaa',serif":"'"+b.dataset.f+"',serif";dW.style.fontWeight=b.dataset.f==='Cairo'?'900':'700';full();
+  });});
+  var sw=document.getElementById('sw');
+  COLORS.forEach(function(c,i){var b=document.createElement('button');b.style.background=c;if(!i)b.className='on';
+    b.addEventListener('click',function(){sw.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+      dW.style.color=c;dW.style.textShadow='0 8px 40px '+c+'55';});sw.appendChild(b);});
+  // static examples + before/after, all fitted to their boxes
+  var ex=[['السعر',7],['مبروك',6],['جديد',6],['تخفيضات',5],['رمضان',6],['عرض',7]],g=document.getElementById('exGrid');
+  ex.forEach(function(p){var d=document.createElement('div');d.className='ex';
+    d.innerHTML='<span class="word">'+stretch(p[0],p[1])+'</span><p>'+p[0]+'</p>';g.appendChild(d);});
+  function fitStatic(){
+    g.querySelectorAll('.word').forEach(function(el){fitWord(el,26);});
+    var a=document.querySelector('.cmp.after .word'),b=document.querySelector('.cmp.before .word');
+    if(a&&b){fitWord(a,44);b.style.fontSize=a.style.fontSize;}
+  }
+  function refit(){curCyc=-1;setP(false);full();fitStatic();}
+  setP(true);full();fitStatic();
+  window.addEventListener('resize',refit);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(refit);
+
+  // reveal on scroll, with a fail-safe so content can never stay hidden
+  var els=document.querySelectorAll('.reveal');
+  function showAll(){els.forEach(function(el){el.classList.add('in');});}
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.05});
+    els.forEach(function(el){io.observe(el);});
+    setTimeout(showAll,2500);
+  }else showAll();
+})();
+</script>
+<script src="/tools/tools.js" data-tool="kashida" defer></script>
+</body>
+</html>

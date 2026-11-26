@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>جداري Jidari — جرّب ألوان الجدران في غرفة ثلاثية الأبعاد | مصطفى جغلال</title>
+<meta name="description" content="جداري برنامج يضعك داخل غرفة ثلاثية الأبعاد واقعية: لوّن أي جدار من كتالوج جوتن الكامل، جرّب تصاميم الجدار واللمعة، رتّب الأثاث، واحسب كمية الدهان قبل الشراء.">
+<link rel="canonical" href="https://mustaphadjoghlal.com/tools/jidari">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mustaphadjoghlal.com/tools/jidari">
+<meta property="og:title" content="جداري Jidari — جرّب ألوان الجدران في غرفة ثلاثية الأبعاد">
+<meta property="og:description" content="لوّن جدارك من كتالوج جوتن، جرّب التصاميم، واحسب الكمية قبل الشراء.">
+<meta property="og:image" content="https://mustaphadjoghlal.com/tools/jidari/assets/room-green.webp">
+<meta property="og:locale" content="ar_AR">
+<meta name="author" content="مصطفى جغلال">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script>document.documentElement.className='js'</script>
+<style>
+  :root{
+    --bg:#0d1413; --bg2:#121c1a; --panel:#17231f; --card:#1c2b27; --line:#2a3d38;
+    --txt:#eef5f2; --dim:#97ada7; --a:#2bb39a; --a2:#7ee0c7; --warm:#e9b872; --glow:rgba(43,179,154,.4); --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;overflow-x:hidden}
+  body{font-family:"Cairo","Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--txt);line-height:1.7;overflow-x:hidden;
+    background-image:radial-gradient(900px 520px at 88% -8%,rgba(43,179,154,.17),transparent 60%),
+                     radial-gradient(700px 420px at 0% 8%,rgba(233,184,114,.08),transparent 55%)}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+  .grad{background:linear-gradient(110deg,#7ee0c7,#2bb39a 50%,#e9b872);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(110deg,#2bb39a,#1f8f7b);color:#04201b;border:none;
+    padding:14px 26px;border-radius:12px;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;text-decoration:none;
+    transition:.25s;box-shadow:0 10px 30px -8px var(--glow)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px -8px var(--glow)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);box-shadow:none;font-weight:700}
+  .btn.ghost:hover{border-color:var(--a);color:var(--a2);background:rgba(43,179,154,.07)}
+
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(13,20,19,.76);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .navstart{display:flex;align-items:center}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px}
+  .logo .mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(145deg,#2bb39a,#167a68);box-shadow:0 6px 18px -6px var(--glow)}
+  .navlinks{display:flex;gap:26px;font-size:15px}
+  .navlinks a{color:var(--dim);text-decoration:none;transition:.2s}
+  .navlinks a:hover{color:var(--txt)}
+  @media(max-width:820px){.navlinks{display:none}}
+
+  header{padding:56px 0 30px}
+  .hero{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:center}
+  @media(max-width:960px){.hero{grid-template-columns:1fr;gap:30px}}
+  .hero>*,.gal>*,.grid>*,.steps>*{min-width:0}
+  .tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--a2);background:rgba(43,179,154,.1);
+    border:1px solid rgba(43,179,154,.3);padding:6px 14px;border-radius:999px;margin-bottom:22px;font-weight:600}
+  .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--warm);box-shadow:0 0 9px var(--warm)}
+  h1{font-size:clamp(38px,5.6vw,60px);font-weight:900;line-height:1.15;letter-spacing:-.4px}
+  .sub{color:var(--dim);font-size:clamp(16px,2.2vw,18.5px);margin:20px 0 30px;max-width:520px}
+  .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .meta{display:flex;gap:28px;margin-top:30px;color:var(--dim);font-size:14px;flex-wrap:wrap}
+  .meta b{color:var(--txt);font-weight:800;font-size:20px;display:block}
+
+  /* نافذة التطبيق + تبديل اللون */
+  .frame{border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0a0f0e;box-shadow:0 40px 80px -34px #000}
+  .frame .bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:#141e1c;border-bottom:1px solid var(--line);direction:ltr}
+  .frame .bar i{width:10px;height:10px;border-radius:50%;background:#2a3a36}
+  .frame .bar span{margin-left:10px;font-size:11.5px;color:#7f948f}
+  .shots{position:relative;aspect-ratio:1280/760}
+  .shots img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s ease}
+  .shots img.on{opacity:1}
+  .swatches{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+  .swatches small{color:var(--dim);font-size:13px}
+  .sw{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:999px;
+    padding:6px 14px 6px 8px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:.2s}
+  .sw i{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.25)}
+  .sw.on{border-color:var(--a);box-shadow:0 0 0 3px rgba(43,179,154,.18)}
+
+  section{padding:64px 0}
+  .shead{text-align:center;max-width:680px;margin:0 auto 44px}
+  .shead h2{font-size:clamp(26px,4vw,38px);font-weight:900;letter-spacing:-.4px}
+  .shead p{color:var(--dim);margin-top:12px;font-size:17px}
+  .kick{color:var(--a2);font-weight:700;font-size:14px;letter-spacing:1px;margin-bottom:8px}
+
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  .feat{background:linear-gradient(180deg,var(--card),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:22px;transition:.25s}
+  .feat:hover{transform:translateY(-4px);border-color:rgba(43,179,154,.5);box-shadow:0 24px 50px -28px #000}
+  .feat .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px;background:rgba(43,179,154,.12);border:1px solid rgba(43,179,154,.3)}
+  .feat h3{font-size:17px;font-weight:800;margin-bottom:6px}
+  .feat p{color:var(--dim);font-size:14px}
+
+  .gal{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){.gal{grid-template-columns:1fr}}
+  .gal figure{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.25s}
+  .gal figure:hover{transform:translateY(-4px);border-color:rgba(43,179,154,.45)}
+  .gal img{display:block;width:100%;aspect-ratio:1280/760;object-fit:cover}
+  .gal figcaption{padding:14px 18px}
+  .gal figcaption b{display:block;font-size:16.5px}
+  .gal figcaption span{color:var(--dim);font-size:14px}
+
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+  @media(max-width:820px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:460px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;position:relative}
+  .step .n{counter-increment:s;position:absolute;top:-14px;inset-inline-start:20px;width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(110deg,#2bb39a,#1f8f7b);color:#04201b;font-weight:900;display:grid;place-items:center;box-shadow:0 8px 20px -8px var(--glow)}
+  .step .n::after{content:counter(s)}
+  .step h4{font-size:16px;font-weight:800;margin:10px 0 6px}
+  .step p{color:var(--dim);font-size:14px}
+
+  .band{background:linear-gradient(120deg,#11695a,#2bb39a 55%,#e9b872);border-radius:26px;padding:52px 34px;text-align:center;position:relative;overflow:hidden;box-shadow:0 40px 90px -40px var(--glow)}
+  .band::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 240px at 15% -20%,rgba(255,255,255,.26),transparent 60%)}
+  .band h2{font-size:clamp(26px,4vw,38px);font-weight:900;color:#04201b;position:relative}
+  .band p{color:rgba(4,32,27,.82);margin:12px 0 26px;position:relative;font-size:17px;font-weight:600}
+  .band .cta{justify-content:center;position:relative}
+  .band .btn{background:#04201b;color:var(--a2);box-shadow:none}
+  .band .btn.ghost{background:rgba(255,255,255,.25);color:#04201b;border-color:rgba(4,32,27,.25)}
+
+  .install{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:30px;max-width:720px;margin:0 auto}
+  .install ol{margin:0;padding-inline-start:22px;display:grid;gap:12px;color:var(--dim)}
+  .install ol b{color:var(--txt)}
+  .install .note{color:var(--dim);margin-top:18px;font-size:14px}
+  .code{display:inline-block;background:#080d0c;border:1px solid var(--line);border-radius:7px;padding:3px 10px;color:var(--a2);font-size:13.5px;direction:ltr}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--dim);text-align:center;font-size:14px}
+  footer b{color:var(--txt)}
+  footer a{color:var(--a2);text-decoration:none}
+  .js .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .js .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="navstart">
+    <div class="logo"><span class="mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#04201b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="15" height="6" rx="1.5"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx="1"/></svg></span> جداري</div>
+  </div>
+  <div class="navlinks">
+    <a href="#try">جرّب اللون</a>
+    <a href="#features">المزايا</a>
+    <a href="#gallery">من داخل البرنامج</a>
+    <a href="#install">التحميل</a>
+  </div>
+  <a href="/tools/jidari/app/index.html" target="_blank" rel="noopener" class="btn" style="padding:10px 20px;font-size:14px">جرّبه الآن</a>
+</div></nav>
+
+<header id="try"><div class="wrap"><div class="hero">
+  <div>
+    <span class="tag"><span class="dot"></span> برنامج ثلاثي الأبعاد · يعمل في المتصفح وعلى ويندوز</span>
+    <h1>اختر لون جدارك<br><span class="grad">قبل أن تشتريه.</span></h1>
+    <p class="sub">جداري يضعك داخل غرفة ثلاثية الأبعاد واقعية بأثاث حقيقي وإضاءة طبيعية. اضغط على أي جدار ولوّنه من كتالوج جوتن الكامل،
+       جرّب تصاميم الجدار واللمعة، واعرف كمية الدهان قبل أن تذهب إلى المحل.</p>
+    <div class="cta">
+      <a href="/tools/jidari/app/index.html" target="_blank" rel="noopener" class="btn">جرّبه في المتصفح
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a>
+      <a href="#install" class="btn ghost">تحميل للويندوز</a>
+    </div>
+    <div class="meta">
+      <div><b>1017 لوناً</b> من كتالوج جوتن</div>
+      <div><b>13 تصميماً</b> للجدار</div>
+      <div><b>باللتر</b> كمية كل لون</div>
+    </div>
+  </div>
+  <div class="reveal">
+    <div class="frame">
+      <div class="bar"><i></i><i></i><i></i><span>Jidari — جداري</span></div>
+      <div class="shots" id="shots">
+        <img src="/tools/jidari/assets/room-green.webp" alt="غرفة جلوس في جداري بجدار أخضر مايندفول غرين 7686" class="on" data-c="green">
+        <img src="/tools/jidari/assets/room-grey.webp" alt="الغرفة نفسها بجدار رمادي كمفرت جري 12078" data-c="grey" loading="lazy">
+        <img src="/tools/jidari/assets/room-red.webp" alt="الغرفة نفسها بجدار أحمر سوفيستيكاتيد ريد 2951" data-c="red" loading="lazy">
+      </div>
+    </div>
+    <div class="swatches" id="swatches">
+      <small>غيّر اللون:</small>
+      <button class="sw on" data-c="green"><i style="background:#7d8d7e"></i>مايندفول غرين</button>
+      <button class="sw" data-c="grey"><i style="background:#b9b4aa"></i>كمفرت جري</button>
+      <button class="sw" data-c="red"><i style="background:#8a5148"></i>سوفيستيكاتيد ريد</button>
+    </div>
+  </div>
+</div></div></header>
+
+<section id="features">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">كل ما تحتاجه لتختار بثقة</div>
+      <h2>ليس صورة تُعاد تلوينها، بل غرفة حقيقية</h2>
+      <p>الضوء يسقط على الجدار والأثاث كما في الواقع، فترى اللون كما سيبدو في بيتك.</p>
+    </div>
+    <div class="grid">
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ee0c7" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="12.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><path d="M12 22a10 10 0 1 1 10-10c0 2-1.5 3-3.5 3H16a2 2 0 0 0-1 3.7A2 2 0 0 1 12 22z"/></svg></div>
+        <h3>كتالوج جوتن كاملاً</h3><p>1017 لوناً بأسمائها وأكوادها، مقسّمة إلى مجموعات، مع بحث بالكود أو الاسم.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ee0c7" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 13h18M8 13v8"/></svg></div>
+        <h3>13 تصميماً للجدار</h3><p>سادة، نصف جدار بلونين، شرائط وخطوط، قوس ودائرة، معيّنات وزجزاج، جدارية وبانوهات.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ee0c7" stroke-width="2" stroke-linecap="round"><path d="M12 3l2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5z"/></svg></div>
+        <h3>مطفي أو لامع</h3><p>بدّل بين المطفي ونصف اللمعة واللامع، وشاهد انعكاس الضوء يتغيّر على الجدار.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ee0c7" stroke-width="2" stroke-linecap="round"><path d="M5 11V8a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3"/><path d="M3 13a2 2 0 0 1 4 0v2h10v-2a2 2 0 0 1 4 0v5H3z"/><path d="M6 18v2M18 18v2"/></svg></div>
+        <h3>أثاث واقعي</h3><p>كنب وكراسي وطاولات وأسرّة وإضاءة وديكور. أضف أي قطعة أو احذفها أو غيّر حجمها.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ee0c7" stroke-width="2" stroke-linecap="round"><path d="M8 2h8l-1 5H9z"/><path d="M9 7v13a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V7"/></svg></div>
+        <h3>كمية الدهان</h3><p>المساحة واللترات لكل لون، للجدران والسقف والخشب، مع عدد العبوات المقترح.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ee0c7" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg></div>
+        <h3>غرف وأرضيات وإضاءة</h3><p>غرف جاهزة، وأرضيات خشب وبلاط، وإضاءة شروق أو غروب أو ليل.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ee0c7" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg></div>
+        <h3>لقطة وصورة واقعية</h3><p>احفظ لقطة سريعة، أو صورة واقعية عالية الجودة تشاركها مع العميل أو العائلة.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ee0c7" stroke-width="2" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div>
+        <h3>تنسيقاتي</h3><p>احفظ كل تنسيق ألوان أعجبك، وارجع إليه متى شئت.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">من داخل البرنامج</div>
+      <h2>كما ستراه على شاشتك</h2>
+      <p>لقطات حقيقية من جداري، دون أي تعديل.</p>
+    </div>
+    <div class="gal">
+      <figure class="reveal"><img src="/tools/jidari/assets/half-wall.webp" alt="تصميم نصف جدار بلونين مع فاصل خشبي في جداري" loading="lazy">
+        <figcaption><b>نصف جدار بلونين</b><span>حدّد ارتفاع الجزء السفلي، وأضف فاصلاً خشبياً بلون النعلات.</span></figcaption></figure>
+      <figure class="reveal"><img src="/tools/jidari/assets/top-view.webp" alt="منظور علوي للغرفة كاملة بأثاثها في جداري" loading="lazy">
+        <figcaption><b>منظور علوي</b><span>شاهد الغرفة كلها من الأعلى، ثم ادخلها وتجوّل فيها.</span></figcaption></figure>
+      <figure class="reveal"><img src="/tools/jidari/assets/quantity.webp" alt="جدول كمية الدهان باللتر لكل لون في جداري" loading="lazy">
+        <figcaption><b>كمية كل لون</b><span>اللترات والمساحة وعدد العبوات، فتشتري ما تحتاجه بالضبط.</span></figcaption></figure>
+      <figure class="reveal"><img src="/tools/jidari/assets/furniture.webp" alt="قائمة الأثاث في جداري: جلوس وطاولات ونوم وإضاءة وديكور" loading="lazy">
+        <figcaption><b>أثاث تختاره بنفسك</b><span>اضغط على أي قطعة لتعديلها، أو أضف قطعة جديدة من القائمة.</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">أربع خطوات</div><h2>من الفكرة إلى قائمة الشراء</h2></div>
+    <div class="steps">
+      <div class="step reveal"><div class="n"></div><h4>اختر الغرفة</h4><p>غرفة جاهزة بأثاثها، والأرضية والإضاءة التي تشبه بيتك.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>لوّن الجدار</h4><p>اضغط على الجدار، ثم اختر اللون من كتالوج جوتن.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>جرّب التصميم</h4><p>نصف جدار أو شريط أو قوس، ومطفي أو لامع.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>احسب واحفظ</h4><p>كمية كل لون باللتر، واحفظ التنسيق في «تنسيقاتي».</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap"><div class="band reveal">
+    <h2>جرّب اللون على الشاشة قبل الجدار</h2>
+    <p>لا تثبيت ولا تسجيل: افتحه في المتصفح وابدأ.</p>
+    <div class="cta">
+      <a href="/tools/jidari/app/index.html" target="_blank" rel="noopener" class="btn">جرّبه في المتصفح</a>
+      <a href="#install" class="btn ghost">تحميل للويندوز</a>
+    </div>
+  </div></div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">يعمل دون إنترنت بعد التحميل</div><h2>التحميل والتشغيل</h2></div>
+    <div class="install reveal">
+      <ol>
+        <li><b>فكّ الضغط</b> عن الملف كاملاً في أي مكان على جهازك.</li>
+        <li><b>انقر مرتين</b> على <span class="code">Run-Jidari.bat</span>، فيفتح البرنامج في متصفحك تلقائياً.</li>
+        <li><b>أبقِ النافذة السوداء مفتوحة</b> ما دمت تستخدم البرنامج، وأغلقها حين تنتهي.</li>
+      </ol>
+      <p class="note">الألوان على الشاشة تقريبية، فقارنها بمروحة ألوان جوتن الحقيقية قبل الشراء. يعمل على ويندوز 10 فأحدث، وفي أي متصفح حديث.</p>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <div class="logo" style="justify-content:center;margin-bottom:10px">جداري · Jidari</div>
+  برنامج من تصميم وتطوير <b><a href="/">مصطفى جغلال</a></b>.
+</div></footer>
+
+<script>
+(function(){
+  var imgs=document.querySelectorAll('#shots img'), btns=document.querySelectorAll('#swatches .sw'), order=['green','grey','red'], i=0, timer;
+  function show(c){
+    imgs.forEach(function(im){im.classList.toggle('on',im.dataset.c===c);});
+    btns.forEach(function(b){b.classList.toggle('on',b.dataset.c===c);});
+    i=order.indexOf(c);
+  }
+  function auto(){clearInterval(timer);timer=setInterval(function(){show(order[(i+1)%order.length]);},3200);}
+  btns.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.c);auto();});});
+  auto();
+
+  var els=document.querySelectorAll('.reveal');
+  function showAll(){els.forEach(function(el){el.classList.add('in');});}
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.05});
+    els.forEach(function(el){io.observe(el);});setTimeout(showAll,2500);
+  }else showAll();
+})();
+</script>
+<script src="/tools/tools.js" data-tool="jidari" defer></script>
+</body>
+</html>

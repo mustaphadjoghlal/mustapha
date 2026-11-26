@@ -38,6 +38,7 @@ export const textGroups: TextGroup[] = [
       { key: "nav.home", label: "القائمة: الرئيسية", value: "الرئيسية" },
       { key: "nav.about", label: "القائمة: عني", value: "عني" },
       { key: "nav.portfolio", label: "القائمة: أعمالي", value: "أعمالي" },
+      { key: "nav.tools", label: "القائمة: الإضافات", value: "إضافاتي" },
       { key: "nav.courses", label: "القائمة: الدورات", value: "الدورات التدريبية" },
       { key: "nav.articles", label: "القائمة: المقالات", value: "المقالات" },
       { key: "footer.rights", label: "الفوتر: حقوق النشر", value: "جميع الحقوق محفوظة" },
@@ -173,6 +174,16 @@ export const textGroups: TextGroup[] = [
       { key: "photo.cta.sub", label: "سطر تحت عنوان الطلب", value: "دعنا نعمل معاً لتوثيق اللحظات المهمة وإنشاء صور تعكس رؤيتك" },
       { key: "photo.cta.button", label: "زر الطلب", value: "اطلب خدمة التصوير" },
       { key: "photo.cta.whatsapp", label: "رسالة واتساب الجاهزة", value: "مرحباً مصطفى، أود الاستفسار عن خدمات التصوير الفوتوغرافي", multiline: true },
+    ],
+  },
+  {
+    id: "tools",
+    title: "صفحة الإضافات والبرامج",
+    items: [
+      { key: "tools.eyebrow", label: "السطر الصغير فوق العنوان", value: "أدوات صنعتها لعملي" },
+      { key: "tools.title", label: "العنوان", value: "إضافات وبرامج" },
+      { key: "tools.desc", label: "الفقرة التعريفية", value: "إضافات لفوتوشوب وبريمير وبرامج صغيرة صنعتها لتختصر عليّ ساعات من العمل اليومي، وأشاركها معك لتختصر عليك أيضاً.", multiline: true },
+      { key: "tools.open", label: "رابط البطاقة", value: "اكتشف الإضافة" },
     ],
   },
   {

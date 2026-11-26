@@ -68,6 +68,13 @@ const mainPages = [
       "تصوير فوتوغرافي, تصوير منتجات, تصوير فعاليات, مصور في مسقط, تصوير إعلانات",
   },
   {
+    path: "tools",
+    title: "إضافات وبرامج — فوتوشوب وبريمير | مصطفى جغلال",
+    description:
+      "إضافات عربية لفوتوشوب وبريمير وبرامج صغيرة من تطوير مصطفى جغلال: ظلال واقعية، مرئيات صوت، كشيدة متحركة، محادثات ثلاثية الأبعاد، خرائط متحركة، بطاقات 3D، وتجربة ألوان الجدران.",
+    keywords: "إضافات فوتوشوب, إضافات بريمير, Premiere Pro extension, Photoshop plugin عربي, مصطفى جغلال",
+  },
+  {
     path: "portfolio-motion",
     title: "الموشن جرافيك — فيديوهات متحركة وريلز | مصطفى جغلال",
     description:
@@ -283,6 +290,12 @@ const sitemap = [
     loc: `${SITE}/${p.path}`,
     changefreq: "weekly",
     priority: p.path === "about" || p.path === "portfolio" ? "0.9" : "0.8",
+  })),
+  // صفحات هبوط الإضافات — ملفات ثابتة في public/tools (القائمة في src/app/shared/tools.ts)
+  ...["jidari", "cards-3d", "masar", "rasael", "kashida", "audio-viz", "zill"].map((slug) => ({
+    loc: `${SITE}/tools/${slug}`,
+    changefreq: "monthly",
+    priority: "0.7",
   })),
   ...dynamicPages.map((p) => ({
     loc: `${SITE}/${p.path}`,

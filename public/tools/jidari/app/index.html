@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>جداري — ألوان الجدران</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a calm paint-shop studio tool; the room is the hero, controls stay quiet.
+   IDEA: a paint fan deck beside a real room — swatches are chips you pull out.
+   PICTURE: full-bleed real-time 3D room with physical lighting, path-traced photo mode.
+   COLOUR and TYPE: neutral warm paper UI so it never tints colour judgement; ink, one deep teal accent. IBM Plex Sans Arabic.
+   LAYOUT: viewer fills the screen; fan-deck panel at the bottom on phones, at the side on desktop. */
+:root{color-scheme:light dark;--bg:light-dark(#f4f2ee,#1b1a18);--panel:light-dark(#fbfaf8,#232220);--ink:light-dark(#1d1c1a,#efece6);--mut:light-dark(#6f6a63,#a59f96);--line:light-dark(#e3dfd8,#36332f);--acc:light-dark(#0f5c55,#5fc0b2);--chip:light-dark(#efece7,#2c2a27)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans Arabic",system-ui,sans-serif;overflow:hidden;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{flex:1;display:flex;flex-direction:column;height:100%}
+.view{position:relative;flex:1;min-height:0;background:#111}
+#c{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+.top{position:absolute;inset-inline:10px;top:max(10px,env(safe-area-inset-top));display:flex;gap:8px;align-items:flex-start;justify-content:space-between;pointer-events:none}
+.top>*{pointer-events:auto}
+.seg{display:flex;background:rgba(20,19,17,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:12px;padding:3px}
+.seg button{border:0;background:none;color:#fff;padding:8px 12px;border-radius:9px;font-size:13.5px;min-height:38px;white-space:nowrap}
+.seg button.on{background:#fff;color:#1d1c1a;font-weight:500}
+.tools{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ib{border:0;background:rgba(20,19,17,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;height:44px;min-width:44px;padding:0 12px;border-radius:12px;display:flex;align-items:center;gap:6px;font-size:13.5px}
+.ib svg{width:20px;height:20px}
+.ib.pri{background:var(--acc);color:#fff}
+#corners[hidden]{display:none}
+#corners{position:absolute;bottom:12px;inset-inline-start:10px;display:flex;gap:6px}
+#corners button{width:40px;height:40px;border-radius:50%;border:0;background:rgba(20,19,17,.55);color:#fff;font-size:13px;backdrop-filter:blur(8px)}
+.hint{transition:opacity .6s;position:absolute;bottom:60px;inset-inline-end:12px;color:#fff;font-size:12.5px;background:rgba(20,19,17,.45);padding:6px 10px;border-radius:10px;max-width:60%;pointer-events:none}
+#toast{position:absolute;left:50%;top:64px;transform:translate(-50%,-10px);background:rgba(20,19,17,.85);color:#fff;padding:8px 14px;border-radius:12px;font-size:13.5px;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#loading{position:absolute;inset:0;display:grid;place-items:center;background:#161513;color:#ddd;transition:opacity .6s;font-size:14px}
+#loading.gone{opacity:0;pointer-events:none}
+#loading b{display:block;font-size:28px;color:#fff;margin-bottom:4px;text-align:center}
+#ptbar{position:absolute;inset-inline:10px;bottom:12px;background:rgba(20,19,17,.8);backdrop-filter:blur(10px);color:#fff;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#ptbar[hidden]{display:none}
+#ptbar .bar{flex:1 1 120px;height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden}
+#ptfill{height:100%;width:0;background:#5fc0b2}
+#ptbar button{border:0;border-radius:10px;padding:8px 12px;min-height:40px;font-size:13.5px}
+#ptsave{background:#fff;color:#111}#ptstop{background:rgba(255,255,255,.16);color:#fff}
+#ptcount{font-variant-numeric:tabular-nums;font-size:12.5px;opacity:.8}
+body.pt .hint,body.pt #corners{display:none}
+@media(max-width:560px){#ptlabel{display:none}}
+
+.panel{background:var(--panel);border-top:1px solid var(--line);height:min(47vh,430px);display:flex;flex-direction:column;transition:height .25s;padding-bottom:env(safe-area-inset-bottom)}
+body.collapsed .panel{height:calc(58px + env(safe-area-inset-bottom))}
+.tabs{display:flex;gap:2px;padding:6px 8px 0;border-bottom:1px solid var(--line);position:relative}
+.tabs button{flex:1;border:0;background:none;padding:10px 2px 10px;font-size:14px;color:var(--mut);border-bottom:2.5px solid transparent;min-height:44px}
+.tabs button.on{color:var(--ink);font-weight:700;border-color:var(--acc)}
+#collapse{flex:0 0 40px!important;font-size:18px!important}
+.pane{overflow-y:auto;padding:12px 14px 18px;flex:1}
+.pane[hidden]{display:none}
+.row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.row::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--chip);padding:7px 12px;border-radius:999px;font-size:13.5px;min-height:40px;white-space:nowrap}
+.chip i{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.chip.on{border-color:var(--acc);box-shadow:0 0 0 1.5px var(--acc) inset;font-weight:500}
+.head{display:flex;gap:12px;align-items:center;margin:12px 0 10px}
+#cur{width:64px;height:64px;border-radius:14px;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1),0 2px 6px rgba(0,0,0,.08)}
+.head .t{flex:1}
+.head small{color:var(--mut);font-size:12.5px;display:block}
+#curname{font-size:18px;font-weight:700;display:block;line-height:1.3}
+.hexrow{display:flex;gap:6px;align-items:center;margin-top:4px}
+#curhex{width:96px;font:500 15px/1 ui-monospace,monospace;direction:ltr;text-align:center;padding:7px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.pick{position:relative;width:36px;height:36px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)}
+.pick input{position:absolute;inset:-6px;width:150%;height:150%;opacity:0;cursor:pointer}
+#finish{display:flex;background:var(--chip);border-radius:10px;padding:3px;margin-bottom:12px}
+#finish button{flex:1;border:0;background:none;padding:8px 4px;border-radius:8px;font-size:13.5px;min-height:38px}
+#finish button.on{background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:700}
+h4{margin:14px 0 8px;font-size:13px;color:var(--mut);font-weight:500}
+.lbl{display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px}
+.lbl h4{margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}
+.sw{border:0;padding:0;background:none;display:flex;flex-direction:column;align-items:stretch;gap:4px;text-align:center}
+.sw::before{content:"";display:block;height:42px;border-radius:10px;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}
+.sw.big::before{height:52px}
+.sw span{font-size:12px;color:var(--mut);line-height:1.25}
+#harm{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+#harm .sw::before{height:38px}
+#harm .sw span{font-size:11px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--chip);border-radius:10px;padding:9px 14px;min-height:42px;font-size:13.5px;display:inline-flex;align-items:center;gap:6px}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:500}
+.btn:disabled{opacity:.45;cursor:default}
+#recent{display:flex;gap:8px;flex-wrap:wrap}
+#recent small{color:var(--mut)}
+.dot{width:34px;height:34px;border-radius:50%;border:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+#rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.room{border:1px solid var(--line);background:var(--chip);border-radius:14px;padding:12px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.room svg{width:40px;height:40px;color:var(--acc)}
+.room b{font-size:13.5px}.room small{color:var(--mut);font-size:12px;direction:ltr}
+.room.on{border-color:var(--acc);box-shadow:0 0 0 1.5px var(--acc) inset}
+.dim{display:grid;grid-template-columns:84px 1fr 56px;align-items:center;gap:10px;margin:6px 0}
+.dim output{font-variant-numeric:tabular-nums;font-size:13.5px;text-align:left;white-space:nowrap}
+input[type=range]{width:100%;accent-color:var(--acc);height:28px}
+.tog{display:flex;align-items:center;gap:10px;margin:12px 0;font-size:14px}
+.tog input{width:20px;height:20px;accent-color:var(--acc)}
+#floors{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.floor{border:1px solid var(--line);background:var(--chip);border-radius:12px;padding:6px 6px 8px;display:flex;flex-direction:column;gap:6px}
+.floor i{height:54px;border-radius:8px;display:block}
+.floor b{font-size:13px;font-weight:500}
+.floor.on{border-color:var(--acc);box-shadow:0 0 0 1.5px var(--acc) inset}
+.note{color:var(--mut);font-size:12.5px;margin:10px 0 0}
+#schemes{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.scheme{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:6px;background:var(--chip)}
+.thumb{border:0;padding:0;background:none;flex:none}
+.thumb img{width:104px;height:66px;object-fit:cover;border-radius:8px;display:block}
+.scheme .meta{flex:1}.scheme b{font-size:14px}.scheme small{color:var(--mut);font-size:12px}
+.dots{display:flex;gap:4px;margin:3px 0}.dots i{width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.x{border:0;background:none;font-size:22px;color:var(--mut);width:40px;height:40px}
+.empty{color:var(--mut);font-size:13.5px}
+#shot{position:fixed;inset:0;background:rgba(0,0,0,.82);display:grid;place-items:center;z-index:9;padding:16px}
+#shot[hidden]{display:none}
+#shot .card{background:var(--panel);border-radius:16px;padding:12px;max-width:min(1100px,100%);max-height:100%;display:flex;flex-direction:column;gap:10px}
+#shotimg{max-width:100%;max-height:70vh;border-radius:10px;display:block;object-fit:contain}
+#shot .cap{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#shot .cap small{color:var(--mut)}
+
+.tabs{overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1 0 auto;padding-inline:8px}
+.head .btn{flex:none}
+.code{direction:ltr;text-align:right}
+.field{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px;margin:4px 0 8px}
+.featurebox{border:1px solid var(--line);border-radius:12px;padding:10px;margin:12px 0;background:var(--chip)}
+.featurebox h4{margin-top:2px}
+.featurebox[hidden]{display:none}
+.featurebox.sel{border-color:#e0a63a;box-shadow:0 0 0 1.5px #e0a63a inset}
+.chip.sm{min-height:34px;padding:5px 10px;font-size:12.5px}
+.jotun-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;max-height:300px;overflow:auto;margin-top:8px}
+.jotun-item{border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:5px;text-align:start;display:flex;flex-direction:column;gap:2px}
+.jotun-item i{height:34px;border-radius:6px;display:block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.jotun-item b{font-size:12.5px;direction:ltr;text-align:right}.jotun-item small{color:var(--mut);font-size:11px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jotun-item.on{border-color:var(--acc);box-shadow:0 0 0 1.5px var(--acc) inset}
+.dz{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px}
+.dz canvas{width:84px;height:56px;border-radius:6px;display:block}
+.dz.on{border-color:var(--acc);box-shadow:0 0 0 1.5px var(--acc) inset;font-weight:700}
+#slots{margin-top:8px}#slots:empty{display:none}
+#dparams .dim{grid-template-columns:112px 1fr 56px}
+.dots-row{display:flex;gap:8px;flex-wrap:wrap}
+.dot.on{box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--acc)}
+.dot.reset{background:var(--panel);border:1px solid var(--line);font-size:16px}
+.btn.danger{color:#b3261e;border-color:#e7b4ae}
+.cat{display:flex;flex-wrap:wrap;gap:6px}
+.catb{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:7px 12px;min-height:38px;font-size:13.5px}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px}
+.totals div{background:var(--chip);border-radius:12px;padding:10px;display:flex;flex-direction:column}
+.totals span{font-size:12.5px;color:var(--mut)}.totals b{font-size:22px;color:var(--acc);font-variant-numeric:tabular-nums}
+table.est{width:100%;border-collapse:collapse;font-size:13.5px}
+.est th{text-align:start;font-weight:500;color:var(--mut);font-size:12.5px;padding:6px 4px;border-bottom:1px solid var(--line)}
+.est td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.est td small{display:block;color:var(--mut);font-size:12px}
+.est .num{white-space:nowrap;font-variant-numeric:tabular-nums}
+.est tr.grp td{background:var(--chip);font-weight:700;font-size:13px;color:var(--acc)}
+.sw2{display:inline-block;width:16px;height:16px;border-radius:4px;vertical-align:-3px;margin-inline-end:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.setg{display:grid;grid-template-columns:100px 1fr 1fr;gap:8px;align-items:end;margin:10px 0}
+.setg label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px}
+.setg input{font:inherit;font-size:16px;padding:7px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%}
+summary{cursor:pointer;font-weight:500;min-height:30px}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:8px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:5.5em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:5em;margin-inline-start:-5.5em;color:var(--mut);font-size:12px}.stack td:empty{display:none}.stack tr.grp td{padding-inline-start:6px}.stack tr.grp td::before{display:none}.setg{grid-template-columns:1fr 1fr}.setg b{grid-column:1/-1}}
+.hs{position:relative;min-width:0}
+.hs-tabs{flex:none}
+.hsb{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:22px;line-height:1;display:grid;place-items:center;padding:0 0 3px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.hsb[hidden]{display:none}
+.hsb.l{left:-2px}.hsb.r{right:-2px}
+.hs-tabs .hsb{width:28px;height:28px;font-size:18px}
+.row,.tabs{cursor:grab}
+.lks{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:6px}
+.lk{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:4px;display:flex;flex-direction:column;gap:3px;align-items:stretch;font-size:11.5px;min-height:44px}
+.lk i{height:30px;border-radius:7px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);font-style:normal;font-size:16px}
+.lk i.orig{background:var(--chip)}
+.lk span{line-height:1.2;color:var(--mut)}
+.lk.on{border-color:var(--acc);box-shadow:0 0 0 1.5px var(--acc) inset}.lk.on span{color:var(--ink);font-weight:700}
+.cmrow{grid-template-columns:96px 1fr 78px!important}
+.cmrow input[type=number]{width:100%;font:inherit;font-size:16px;padding:6px 4px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);text-align:center;font-variant-numeric:tabular-nums}
+:focus-visible{outline:2.5px solid var(--acc);outline-offset:2px}
+@media (min-width:900px){
+  .app{flex-direction:row}
+  .panel{height:auto!important;width:400px;border-top:0;border-inline-end:1px solid var(--line);order:-1}
+  #collapse{display:none}
+  .hint{max-width:40%}
+}
+@media (max-width:420px){.seg button{padding:8px 9px;font-size:13px}.ib span{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="view">
+    <canvas id="c"></canvas>
+    <div class="top">
+      <div class="seg" role="group" aria-label="طريقة العرض">
+        <button data-view="inside">داخل الغرفة</button>
+        <button data-view="outside">منظور علوي</button>
+      </div>
+      <div class="tools">
+        <button class="ib" id="shotbtn" aria-label="لقطة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>لقطة</span></button>
+        <button class="ib pri" id="ptbtn" aria-label="صورة واقعية"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.2 5.5L20 9l-4.5 3.8L17 19l-5-3.2L7 19l1.5-6.2L4 9l5.8-.5z"/></svg><span>صورة واقعية</span></button>
+      </div>
+    </div>
+    <div id="corners" hidden>
+      <button data-corner="0" aria-label="المدخل">م</button>
+      <button data-corner="1" aria-label="زاوية ١">١</button>
+      <button data-corner="2" aria-label="زاوية ٢">٢</button>
+      <button data-corner="3" aria-label="زاوية ٣">٣</button>
+      <button data-corner="4" aria-label="زاوية ٤">٤</button>
+    </div>
+    <div class="hint">اسحب للالتفات · اضغط على جدار لتلوينه · اضغط مرتين على الأرض للتنقل</div>
+    <div id="toast"></div>
+    <div id="ptbar" hidden>
+      <span id="ptlabel">التصوير الواقعي يعمل…</span>
+      <div class="bar"><div id="ptfill"></div></div>
+      <span id="ptcount"></span>
+      <button id="ptsave">احفظ الآن</button>
+      <button id="ptstop">إيقاف</button>
+    </div>
+    <div id="loading"><div><b>جداري</b>يجهّز الغرفة والأثاث…</div></div>
+  </div>
+
+  <aside class="panel">
+    <nav class="tabs">
+      <button data-tab="colors">الألوان</button>
+      <button data-tab="furn">الأثاث</button>
+      <button data-tab="rooms">الغرف</button>
+      <button data-tab="floor">الأرضية</button>
+      <button data-tab="light">الإضاءة</button>
+      <button data-tab="calc">الكمية</button>
+      <button data-tab="saved">تنسيقاتي</button>
+      <button id="collapse" aria-label="طي اللوحة">⌄</button>
+    </nav>
+
+    <section class="pane" id="p-colors">
+      <div class="row" id="targets"></div>
+      <div class="head">
+        <div id="cur"></div>
+        <div class="t">
+          <small id="curtgt"></small>
+          <b id="curname"></b>
+          <small id="curcode" class="code"></small>
+        </div>
+        <button class="btn" id="undo">تراجع</button>
+      </div>
+      <div id="finish" role="group" aria-label="اللمعة">
+        <button data-f="0">مطفي</button><button data-f="1">نصف لمعة</button><button data-f="2">لامع</button>
+      </div>
+      <div id="designBox" class="featurebox">
+        <h4>تصميم الجدار</h4>
+        <div class="row" id="designs"></div>
+        <div class="row" id="slots"></div>
+        <p class="note" id="slotHint">اختر اللون الذي تريد تغييره، ثم اضغط على لون من كتالوج جوتن بالأسفل.</p>
+        <div id="dparams"></div>
+      </div>
+      <div class="featurebox" id="jotunBox">
+        <h4>كتالوج جوتن</h4>
+        <input id="jotunSearch" class="field" type="search" placeholder="ابحث بالكود أو الاسم">
+        <div class="row" id="jfam"></div>
+        <div id="jotunResults" class="jotun-grid"></div>
+        <div class="lbl"><small class="note" id="jotunCount" style="margin:0">تحميل كتالوج جوتن…</small><button class="btn" id="jmore" hidden>عرض المزيد</button></div>
+      </div>
+      <h4>جرّبتها مؤخراً</h4>
+      <div id="recent"></div>
+      <p class="note">الألوان على الشاشة تقريبية؛ قارنها بمروحة جوتن الحقيقية قبل الشراء.</p>
+    </section>
+
+    <section class="pane" id="p-furn" hidden>
+      <div id="itemBox" class="featurebox sel" hidden>
+        <div class="lbl" style="margin-top:0"><b id="itemName" style="font-size:17px"></b><button class="btn" id="itemDone">تم</button></div>
+        <p class="note" id="itemHint" style="margin-top:0"></p>
+        <div class="btns">
+          <button class="btn" id="itemRotR" aria-label="تدوير يمين">↻ 15°</button>
+          <button class="btn" id="itemRotL" aria-label="تدوير يسار">↺ 15°</button>
+          <button class="btn" id="itemRot90">↻ 90°</button>
+        </div>
+        <div class="dim"><span>الحجم</span><input type="range" id="itemSize" min="0.4" max="2" step="0.02"><output id="itemSizeV"></output></div>
+        <div class="dim" id="itemYRow"><span>الارتفاع</span><input type="range" id="itemY" min="0" max="3" step="0.01"><output id="itemYV"></output></div>
+        <div id="itemLook"></div>
+        <div class="btns" style="margin-top:12px">
+          <button class="btn" id="itemDup">نسخة مكررة</button>
+          <button class="btn danger" id="itemDel">حذف القطعة</button>
+        </div>
+      </div>
+      <p class="note" style="margin-top:0">اضغط على أي قطعة في الغرفة لتحديدها، أو أضف قطعة جديدة من القائمة.</p>
+      <div id="catalog"></div>
+      <div class="lbl"><small class="note" id="furnCount" style="margin:0"></small><button class="btn" id="furnReset">أثاث القالب الأصلي</button></div>
+    </section>
+
+    <section class="pane" id="p-rooms" hidden>
+      <div id="rooms"></div>
+      <div class="lbl"><h4>مقاسات الغرفة (سم)</h4><button class="btn" id="dimreset">المقاس الأصلي</button></div>
+      <div class="dim cmrow"><span>العرض</span><input type="range" id="dW" min="200" max="1200" step="1"><input type="number" id="nW" min="200" max="1200" step="1" inputmode="numeric"></div>
+      <div class="dim cmrow"><span>العمق</span><input type="range" id="dD" min="200" max="1200" step="1"><input type="number" id="nD" min="200" max="1200" step="1" inputmode="numeric"></div>
+      <div class="dim cmrow"><span>الارتفاع</span><input type="range" id="dH" min="240" max="500" step="1"><input type="number" id="nH" min="240" max="500" step="1" inputmode="numeric"></div>
+      <label class="tog"><input type="checkbox" id="furn"> إظهار الأثاث</label>
+      <div class="featurebox" id="winBox"></div>
+    </section>
+
+    <section class="pane" id="p-floor" hidden>
+      <div id="floors"></div>
+      <p class="note">الأرضية تغيّر إحساس لون الجدار كثيراً؛ جرّب اللون نفسه على أرضيتين.</p>
+    </section>
+
+    <section class="pane" id="p-light" hidden>
+      <h4>جودة العرض</h4>
+      <div class="row" id="quality"></div>
+      <p class="note">إذا كان البرنامج ثقيلاً على جهازك اختر «سريع». «تلقائي» يقيس سرعة جهازك ويختار المناسب.</p>
+      <h4>وقت اليوم</h4>
+      <div class="row" id="times"></div>
+      <div class="dim" style="margin-top:14px"><span>السطوع</span><input type="range" id="expo" min="0.5" max="1.8" step="0.05"><output></output></div>
+      <p class="note">«صورة واقعية» تحسب الضوء فيزيائياً كما يدخل من النافذة وينعكس بين الجدران، فتظهر الألوان كما ستبدو فعلاً. تحتاج ثوانيَ إلى دقيقة حسب الجهاز.</p>
+    </section>
+
+    <section class="pane" id="p-calc" hidden>
+      <div id="estTotal" class="totals"></div>
+      <table class="est stack"><thead><tr><th>اللون</th><th>المساحة</th><th>الكمية</th><th>العبوات</th></tr></thead><tbody id="estRows"></tbody></table>
+      <div class="btns" style="margin:12px 0"><button class="btn pri" id="estCopy">نسخ القائمة لإرسالها للمحل</button></div>
+      <details class="featurebox"><summary>إعدادات الحساب</summary>
+        <div class="setg"><b>دهان الجدران</b><label>التغطية م²/لتر<input type="number" id="cov-wall" min="1" step="0.5"></label><label>الأوجه<input type="number" id="coat-wall" min="1" max="5"></label></div>
+        <div class="setg"><b>دهان السقف</b><label>التغطية م²/لتر<input type="number" id="cov-ceiling" min="1" step="0.5"></label><label>الأوجه<input type="number" id="coat-ceiling" min="1" max="5"></label></div>
+        <div class="setg"><b>إينامل الخشب</b><label>التغطية م²/لتر<input type="number" id="cov-enamel" min="1" step="0.5"></label><label>الأوجه<input type="number" id="coat-enamel" min="1" max="5"></label></div>
+        <div class="setg"><b>عام</b><label>نسبة الهدر %<input type="number" id="waste" min="0" max="40"></label><label>أحجام العبوات (لتر)<input type="text" id="cans" inputmode="decimal"></label></div>
+        <p class="note">اكتب التغطية المكتوبة على عبوة المنتج الذي ستشتريه، وأحجام العبوات المتوفرة في المحل.</p>
+      </details>
+      <p class="note">تُحسب المساحة من نموذج الغرفة بعد خصم الأبواب والنوافذ والنعلات، ولكل لون حسب مساحته الفعلية في النقش. القياس في الموقع يبقى الأدق.</p>
+    </section>
+
+    <section class="pane" id="p-saved" hidden>
+      <div class="btns">
+        <button class="btn pri" id="savescheme">احفظ التنسيق الحالي</button>
+        <button class="btn" id="compare">بدّل بين التنسيقات</button>
+      </div>
+      <div id="schemes"></div>
+    </section>
+  </aside>
+</div>
+
+<div id="shot" hidden>
+  <div class="card">
+    <img id="shotimg" alt="لقطة الغرفة">
+    <div class="cap"><div><b id="shottitle"></b><br><small>اضغط مطوّلاً على الصورة (أو زر الفأرة الأيمن) لحفظها.</small></div><button class="btn" id="shotclose">إغلاق</button></div>
+  </div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

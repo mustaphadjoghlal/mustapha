@@ -5,6 +5,7 @@ import { AboutPage } from "./pages/about/AboutPage";
 import { PortfolioDesignPage } from "./pages/portfolio-design/PortfolioDesignPage";
 import { PortfolioPhotographyPage } from "./pages/portfolio-photography/PortfolioPhotographyPage";
 import { PortfolioMotionPage } from "./pages/portfolio-motion/PortfolioMotionPage";
+import { ToolsPage } from "./pages/tools/ToolsPage";
 import { PortfolioVoicePage } from "./pages/portfolio-voice/PortfolioVoicePage";
 import { CoursesPage } from "./pages/courses/CoursesPage";
 import { NotFoundPage } from "./pages/not-found/NotFoundPage";
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
       { path: "portfolio-photography", Component: PortfolioPhotographyPage },
       { path: "portfolio-voice", Component: PortfolioVoicePage },
       { path: "portfolio-motion", Component: PortfolioMotionPage },
+      { path: "tools", Component: ToolsPage },
       { path: "courses", Component: CoursesPage },
       { path: "articles", Component: ArticlesPage },
       { path: "articles/:id", Component: ArticlePage },
