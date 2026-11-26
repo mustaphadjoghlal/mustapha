@@ -71,7 +71,7 @@ const mainPages = [
     path: "tools",
     title: "إضافات وبرامج — فوتوشوب وبريمير | مصطفى جغلال",
     description:
-      "إضافات عربية لفوتوشوب وبريمير وبرامج صغيرة من تطوير مصطفى جغلال: ظلال واقعية، مرئيات صوت، كشيدة متحركة، محادثات ثلاثية الأبعاد، خرائط متحركة، بطاقات 3D، وتجربة ألوان الجدران.",
+      "إضافات عربية لفوتوشوب وبريمير وبرامج صغيرة من تطوير مصطفى جغلال: ظلال واقعية، دليل ألوان الهوية، مرئيات صوت، كشيدة متحركة، محادثات ثلاثية الأبعاد، خرائط متحركة، بطاقات 3D، وتجربة ألوان الجدران.",
     keywords: "إضافات فوتوشوب, إضافات بريمير, Premiere Pro extension, Photoshop plugin عربي, مصطفى جغلال",
   },
   {
@@ -292,7 +292,7 @@ const sitemap = [
     priority: p.path === "about" || p.path === "portfolio" ? "0.9" : "0.8",
   })),
   // صفحات هبوط الإضافات — ملفات ثابتة في public/tools (القائمة في src/app/shared/tools.ts)
-  ...["jidari", "cards-3d", "masar", "rasael", "kashida", "audio-viz", "zill"].map((slug) => ({
+  ...["jidari", "cards-3d", "masar", "rasael", "kashida", "audio-viz", "alwani", "zill"].map((slug) => ({
     loc: `${SITE}/tools/${slug}`,
     changefreq: "monthly",
     priority: "0.7",

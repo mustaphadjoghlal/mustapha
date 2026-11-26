@@ -24,6 +24,7 @@ export const TOOLS: Tool[] = [
   { slug: "rasael", name: "رسائل", latin: "Rasael", host: "Premiere Pro", tagline: "محادثات وإشعارات ورسائل صوتية بحركة ثلاثية الأبعاد.", color: "#22d3a0", glyph: "ر" },
   { slug: "kashida", name: "كشيدة", latin: "Kashida", host: "Premiere Pro", tagline: "تطويل الكلمة العربية بالمدّ الأصيل، بحركة جاهزة للمونتاج.", color: "#e3b45e", glyph: "ك" },
   { slug: "audio-viz", name: "Audio Viz", latin: "Audio Viz", host: "Premiere Pro", tagline: "مرئيات صوت تتفاعل مع الإيقاع، بخلفية شفافة فوق أي فيديو.", color: "#8b5cf6", glyph: "♫" },
+  { slug: "alwani", name: "ألواني", latin: "Alwani", host: "Photoshop", tagline: "دليل ألوان الهوية في نقرة: أكواد ودرجات وتباين وتناسق، بطبقات قابلة للتعديل.", color: "#e4572e", glyph: "ل" },
   { slug: "zill", name: "ظل", latin: "Zill", host: "Photoshop", tagline: "ظلال واقعية لأي جسم مقصوص بنقرة واحدة: إسقاط وطويل ومنظوري وأرضي.", color: "#2f8cff", glyph: "ظ" },
 ];
 

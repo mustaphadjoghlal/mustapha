@@ -10,10 +10,13 @@
   var slug = me && me.getAttribute('data-tool');
   var NAMES = {
     zill: '«ظل» Zill', 'audio-viz': 'Audio Viz', kashida: '«كشيدة» Kashida', rasael: '«رسائل» Rasael',
-    masar: '«مسار» Masar', 'cards-3d': 'Cards 3D', jidari: '«جداري» Jidari'
+    masar: '«مسار» Masar', 'cards-3d': 'Cards 3D', jidari: '«جداري» Jidari', alwani: '«ألواني» Alwani'
   };
   // ملفات افتراضية مرفوعة مع الموقع نفسه؛ ما يُرفع من لوحة التحكم يغلبها
-  var DEFAULTS = { jidari: { url: '/downloads/Jidari_v7.zip', version: '7', size: 10206262 } };
+  var DEFAULTS = {
+    jidari: { url: '/downloads/Jidari_v7.zip', version: '7', size: 10206262 },
+    alwani: { url: '/downloads/Alwani-1.0-Photoshop.zip', version: '1.0', size: 25155 }
+  };
   var name = NAMES[slug] || 'الإضافة';
   var PROJECT = 'mustapha-portfolio', KEY = 'AIzaSyBvljyA9z5O6zQHRtLIDxKnwyCxCF2vqL8';
 
