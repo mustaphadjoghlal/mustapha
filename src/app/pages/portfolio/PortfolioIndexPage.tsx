@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { Mic, Camera, Palette, ArrowLeft } from "lucide-react";
+import { Mic, Camera, Palette, Clapperboard, ArrowLeft } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
@@ -11,7 +11,7 @@ interface Work {
   title: string;
   coverImage: string;
   altText: string;
-  category: "design" | "photography" | "voice";
+  category: "design" | "photography" | "voice" | "motion";
 }
 
 /** مجالات الأعمال — كل مجال يقود إلى صفحته الكاملة */
@@ -19,6 +19,7 @@ const categories = [
   { key: "voice" as const, textKey: "works.voice", link: "/portfolio-voice", Icon: Mic },
   { key: "photography" as const, textKey: "works.photography", link: "/portfolio-photography", Icon: Camera },
   { key: "design" as const, textKey: "works.design", link: "/portfolio-design", Icon: Palette },
+  { key: "motion" as const, textKey: "works.motion", link: "/portfolio-motion", Icon: Clapperboard },
 ];
 
 export function PortfolioIndexPage() {
@@ -27,7 +28,7 @@ export function PortfolioIndexPage() {
   useSeo({
     title: t("works.heading"),
     description:
-      "أعمال مصطفى جغلال في التعليق الصوتي والتصوير والتصميم الجرافيكي — مشاريع مختارة لعلامات تجارية ومشاريع ثقافية.",
+      "أعمال مصطفى جغلال في التعليق الصوتي والتصوير والتصميم الجرافيكي والموشن جرافيك — مشاريع مختارة لعلامات تجارية ومشاريع ثقافية.",
   });
 
   const [works, setWorks] = useState<Work[]>([]);
@@ -50,7 +51,7 @@ export function PortfolioIndexPage() {
           </p>
         )}
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map(({ key, textKey, link, Icon }) => {
             const title = t(`${textKey}.title`);
             const description = t(`${textKey}.desc`);

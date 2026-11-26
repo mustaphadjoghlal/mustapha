@@ -114,7 +114,9 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
 // ============================================================
 interface Work {
   id: string; title: string; description: string; coverImage: string; images: string[];
-  altText: string; soundcloudUrl: string; audioUrl?: string; category: "design" | "photography" | "voice";
+  altText: string; soundcloudUrl: string; audioUrl?: string; category: "design" | "photography" | "voice" | "motion";
+  /** الموشن جرافيك: الفيديو المرفوع، ورابط خارجي اختياري، ونسبة الفيديو المكتشفة عند الرفع */
+  videoUrl?: string; videoLink?: string; videoAspect?: "vertical" | "horizontal" | "square";
   /** يظهر في قسم "أعمال مختارة" بالصفحة الرئيسية */
   featured?: boolean;
   /** العينة الصوتية المعروضة في قسم "نماذج صوتية" بالصفحة الرئيسية */
@@ -173,8 +175,11 @@ function SingleImageUploader({ url, onChange, folder = "images", label = "رفع
   );
 }
 
-function AudioUploader({ url, onChange, onFileName, folder = "audio", label = "رفع ملف صوتي أو فيديو" }: {
+function AudioUploader({ url, onChange, onFileName, onVideoAspect, folder = "audio", label = "رفع ملف صوتي أو فيديو", accept = "audio/*,video/*", doneLabel = "✓ ملف صوتي مرفوع" }: {
   url: string; onChange: (url: string) => void; onFileName?: (name: string) => void; folder?: string; label?: string;
+  accept?: string; doneLabel?: string;
+  /** للفيديو: يقرأ أبعاده قبل الرفع ويحدد هل هو عمودي أم أفقي أم مربع */
+  onVideoAspect?: (aspect: "vertical" | "horizontal" | "square") => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -183,6 +188,16 @@ function AudioUploader({ url, onChange, onFileName, folder = "audio", label = "�
   const handleFile = async (file: File) => {
     setUploading(true);
     if (onFileName) onFileName(file.name.replace(/\.[^/.]+$/, ""));
+    if (onVideoAspect && file.type.startsWith("video/")) {
+      const probe = document.createElement("video");
+      probe.preload = "metadata";
+      probe.onloadedmetadata = () => {
+        const ratio = probe.videoWidth / (probe.videoHeight || 1);
+        onVideoAspect(ratio < 0.9 ? "vertical" : ratio > 1.1 ? "horizontal" : "square");
+        URL.revokeObjectURL(probe.src);
+      };
+      probe.src = URL.createObjectURL(file);
+    }
     setStatus("جاري الرفع...");
     const task = uploadBytesResumable(ref(storage, `${folder}/${Date.now()}_${file.name}`), file);
     task.on("state_changed",
@@ -194,11 +209,11 @@ function AudioUploader({ url, onChange, onFileName, folder = "audio", label = "�
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="flex gap-3 items-center">
-        {url && <div className="flex-1 bg-ink-850 border border-ink-700 rounded-lg p-3 text-sm text-green-400 truncate">✓ ملف صوتي مرفوع</div>}
+        {url && <div className="flex-1 bg-ink-850 border border-ink-700 rounded-lg p-3 text-sm text-green-400 truncate">{doneLabel}</div>}
         <div onClick={() => !uploading && fileInputRef.current?.click()} className={`flex-1 border-2 border-dashed ${uploading ? 'border-royal-500/50 cursor-not-allowed' : 'border-ink-600 hover:border-royal-500 cursor-pointer'} rounded-xl p-3 text-center transition-all`}>
           {uploading ? (<div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-royal-300" /><p className="text-gray-400 text-xs">{progress}%</p></div>)
             : (<div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={14} /><span>{label}</span></div>)}
-          <input ref={fileInputRef} type="file" accept="audio/*,video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+          <input ref={fileInputRef} type="file" accept={accept} className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
         </div>
       </div>
       {status && <p className="text-xs text-royal-300 text-center">{status}</p>}
@@ -252,6 +267,8 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
 function WorksList({ works, category, saving, editingWork, setEditingWork, onSave, onDelete, onToggleFeatured, onToggleHomeSample, showAdd, setShowAdd, newWork, setNewWork, onAdd, sc }: any) {
   const filtered = works.filter((w: Work) => w.category === category);
   const isVoice = category === "voice";
+  const isMotion = category === "motion";
+  const aspectNames = { vertical: "عمودي 9:16", horizontal: "أفقي 16:9", square: "مربع 1:1" } as const;
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -265,10 +282,11 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
             <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className={sc} />
             <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={sc} />
             {isVoice && <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud (اختياري)" className={`${sc} md:col-span-2`} />}
+            {isMotion && <input value={newWork.videoLink || ""} onChange={(e) => setNewWork({ ...newWork, videoLink: e.target.value })} placeholder="رابط يوتيوب أو إنستغرام أو فيميو (اختياري — يكفي بدل رفع الفيديو)" className={`${sc} md:col-span-2`} dir="ltr" />}
             <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2} className={`${sc} resize-none md:col-span-2`} />
           </div>
           <div className="space-y-2">
-            <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف</p>
+            <p className="text-gray-400 text-sm font-semibold">🖼️ صورة الغلاف{isMotion && " (اختيارية — بدونها يظهر أول إطار من الفيديو)"}</p>
             <SingleImageUploader url={newWork.coverImage || ""} onChange={(url) => setNewWork(prev => ({ ...prev, coverImage: url }))} folder="works" label="رفع صورة الغلاف" />
           </div>
           {isVoice && (
@@ -277,7 +295,13 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
               <AudioUploader url={newWork.audioUrl || ""} onChange={(url) => setNewWork(prev => ({ ...prev, audioUrl: url }))} onFileName={(name) => setNewWork(prev => ({ ...prev, title: prev.title || name }))} folder="works/audio" label="رفع ملف صوتي" />
             </div>
           )}
-          {!isVoice && (
+          {isMotion && (
+            <div className="space-y-2">
+              <p className="text-gray-400 text-sm font-semibold">🎬 الفيديو {newWork.videoAspect && <span className="text-royal-300 font-normal">— {aspectNames[newWork.videoAspect as keyof typeof aspectNames]}</span>}</p>
+              <AudioUploader url={newWork.videoUrl || ""} onChange={(url) => setNewWork(prev => ({ ...prev, videoUrl: url }))} onFileName={(name) => setNewWork(prev => ({ ...prev, title: prev.title || name }))} onVideoAspect={(a) => setNewWork(prev => ({ ...prev, videoAspect: a }))} folder="works/video" label="رفع فيديو (MP4 يُفضَّل)" accept="video/*" doneLabel="✓ الفيديو مرفوع" />
+            </div>
+          )}
+          {!isVoice && !isMotion && (
             <div className="space-y-2">
               <p className="text-gray-400 text-sm font-semibold">📸 صور المحتوى</p>
               <ImageUploader images={newWork.images || []} onChange={(imgs: string[]) => setNewWork(prev => ({ ...prev, images: imgs }))} />
@@ -296,11 +320,13 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                   <input value={editingWork.title} onChange={(e) => setEditingWork({ ...editingWork, title: e.target.value })} className={sc} />
                   <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className={sc} />
                   {isVoice && <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${sc} md:col-span-2`} />}
+                  {isMotion && <input value={editingWork.videoLink || ""} onChange={(e) => setEditingWork({ ...editingWork, videoLink: e.target.value })} placeholder="رابط يوتيوب أو إنستغرام أو فيميو (اختياري)" className={`${sc} md:col-span-2`} dir="ltr" />}
                   <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
                 </div>
                 <SingleImageUploader url={editingWork.coverImage || ""} onChange={(url) => setEditingWork(prev => prev ? ({ ...prev, coverImage: url }) : null)} folder="works" label="رفع صورة الغلاف" />
                 {isVoice && <AudioUploader url={editingWork.audioUrl || ""} onChange={(url) => setEditingWork(prev => prev ? ({ ...prev, audioUrl: url }) : null)} onFileName={(name) => setEditingWork(prev => prev ? ({ ...prev, title: prev.title || name }) : null)} folder="works/audio" label="تغيير الملف الصوتي" />}
-                {!isVoice && <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork(prev => prev ? ({ ...prev, images: imgs }) : null)} />}
+                {isMotion && <AudioUploader url={editingWork.videoUrl || ""} onChange={(url) => setEditingWork(prev => prev ? ({ ...prev, videoUrl: url }) : null)} onVideoAspect={(a) => setEditingWork(prev => prev ? ({ ...prev, videoAspect: a }) : null)} folder="works/video" label="تغيير الفيديو" accept="video/*" doneLabel={`✓ الفيديو مرفوع${editingWork.videoAspect ? ` — ${aspectNames[editingWork.videoAspect as keyof typeof aspectNames]}` : ""}`} />}
+                {!isVoice && !isMotion && <ImageUploader images={editingWork.images || []} onChange={(imgs: string[]) => setEditingWork(prev => prev ? ({ ...prev, images: imgs }) : null)} />}
                 <div className="flex gap-3">
                   <button onClick={onSave} disabled={saving} className="flex items-center gap-2 bg-green-600 px-5 py-2 rounded-lg font-semibold hover:bg-green-700"><Save size={16} /> حفظ</button>
                   <button onClick={() => setEditingWork(null)} className="flex items-center gap-2 bg-gray-700 px-5 py-2 rounded-lg hover:bg-gray-600"><X size={16} /> إلغاء</button>
@@ -308,13 +334,14 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                {work.coverImage ? <img src={work.coverImage} alt={work.altText} className="w-14 h-14 rounded-lg object-cover border border-ink-700 flex-shrink-0" /> : isVoice ? <div className="w-14 h-14 rounded-lg border border-ink-700 flex-shrink-0 bg-royal-900/20 flex items-center justify-center">🎙️</div> : null}
+                {work.coverImage ? <img src={work.coverImage} alt={work.altText} className="w-14 h-14 rounded-lg object-cover border border-ink-700 flex-shrink-0" /> : isVoice ? <div className="w-14 h-14 rounded-lg border border-ink-700 flex-shrink-0 bg-royal-900/20 flex items-center justify-center">🎙️</div> : isMotion && work.videoUrl ? <video src={`${work.videoUrl}#t=0.1`} muted preload="metadata" className="w-14 h-14 rounded-lg object-cover border border-ink-700 flex-shrink-0" /> : isMotion ? <div className="w-14 h-14 rounded-lg border border-ink-700 flex-shrink-0 bg-royal-900/20 flex items-center justify-center">🎬</div> : null}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-white">{work.title}</h3>
                   <p className="text-gray-400 text-sm truncate">{work.description}</p>
                   {work.images?.length > 0 && <span className="text-xs text-gray-500">{work.images.length} صور</span>}
                   {(work.soundcloudUrl || work.audioUrl) && <span className="text-xs text-orange-400 mr-2">صوت ✓</span>}
-                  {work.featured && <span className="text-xs text-amber-400 mr-2">★ في الصفحة الرئيسية</span>}
+                  {(work.videoUrl || work.videoLink) && <span className="text-xs text-orange-400 mr-2">فيديو ✓{work.videoAspect ? ` · ${aspectNames[work.videoAspect as keyof typeof aspectNames]}` : ""}</span>}
+                  {work.featured && <span className="text-xs text-amber-400 mr-2">{isMotion ? "★ في قسم الموشن بالصفحة الرئيسية" : "★ في الصفحة الرئيسية"}</span>}
                   {work.homeSample && <span className="text-xs text-royal-300 mr-2">🎧 العينة الصوتية بالصفحة الرئيسية</span>}
                 </div>
                 <div className="flex gap-2">
@@ -329,7 +356,7 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                   )}
                   <button
                     onClick={() => onToggleFeatured(work)}
-                    title={work.featured ? "إخفاء من «أعمال مختارة»" : "إظهار في «أعمال مختارة»"}
+                    title={isMotion ? (work.featured ? "إخفاء من قسم «موشن جرافيك» بالرئيسية" : "إظهار في قسم «موشن جرافيك» بالرئيسية") : (work.featured ? "إخفاء من «أعمال مختارة»" : "إظهار في «أعمال مختارة»")}
                     className={`p-2 rounded-lg hover:bg-ink-850 ${work.featured ? "text-amber-400" : "text-gray-500 hover:text-amber-400"}`}
                   >
                     <Star size={16} fill={work.featured ? "currentColor" : "none"} />
@@ -807,7 +834,7 @@ export function AdminPage() {
         {activeTab === "works" && (
           <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
             <div className="flex flex-wrap items-center gap-2 mb-8 bg-ink-950/40 p-1.5 rounded-xl w-fit">
-              {[{ id: "design", label: "التصميم الجرافيكي" }, { id: "voice", label: "التعليق الصوتي" }, { id: "photography", label: "التصوير الفوتوغرافي" }].map((cat) => (
+              {[{ id: "design", label: "التصميم الجرافيكي" }, { id: "voice", label: "التعليق الصوتي" }, { id: "photography", label: "التصوير الفوتوغرافي" }, { id: "motion", label: "الموشن جرافيك" }].map((cat) => (
                 <button key={cat.id} onClick={() => setNewWork({ ...newWork, category: cat.id as any })} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${newWork.category === cat.id ? "bg-royal-600 text-ink-950 shadow-lg" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>{cat.label}</button>
               ))}
             </div>

@@ -68,6 +68,14 @@ const mainPages = [
       "تصوير فوتوغرافي, تصوير منتجات, تصوير فعاليات, مصور في مسقط, تصوير إعلانات",
   },
   {
+    path: "portfolio-motion",
+    title: "الموشن جرافيك — فيديوهات متحركة وريلز | مصطفى جغلال",
+    description:
+      "موشن جرافيك احترافي: إعلانات قصيرة للسوشيال ميديا، ريلز وفيديوهات عمودية، تحريك الشعارات، وفيديوهات شرح وإنفوجرافيك متحرك.",
+    keywords:
+      "موشن جرافيك, فيديو موشن, تحريك شعار, فيديو إعلاني, ريلز, motion graphics arabic",
+  },
+  {
     path: "portfolio-design",
     title: "التصميم الجرافيكي — هويات بصرية وإعلانات | مصطفى جغلال",
     description:
@@ -215,6 +223,7 @@ async function fetchContent() {
     const kind =
       w.category === "voice" ? "تعليق صوتي"
       : w.category === "photography" ? "تصوير فوتوغرافي"
+      : w.category === "motion" ? "موشن جرافيك"
       : "تصميم جرافيكي";
     return {
       path: `portfolio/${d.id}`,

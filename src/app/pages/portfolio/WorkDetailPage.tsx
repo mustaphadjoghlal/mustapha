@@ -6,6 +6,7 @@ import { ArrowRight, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { CustomAudioPlayer } from "../../components/CustomAudioPlayer";
 import { FloatingGallery } from "../../components/FloatingGallery";
 import { useSeo } from "../../shared/useSeo";
+import { MotionPlayer } from "../../components/MotionCard";
 
 interface Work {
   id: string;
@@ -16,7 +17,10 @@ interface Work {
   altText: string;
   soundcloudUrl: string;
   audioUrl?: string;
-  category: "design" | "photography" | "voice";
+  category: "design" | "photography" | "voice" | "motion";
+  videoUrl?: string;
+  videoLink?: string;
+  videoAspect?: "vertical" | "horizontal" | "square";
 }
 
 /** صورة الغلاف — طافية فوق ظلّ أزرق، تميل قليلاً مع المؤشر */
@@ -127,6 +131,8 @@ export function WorkDetailPage() {
       ? "/portfolio-design"
       : work?.category === "photography"
       ? "/portfolio-photography"
+      : work?.category === "motion"
+      ? "/portfolio-motion"
       : "/portfolio-voice";
 
   if (!loaded)
@@ -202,7 +208,25 @@ export function WorkDetailPage() {
         </Link>
       </div>
 
-      {isVisual ? (
+      {work.category === "motion" ? (
+        /* الموشن جرافيك — الفيديو أولاً ثم العنوان والوصف */
+        <section className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 pt-10 pb-24">
+          <div
+            className="pointer-events-none absolute inset-0 -z-10"
+            style={{ background: "radial-gradient(60% 45% at 50% 20%, rgba(122,42,49,0.35), transparent 70%)" }}
+          />
+          <MotionPlayer work={work} />
+          <div className="fade-up mx-auto mt-10 max-w-2xl text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold leading-[1.25]">{work.title}</h1>
+            {work.description && <p className="mt-5 text-fg-muted leading-[1.9]">{work.description}</p>}
+            {work.videoUrl && work.videoLink && (
+              <a href={work.videoLink} target="_blank" rel="noopener noreferrer" className="mt-6 inline-block text-sm text-royal-400 hover:text-royal-300">
+                شاهده على المنصة الأصلية ←
+              </a>
+            )}
+          </div>
+        </section>
+      ) : isVisual ? (
         <>
           {/* تكوين: الغلاف طافياً إلى جانب العنوان بدل رصفهما فوق بعض */}
           <section className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 pt-10 pb-16 sm:pt-14">

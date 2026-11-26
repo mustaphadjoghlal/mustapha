@@ -2,13 +2,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router";
 import {
   Mic, Video, Palette, TrendingUp, ArrowLeft, ArrowRight, Linkedin, Instagram, Twitter,
-  Layers, Users, AudioLines,
+  Layers, Users, AudioLines, Clapperboard,
 } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
 import { useText } from "../../shared/siteText";
 import { VoiceSampleCard } from "../../components/VoiceSampleCard";
+import { MotionCard, type MotionWork } from "../../components/MotionCard";
 
 interface SiteInfo {
   heroName: string;
@@ -39,7 +40,10 @@ interface Work {
   altText: string;
   audioUrl?: string;
   soundcloudUrl?: string;
-  category: "design" | "photography" | "voice";
+  category: "design" | "photography" | "voice" | "motion";
+  videoUrl?: string;
+  videoLink?: string;
+  videoAspect?: MotionWork["videoAspect"];
   /** يُحدَّد من لوحة التحكم — يظهر في قسم "أعمال مختارة" */
   featured?: boolean;
   /** العينة الصوتية المختارة لقسم "نماذج صوتية" */
@@ -536,7 +540,11 @@ export function HomePage() {
   // العينة الصوتية: المختارة من لوحة التحكم، وإلا أول عمل صوتي حتى لا يفرغ القسم
   const voiceWorks = works.filter((w) => w.category === "voice" && (w.audioUrl || w.soundcloudUrl));
   const voiceSample = voiceWorks.find((w) => w.homeSample) || voiceWorks[0];
-  const withCover = works.filter((w) => w.coverImage);
+  // أعمال الموشن لها قسمها الخاص، فلا تتكرر في المعرض الدوّار
+  const withCover = works.filter((w) => w.coverImage && w.category !== "motion");
+  const motionWorks = works.filter((w) => w.category === "motion" && (w.videoUrl || w.videoLink));
+  const motionPicked = motionWorks.filter((w) => w.featured);
+  const motionShown = (motionPicked.length > 0 ? motionPicked : motionWorks).slice(0, 4);
   const picked = withCover.filter((w) => w.featured);
   // ما لم يُحدَّد شيء من لوحة التحكم، تُعرض أول ثمانية أعمال حتى لا يفرغ القسم
   const featured = (picked.length > 0 ? picked : withCover).slice(0, 8);
@@ -552,6 +560,7 @@ export function HomePage() {
     { Icon: Layers, value: works.length, label: t("home.stats.works") },
     { Icon: Users, value: clients.length, label: t("home.stats.clients") },
     { Icon: AudioLines, value: voiceWorks.length, label: t("home.stats.voice") },
+    { Icon: Clapperboard, value: motionWorks.length, label: t("home.stats.motion") },
   ].filter((s) => s.value > 0 && s.label);
 
   return (
@@ -571,6 +580,24 @@ export function HomePage() {
           <Reveal className="mt-12 sm:mt-14" delay={120}>
             <WorksCarousel works={featured} />
           </Reveal>
+        </section>
+      )}
+
+      {/* ═══════════ موشن جرافيك ═══════════ */}
+      {motionShown.length > 0 && (
+        <section className="mx-auto max-w-7xl px-5 sm:px-8 py-16 sm:py-20">
+          <SectionHead
+            eyebrow={t("home.motion.sub")}
+            title={t("home.motion.heading")}
+            link={{ to: "/portfolio-motion", label: t("home.motion.all") }}
+          />
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {motionShown.map((w, i) => (
+              <Reveal key={w.id} delay={i * 90}>
+                <MotionCard work={w} />
+              </Reveal>
+            ))}
+          </div>
         </section>
       )}
 
@@ -627,8 +654,8 @@ export function HomePage() {
 
       {/* ═══════════ أرقام ═══════════ */}
       {stats.length > 0 && (
-        <section className="mx-auto max-w-5xl px-5 sm:px-8 pb-8">
-          <div className={`grid gap-3 sm:gap-4 ${stats.length === 3 ? "grid-cols-3" : stats.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+        <section className="mx-auto max-w-6xl px-5 sm:px-8 pb-8">
+          <div className={`grid gap-3 sm:gap-4 ${stats.length >= 4 ? "grid-cols-2 sm:grid-cols-4" : stats.length === 3 ? "grid-cols-3" : stats.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
             {stats.map(({ Icon, value, label }, i) => (
               <Reveal key={label} delay={i * 110}>
                 <div className="ms-glass ms-lift flex h-full flex-col items-center rounded-[1.4rem] px-3 py-7 sm:py-9 text-center">
