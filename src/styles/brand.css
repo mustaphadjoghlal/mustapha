@@ -3,25 +3,34 @@
    =========================================================== */
 
 @theme {
-  /* الأزرق الملكي — يُستخدم للتمييز لا للخلفيات الواسعة */
-  --color-royal-200: #b9c7f5;
-  --color-royal-300: #8098ec;
-  --color-royal-400: #4169e1; /* Bright Royal Blue */
-  --color-royal-500: #3157d5; /* Primary Royal Blue */
-  --color-royal-600: #2446b8; /* Deep Royal Blue */
-  --color-royal-700: #1c3792;
+  /* لون التمييز: ذهبي الزعفران من هوية حساب إنستغرام.
+     أُبقي اسم royal حتى لا تتغير أسماء الأصناف في كل الملفات. */
+  --color-royal-200: #f8e2bd;
+  --color-royal-300: #f4c98c;
+  --color-royal-400: #eea851; /* الذهبي الأساسي */
+  --color-royal-500: #e69a3e;
+  --color-royal-600: #cf8129;
+  --color-royal-700: #a3641e;
+  --color-royal-800: #6e4113;
+  --color-royal-900: #3e240c;
 
-  /* الخلفيات الداكنة */
-  --color-ink-950: #08090d;
-  --color-ink-900: #0d0f14;
-  --color-ink-850: #111318;
-  --color-ink-800: #14171e;
-  --color-ink-700: #1d2029; /* الحدود الخفيفة */
-  --color-ink-600: #2a2e3a;
+  /* العنابي — للتوهّج والأسطح المميزة */
+  --color-maroon-400: #7a2a31;
+  --color-maroon-500: #5a1d22;
+  --color-maroon-600: #4b1317;
+  --color-maroon-800: #2a0a0c;
 
-  /* النصوص */
-  --color-fg: #f5f5f5;
-  --color-fg-muted: #a7a9b0;
+  /* الخلفيات الداكنة — أسود مائل إلى العنابي */
+  --color-ink-950: #0e0506;
+  --color-ink-900: #140809;
+  --color-ink-850: #190b0d;
+  --color-ink-800: #1f0e10;
+  --color-ink-700: #33171a; /* الحدود الخفيفة */
+  --color-ink-600: #4a2226;
+
+  /* النصوص — أبيض كريمي */
+  --color-fg: #fbf6ec;
+  --color-fg-muted: #c3b09f;
 }
 
 /* فاصل رفيع أسفل العناوين */
@@ -29,7 +38,7 @@
   display: block;
   height: 2px;
   width: 2.5rem;
-  background: #3157d5;
+  background: #eea851;
   border-radius: 999px;
 }
 
@@ -94,7 +103,7 @@
   bottom: -14px;
   height: 22px;
   border-radius: 999px;
-  background: rgba(49, 87, 213, 0.4);
+  background: rgba(238, 168, 81, 0.28);
   filter: blur(20px);
   animation: shadow-breathe var(--dur, 7s) ease-in-out var(--delay, 0s) infinite;
 }
@@ -108,4 +117,152 @@
   .float, .float-shadow { animation: none; }
   .tilt { transform: none; transition: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   الصفحة الرئيسية — تصميم 2026
+   عنابي داكن + ذهبي الزعفران، زجاج معتم، حركة دخول مدروسة.
+   ═══════════════════════════════════════════════════════════ */
+
+::selection { background: rgba(238, 168, 81, 0.3); color: #fff; }
+
+/* المادة الزجاجية — تُستعمل في البطاقات والأزرار الثانوية */
+.ms-glass {
+  background: linear-gradient(180deg, rgba(90, 29, 34, 0.32), rgba(31, 14, 16, 0.55));
+  border: 1px solid rgba(244, 201, 140, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 240, 220, 0.06), 0 18px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* حبيبات خفيفة فوق الصفحة تمنع التدرّجات من التشرّط */
+.ms-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* زخرفة النجمة الثمانية — من خلفية صورة الحساب */
+.ms-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23f4c98c' stroke-width='1'%3E%3Crect x='24' y='24' width='36' height='36'/%3E%3Crect x='24' y='24' width='36' height='36' transform='rotate(45 42 42)'/%3E%3Ccircle cx='42' cy='42' r='7'/%3E%3Cpath d='M0 42h17M67 42h17M42 0v17M42 67v17'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 84px 84px;
+}
+
+/* ——— البطل ——— */
+.ms-hero { --p: 0; }
+.ms-hero-inner {
+  transform: translateY(calc(var(--p) * -70px)) scale(calc(1 - var(--p) * 0.08));
+  opacity: calc(1 - var(--p) * 1.1);
+  filter: blur(calc(var(--p) * 6px));
+  will-change: transform, opacity;
+}
+.ms-halo {
+  transform: translate(-50%, -50%) scale(calc(1 + var(--p) * 0.25));
+}
+
+.ms-title { font-size: clamp(3.4rem, 8.4vw, 7.9rem); line-height: 1.12; letter-spacing: -0.01em; }
+.ms-line { display: block; overflow: hidden; padding-block: 0.06em; }
+.ms-line > span {
+  display: inline-block;
+  animation: ms-rise 1.05s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes ms-rise {
+  from { transform: translateY(105%); }
+  to { transform: none; }
+}
+
+.ms-in {
+  animation: ms-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes ms-in {
+  from { opacity: 0; transform: translateY(22px); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+/* الموجة الصوتية تحت العنوان — الأعمدة ترتفع قرب المؤشر */
+.ms-wave span {
+  flex: 1;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f4c98c, #cf8129);
+  height: calc(var(--h) * (0.5 + var(--boost, 0) * 0.5));
+  opacity: calc(0.4 + var(--boost, 0) * 0.6);
+  transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s;
+  transform-origin: center;
+  animation: ms-bar 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(700ms + var(--i) * 12ms);
+}
+@keyframes ms-bar { from { transform: scaleY(0); } to { transform: none; } }
+
+.ms-scrollcue span {
+  animation: ms-cue 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes ms-cue {
+  0% { transform: translateY(-100%); }
+  60%, 100% { transform: translateY(100%); }
+}
+
+/* ——— الأزرار ——— */
+.ms-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+  border-radius: 999px; padding: 0.85rem 1.6rem; font-size: 0.95rem; font-weight: 600;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.25s, border-color 0.25s, color 0.25s;
+}
+.ms-btn:hover { transform: translateY(-1px); }
+.ms-btn:active { transform: scale(0.97); }
+.ms-btn-primary { background: #eea851; color: #0e0506; }
+.ms-btn-primary:hover { background: #f4c98c; }
+.ms-btn-ghost { color: #fbf6ec; }
+.ms-btn-ghost:hover { border-color: rgba(244, 201, 140, 0.35); }
+.ms-btn .ms-arrow {
+  display: inline-flex; width: 1.6rem; height: 1.6rem; border-radius: 999px; align-items: center; justify-content: center;
+  background: rgba(14, 5, 6, 0.14);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ms-btn:hover .ms-arrow { transform: translateX(-3px); }
+
+/* ——— عنوان القسم ——— */
+.ms-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-size: 0.78rem; letter-spacing: 0.08em; color: #c3b09f;
+}
+.ms-eyebrow::before { content: ""; width: 0.45rem; height: 0.45rem; border-radius: 999px; background: #eea851; box-shadow: 0 0 12px rgba(238, 168, 81, 0.7); }
+.ms-h2 { font-size: clamp(2rem, 4.4vw, 3.4rem); line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+
+/* ——— معرض الأعمال الدوّار ——— */
+.ms-flow { perspective: 1400px; }
+.ms-card {
+  position: absolute; inset-block-start: 0; left: 50%;
+  width: var(--cw); aspect-ratio: 4 / 5;
+  transform: translateX(-50%) translateX(calc(var(--o) * var(--step))) translateZ(calc(var(--a) * -260px)) rotateY(calc(var(--o) * -32deg));
+  opacity: calc(1 - var(--a) * 0.28);
+  z-index: calc(20 - var(--a) * 2);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.8s, filter 0.8s;
+  filter: brightness(calc(1 - var(--a) * 0.22));
+  will-change: transform;
+}
+.ms-card[data-hidden="true"] { opacity: 0; pointer-events: none; }
+.ms-card img { transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.ms-card[data-active="true"]:hover img { transform: scale(1.04); }
+
+/* ——— الظهور عند التمرير ——— */
+.ms-reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1), transform 0.85s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: var(--d, 0ms); }
+.ms-reveal.is-in { opacity: 1; transform: none; }
+
+.ms-lift { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s; }
+.ms-lift:hover { transform: translateY(-6px); border-color: rgba(244, 201, 140, 0.28); }
+
+.ms-logo img { filter: grayscale(1) brightness(1.6); opacity: 0.6; transition: filter 0.3s, opacity 0.3s; }
+.ms-logo:hover img { filter: none; opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-line > span, .ms-in, .ms-wave span, .ms-scrollcue span { animation: none; }
+  .ms-hero-inner { transform: none; opacity: 1; filter: none; }
+  .ms-card { transition: none; }
+  .ms-reveal { opacity: 1; transform: none; transition: none; }
 }

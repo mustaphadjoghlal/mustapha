@@ -149,17 +149,17 @@ export function ArticlePage() {
         {/* ===== النص الرئيسي ===== */}
         <style>{`
           .article-body { font-size:1.15rem; line-height:2; color:#d1d5db; font-family:inherit; }
-          .article-body h2 { font-size:1.6rem; font-weight:800; color:#ffffff; margin-top:2.5rem; margin-bottom:1rem; padding-bottom:0.4rem; border-bottom:2px solid #4169e1; }
+          .article-body h2 { font-size:1.6rem; font-weight:800; color:#ffffff; margin-top:2.5rem; margin-bottom:1rem; padding-bottom:0.4rem; border-bottom:2px solid #eea851; }
           .article-body h3 { font-size:1.3rem; font-weight:700; color:#e5e7eb; margin-top:2rem; margin-bottom:0.75rem; }
           .article-body p { margin-bottom:1.4rem; font-weight:400; }
           .article-body strong { font-weight:700; color:#ffffff; }
           .article-body ul { list-style:none; padding:0; margin:1.2rem 0; }
           .article-body ul li { padding:0.4rem 0 0.4rem 0; padding-right:1.5rem; position:relative; margin-bottom:0.5rem; color:#d1d5db; }
-          .article-body ul li::before { content:"◈"; position:absolute; right:0; color:#4169e1; font-size:0.8rem; top:0.55rem; }
+          .article-body ul li::before { content:"◈"; position:absolute; right:0; color:#eea851; font-size:0.8rem; top:0.55rem; }
           .article-body ol { padding-right:1.5rem; margin:1.2rem 0; counter-reset:item; list-style:none; }
           .article-body ol li { counter-increment:item; margin-bottom:0.8rem; position:relative; padding-right:2rem; color:#d1d5db; }
-          .article-body ol li::before { content:counter(item); position:absolute; right:0; background:#4169e1; color:white; width:1.4rem; height:1.4rem; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; top:0.2rem; }
-          .article-body blockquote { border-right:4px solid #4169e1; padding:1rem 1.2rem; margin:1.5rem 0; color:#9ca3af; font-style:italic; background:#121829; border-radius:0 0.5rem 0.5rem 0; }
+          .article-body ol li::before { content:counter(item); position:absolute; right:0; background:#eea851; color:#0f0507; width:1.4rem; height:1.4rem; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; top:0.2rem; }
+          .article-body blockquote { border-right:4px solid #eea851; padding:1rem 1.2rem; margin:1.5rem 0; color:#9ca3af; font-style:italic; background:#121829; border-radius:0 0.5rem 0.5rem 0; }
           .article-body a { color:#93aeff; text-decoration:none; }
           .article-body a:hover { text-decoration:underline; }
         `}</style>

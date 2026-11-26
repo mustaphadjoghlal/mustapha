@@ -208,7 +208,7 @@ export function WorkDetailPage() {
           <section className="relative max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 pt-10 pb-16 sm:pt-14">
             <div
               className="pointer-events-none absolute inset-0 -z-10"
-              style={{ background: "radial-gradient(60% 45% at 30% 20%, rgba(49,87,213,0.14), transparent 70%)" }}
+              style={{ background: "radial-gradient(60% 45% at 30% 20%, rgba(238,168,81,0.10), transparent 70%)" }}
             />
             <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
               {work.coverImage && (
@@ -264,7 +264,7 @@ export function WorkDetailPage() {
                   scrolling="no"
                   frameBorder="no"
                   allow="autoplay"
-                  src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(work.soundcloudUrl)}&color=%233157d5&auto_play=false&hide_related=true&show_comments=false&show_user=true`}
+                  src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(work.soundcloudUrl)}&color=%23eea851&auto_play=false&hide_related=true&show_comments=false&show_user=true`}
                   className="rounded-xl"
                 />
               )}

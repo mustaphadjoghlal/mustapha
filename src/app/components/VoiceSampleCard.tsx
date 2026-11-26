@@ -76,7 +76,7 @@ export function VoiceSampleCard({ id, title, audioUrl, soundcloudUrl }: VoiceSam
         <button
           onClick={toggle}
           disabled={!audioUrl}
-          className="flex h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 items-center justify-center rounded-full bg-royal-500 text-white transition-colors hover:bg-royal-600 disabled:opacity-40"
+          className="flex h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 items-center justify-center rounded-full bg-royal-500 text-ink-950 transition-colors hover:bg-royal-600 disabled:opacity-40"
           aria-label={playing ? "إيقاف النموذج الصوتي" : "تشغيل النموذج الصوتي"}
         >
           {playing ? <Pause size={24} /> : <Play size={24} className="ms-1" />}

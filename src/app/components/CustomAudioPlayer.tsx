@@ -116,7 +116,7 @@ export function CustomAudioPlayer({ src, title, coverImage }: CustomAudioPlayerP
               onChange={handleProgressChange}
               className="w-full h-1.5 bg-ink-600 rounded-full appearance-none cursor-pointer accent-royal-500 hover:accent-royal-400"
               style={{
-                background: `linear-gradient(to right, #4169e1 0%, #4169e1 ${progressPercent}%, #2a3450 ${progressPercent}%, #2a3450 100%)`,
+                background: `linear-gradient(to right, #eea851 0%, #eea851 ${progressPercent}%, #3a1a1e ${progressPercent}%, #3a1a1e 100%)`,
               }}
             />
           </div>

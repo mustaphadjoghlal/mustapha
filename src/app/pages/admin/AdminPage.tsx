@@ -95,14 +95,14 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
 
       {/* CSS for editor content */}
       <style>{`
-        [contenteditable] h2 { font-size:1.3rem; font-weight:800; color:#fff; margin:1rem 0 0.5rem; border-bottom:2px solid #4169e1; padding-bottom:0.25rem; }
+        [contenteditable] h2 { font-size:1.3rem; font-weight:800; color:#fff; margin:1rem 0 0.5rem; border-bottom:2px solid #eea851; padding-bottom:0.25rem; }
         [contenteditable] h3 { font-size:1.1rem; font-weight:700; color:#e5e7eb; margin:0.8rem 0 0.4rem; }
         [contenteditable] p  { margin-bottom:0.8rem; }
         [contenteditable] strong { font-weight:700; color:#fff; }
         [contenteditable] ul { list-style:disc; padding-right:1.5rem; margin:0.5rem 0; }
         [contenteditable] ol { list-style:decimal; padding-right:1.5rem; margin:0.5rem 0; }
         [contenteditable] li { margin-bottom:0.3rem; }
-        [contenteditable] blockquote { border-right:3px solid #4169e1; padding-right:1rem; color:#9ca3af; font-style:italic; margin:0.8rem 0; }
+        [contenteditable] blockquote { border-right:3px solid #eea851; padding-right:1rem; color:#9ca3af; font-style:italic; margin:0.8rem 0; }
         [contenteditable] a  { color:#93aeff; }
       `}</style>
     </div>
@@ -808,7 +808,7 @@ export function AdminPage() {
           <div className="bg-ink-900 border border-ink-700 rounded-2xl p-8">
             <div className="flex flex-wrap items-center gap-2 mb-8 bg-ink-950/40 p-1.5 rounded-xl w-fit">
               {[{ id: "design", label: "التصميم الجرافيكي" }, { id: "voice", label: "التعليق الصوتي" }, { id: "photography", label: "التصوير الفوتوغرافي" }].map((cat) => (
-                <button key={cat.id} onClick={() => setNewWork({ ...newWork, category: cat.id as any })} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${newWork.category === cat.id ? "bg-royal-600 text-white shadow-lg" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>{cat.label}</button>
+                <button key={cat.id} onClick={() => setNewWork({ ...newWork, category: cat.id as any })} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${newWork.category === cat.id ? "bg-royal-600 text-ink-950 shadow-lg" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>{cat.label}</button>
               ))}
             </div>
             <WorksList works={works} category={newWork.category || "design"} saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} onToggleFeatured={toggleWorkFeatured} onToggleHomeSample={toggleHomeSample} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
@@ -1201,7 +1201,7 @@ function LoginForm({ onLogin }: { onLogin: any }) {
         <div className="space-y-4">
           <input type="email" placeholder="البريد الإلكتروني" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-ink-850 border border-ink-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-royal-500" />
           <input type="password" placeholder="كلمة المرور" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-ink-850 border border-ink-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-royal-500" />
-          <button onClick={handleSubmit} disabled={loading} className="w-full bg-royal-500 text-white py-3 rounded-lg font-semibold hover:from-royal-600 hover:to-royal-700 transition-all disabled:opacity-50">
+          <button onClick={handleSubmit} disabled={loading} className="w-full bg-royal-500 text-ink-950 py-3 rounded-lg font-semibold hover:from-royal-600 hover:to-royal-700 transition-all disabled:opacity-50">
             {loading ? "جارٍ الدخول..." : "دخول"}
           </button>
         </div>

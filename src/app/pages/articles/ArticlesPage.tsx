@@ -73,7 +73,7 @@ export function ArticlesPage() {
             <div className="flex gap-2 overflow-x-auto pb-1">
               {allTags.map((tag) => (
                 <button key={tag} onClick={() => setActiveTag(tag)}
-                  className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${activeTag === tag ? "bg-royal-600 text-white" : "bg-ink-900 text-gray-400 hover:text-white border border-ink-700"}`}>
+                  className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${activeTag === tag ? "bg-royal-600 text-ink-950" : "bg-ink-900 text-gray-400 hover:text-white border border-ink-700"}`}>
                   {tag === ALL_TAGS ? t("articles.all") : tag}
                 </button>
               ))}
@@ -127,7 +127,7 @@ export function ArticlesPage() {
                     </div>
                   )}
                   {article.category && (
-                    <span className="absolute top-3 right-3 bg-royal-600/90 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-semibold">
+                    <span className="absolute top-3 right-3 bg-royal-600/90 backdrop-blur-sm text-ink-950 text-xs px-3 py-1 rounded-full font-semibold">
                       {article.category}
                     </span>
                   )}

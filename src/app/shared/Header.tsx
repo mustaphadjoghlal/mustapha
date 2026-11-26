@@ -46,18 +46,23 @@ export function Header() {
             {t("header.wordmark")}
           </Link>
 
-          <nav className="hidden md:flex gap-7">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`text-sm transition-colors hover:text-fg ${
-                  location.pathname === item.path ? "text-royal-400" : "text-fg-muted"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+          {/* قائمة على شكل كبسولة زجاجية، والصفحة الحالية في كبسولة ذهبية */}
+          <nav className="hidden md:flex items-center gap-1 rounded-full border border-royal-200/10 bg-ink-900/60 p-1 backdrop-blur-md">
+            {navItems.map((item) => {
+              const active = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  aria-current={active ? "page" : undefined}
+                  className={`rounded-full px-4 py-1.5 text-sm transition-colors duration-300 ${
+                    active ? "bg-royal-400 font-semibold text-ink-950" : "text-fg-muted hover:bg-white/5 hover:text-fg"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <button

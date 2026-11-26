@@ -1,21 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router";
 import {
-  Mic, Video, Palette, TrendingUp, ArrowLeft, Play, Linkedin, Instagram, Twitter,
+  Mic, Video, Palette, TrendingUp, ArrowLeft, ArrowRight, Linkedin, Instagram, Twitter,
+  Layers, Users, AudioLines,
 } from "lucide-react";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
-import profileImg from "../../../assets/profile.jpg";
-import heroMobileImg from "../../../assets/hero-mobile.webp";
 import { useSeo } from "../../shared/useSeo";
 import { useText } from "../../shared/siteText";
 import { VoiceSampleCard } from "../../components/VoiceSampleCard";
 
 interface SiteInfo {
   heroName: string;
-  /** عنوان البطل — الجزء الأبيض. كل سطر جديد يظهر سطراً مستقلاً على الشاشات الكبيرة */
+  /** عنوان البطل — الجزء الأبيض. كل سطر جديد يظهر سطراً مستقلاً */
   heroTitle: string;
-  /** عنوان البطل — الجزء الأزرق */
+  /** عنوان البطل — الجزء الذهبي */
   heroTitleAccent: string;
   heroDescription: string;
   profileImageUrl: string;
@@ -90,9 +89,15 @@ const services = [
   { Icon: TrendingUp, key: "marketing", link: "/about" },
 ];
 
+/** أطوال أعمدة الموجة — نمط ثابت يشبه موجة كلام حقيقية */
+const WAVE = [
+  22, 38, 30, 54, 70, 46, 82, 64, 40, 58, 92, 74, 50, 36, 62, 88, 100, 76, 52, 66,
+  44, 30, 58, 80, 96, 70, 48, 34, 56, 78, 60, 42, 28, 50, 72, 90, 68, 46, 38, 60,
+  84, 64, 40, 26, 48, 70, 56, 34, 24, 40, 58, 44, 30, 20,
+];
 
 /** يختصر الوصف في البطل إلى أول جملة أو جملتين دون قطع الكلام في منتصفه */
-function shortenDescription(text: string, limit = 110) {
+function shortenDescription(text: string, limit = 130) {
   const clean = text.trim();
   if (clean.length <= limit) return clean;
   const sentences = clean.split(/(?<=\.)\s+/);
@@ -104,109 +109,398 @@ function shortenDescription(text: string, limit = 110) {
   return out || sentences[0];
 }
 
-
 /** يفكّك عنوان البطل — المكتوب في لوحة التحكم — إلى أسطر */
 function titleLines(text: string) {
   return (text || "").split("\n").map((l) => l.trim()).filter(Boolean);
 }
 
+const reducedMotion = () =>
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-interface HeroCopyProps {
-  description: string;
-  whatsapp: string;
-  socials: { url: string; Icon: typeof Mic; label: string }[];
-  /** روابط التواصل موجودة في الفوتر، فتُخفى من بطل الجوال */
-  showSocials?: boolean;
+/** يضيف is-in حين يدخل العنصر الشاشة — مرة واحدة */
+function useReveal<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (reducedMotion() || !("IntersectionObserver" in window)) {
+      el.classList.add("is-in");
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); }
+      }),
+      { threshold: 0.15 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return ref;
 }
 
-/** العنوان — يجاور الصورة */
-function HeroTitle({ title, accent }: { title: string; accent: string }) {
-  const t = useText();
-  const lines = titleLines(title || defaults.heroTitle);
-  const accentLine = (accent || defaults.heroTitleAccent).trim();
+/** عدّاد يبدأ حين يظهر الرقم على الشاشة */
+function CountUp({ value }: { value: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || value <= 0) return;
+    if (reducedMotion()) { setShown(value); return; }
+    let raf = 0;
+    const io = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      io.disconnect();
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min((now - start) / 1600, 1);
+        setShown(Math.round(value * (1 - Math.pow(1 - t, 3))));
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }, { threshold: 0.4 });
+    io.observe(el);
+    return () => { io.disconnect(); cancelAnimationFrame(raf); };
+  }, [value]);
+  return <span ref={ref} className="tabular-nums">{shown}</span>;
+}
+
+/* ═══════════ البطل ═══════════ */
+
+function HeroWave() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // الأعمدة القريبة من المؤشر ترتفع — على أجهزة اللمس تبقى ثابتة
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reducedMotion() || !window.matchMedia("(hover: hover)").matches) return;
+    const bars = Array.from(el.children) as HTMLElement[];
+    let raf = 0;
+    const onMove = (e: PointerEvent) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        const near = e.clientY > rect.top - 260 && e.clientY < rect.bottom + 260;
+        bars.forEach((bar) => {
+          const b = bar.getBoundingClientRect();
+          const dist = Math.abs(e.clientX - (b.left + b.width / 2));
+          const boost = near ? Math.max(0, 1 - dist / 220) : 0;
+          bar.style.setProperty("--boost", boost.toFixed(3));
+        });
+      });
+    };
+    const onLeave = () => bars.forEach((bar) => bar.style.setProperty("--boost", "0"));
+    window.addEventListener("pointermove", onMove, { passive: true });
+    document.addEventListener("pointerleave", onLeave);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerleave", onLeave);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
 
   return (
-    <>
-      {t("home.hero.tagline") && (
-        <p className="fade-up flex items-center gap-3 text-[0.7rem] tracking-[0.2em] lg:text-[0.72rem] lg:tracking-[0.22em] text-fg-muted">
-          <span className="h-px w-6 lg:w-7 bg-royal-500" />
-          {t("home.hero.tagline")}
-        </p>
-      )}
-
-      {(lines.length > 0 || accentLine) && (
-        <h1
-          className="fade-up mt-4 lg:mt-5 text-[1.95rem] leading-[1.28] sm:text-[2.6rem] lg:text-[3.6rem] lg:leading-[1.18] font-bold tracking-[-0.01em]"
-          style={{ animationDelay: "60ms" }}
-        >
-          {lines.map((line) => (
-            <span key={line} className="block">
-              {line}
-            </span>
-          ))}
-          {accentLine && <span className="block text-royal-400">{accentLine}</span>}
-        </h1>
-      )}
-    </>
+    <div ref={ref} aria-hidden="true" dir="ltr" className="ms-wave flex h-16 sm:h-20 items-center gap-[3px] sm:gap-[5px]">
+      {WAVE.map((h, i) => (
+        <span key={i} style={{ "--h": `${h}%`, "--i": i } as React.CSSProperties} />
+      ))}
+    </div>
   );
 }
 
-/** بقيّة نصّ البطل: الوصف والأزرار وروابط التواصل */
-function HeroCopy({ description, whatsapp, socials, showSocials = true }: HeroCopyProps) {
+interface HeroProps {
+  siteInfo: SiteInfo;
+  whatsappUrl: string;
+  socials: { url: string; Icon: typeof Mic; label: string }[];
+}
+
+function Hero({ siteInfo, whatsappUrl, socials }: HeroProps) {
   const t = useText();
+  const ref = useRef<HTMLElement>(null);
+  const lines = titleLines(siteInfo.heroTitle || defaults.heroTitle);
+  const accent = (siteInfo.heroTitleAccent || defaults.heroTitleAccent).trim();
+
+  // كلما نزل الزائر يصغر العنوان ويخفت — كأن الصفحة تنسحب نحو الأعمال
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reducedMotion()) return;
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const p = Math.min(Math.max(window.scrollY / (el.offsetHeight * 0.85), 0), 1);
+        el.style.setProperty("--p", p.toFixed(3));
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
+  }, []);
 
   return (
-    <div className="max-w-[32rem]">
-      <p
-        className="fade-up text-[0.95rem] sm:text-base leading-[1.85] text-fg-muted"
-        style={{ animationDelay: "120ms" }}
-      >
-        {description}
-      </p>
-
-      <div className="fade-up mt-8 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "180ms" }}>
-        {t("home.cta.works") && (
-          <Link
-            to="/portfolio"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-royal-500 px-7 py-4 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
-          >
-            <ArrowLeft size={17} />
-            {t("home.cta.works")}
-          </Link>
-        )}
-        {t("home.cta.contact") && (
-          <a
-            href={whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-whatsapp-cta
-            className="inline-flex items-center justify-center rounded-lg border border-ink-700 px-7 py-4 text-[0.95rem] text-fg-muted transition-colors hover:border-ink-600 hover:text-fg"
-          >
-            {t("home.cta.contact")}
-          </a>
-        )}
+    <section ref={ref} className="ms-hero ms-grain relative -mt-16 overflow-hidden">
+      {/* التوهّج العنابي في الأعلى + زخرفة النجمة */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute inset-0"
+          style={{ background: "radial-gradient(90% 60% at 50% -8%, rgba(122,42,49,0.85), rgba(75,19,23,0.35) 45%, transparent 75%)" }}
+        />
+        <div
+          className="ms-pattern absolute inset-0 opacity-[0.07]"
+          style={{
+            maskImage: "radial-gradient(70% 60% at 50% 30%, #000 20%, transparent 75%)",
+            WebkitMaskImage: "radial-gradient(70% 60% at 50% 30%, #000 20%, transparent 75%)",
+          }}
+        />
+        {/* هالة الزعفران — من خلفية صورة الحساب */}
+        <div
+          className="ms-halo absolute left-1/2 top-[46%] aspect-square w-[min(68vw,640px)] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(238,168,81,0.20), rgba(238,168,81,0.05) 55%, transparent 70%)" }}
+        />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink-950 to-transparent" />
       </div>
 
-      {showSocials && socials.length > 0 && (
-        <div className="fade-up mt-8 lg:mt-9 flex gap-6" style={{ animationDelay: "240ms" }}>
-          {socials.map(({ url, Icon, label }) => (
-            <a
-              key={label}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="text-fg-muted transition-colors hover:text-royal-400"
+      <div className="relative mx-auto flex min-h-[86svh] sm:min-h-[100svh] max-w-7xl flex-col px-5 pt-24 pb-7 sm:px-8 lg:pt-24">
+        <div className="ms-hero-inner flex flex-1 flex-col items-center justify-center text-center">
+          {t("home.hero.tagline") && (
+            <p className="ms-in ms-eyebrow" style={{ "--d": "100ms" } as React.CSSProperties}>
+              {t("home.hero.tagline")}
+            </p>
+          )}
+
+          <h1 className="ms-title mt-5 font-bold">
+            {lines.map((line, i) => (
+              <span key={line} className="ms-line">
+                <span style={{ "--d": `${200 + i * 110}ms` } as React.CSSProperties}>{line}</span>
+              </span>
+            ))}
+            {accent && (
+              <span className="ms-line">
+                <span className="text-royal-400" style={{ "--d": `${200 + lines.length * 110}ms` } as React.CSSProperties}>
+                  {accent}
+                  <span className="text-maroon-400">.</span>
+                </span>
+              </span>
+            )}
+          </h1>
+
+          <div className="ms-in mt-6 w-full max-w-xl" style={{ "--d": "650ms" } as React.CSSProperties}>
+            <HeroWave />
+          </div>
+
+          <p
+            className="ms-in mt-5 max-w-[34rem] text-[0.98rem] sm:text-[1.05rem] leading-[1.9] text-fg-muted"
+            style={{ "--d": "780ms" } as React.CSSProperties}
+          >
+            {shortenDescription(siteInfo.heroDescription)}
+          </p>
+
+          <div className="ms-in mt-7 flex w-full flex-col gap-3 sm:w-auto sm:flex-row" style={{ "--d": "900ms" } as React.CSSProperties}>
+            {t("home.cta.works") && (
+              <Link to="/portfolio" className="ms-btn ms-btn-primary">
+                {t("home.cta.works")}
+                <span className="ms-arrow"><ArrowLeft size={15} /></span>
+              </Link>
+            )}
+            {t("home.cta.contact") && (
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-whatsapp-cta className="ms-btn ms-btn-ghost ms-glass">
+                {t("home.cta.contact")}
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* الشريط السفلي: الاسم — إشارة التمرير — روابط التواصل */}
+        <div className="ms-in mt-8 grid grid-cols-2 items-end gap-4 sm:grid-cols-3" style={{ "--d": "1100ms" } as React.CSSProperties}>
+          <div>
+            <p className="text-sm font-semibold text-fg">{siteInfo.heroName || defaults.heroName}</p>
+            <p className="mt-0.5 text-xs text-fg-muted">مسقط · سلطنة عُمان</p>
+          </div>
+          <div className="hidden flex-col items-center gap-2 sm:flex">
+            <span className="text-[0.7rem] tracking-[0.15em] text-fg-muted">{t("home.hero.scroll")}</span>
+            <span className="ms-scrollcue relative h-9 w-px overflow-hidden bg-ink-700">
+              <span className="absolute inset-0 bg-royal-400" />
+            </span>
+          </div>
+          {socials.length > 0 && (
+            <div className="flex justify-end gap-2">
+              {socials.map(({ url, Icon, label }) => (
+                <a
+                  key={label}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="ms-glass flex h-10 w-10 items-center justify-center rounded-full text-fg-muted transition-colors hover:text-royal-300"
+                >
+                  <Icon size={17} />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════ معرض الأعمال الدوّار ═══════════ */
+
+function WorksCarousel({ works }: { works: Work[] }) {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [wide, setWide] = useState(true);
+  const drag = useRef<{ x: number; moved: boolean } | null>(null);
+  const count = works.length;
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const sync = () => setWide(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const go = useCallback((dir: number) => setActive((a) => (a + dir + count) % count), [count]);
+
+  // يدور وحده كل أربع ثوانٍ، ويتوقف حين يمرّ المؤشر فوقه
+  useEffect(() => {
+    if (paused || count < 2 || reducedMotion()) return;
+    const id = window.setInterval(() => go(1), 4000);
+    return () => window.clearInterval(id);
+  }, [paused, count, go]);
+
+  if (count === 0) return null;
+
+  // المسافة الدائرية بين البطاقة والبطاقة النشطة
+  const offsetOf = (i: number) => {
+    let o = i - active;
+    if (o > count / 2) o -= count;
+    if (o < -count / 2) o += count;
+    return o;
+  };
+  const range = wide ? 2 : 1;
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowLeft") go(1);
+        if (e.key === "ArrowRight") go(-1);
+      }}
+    >
+      <div
+        className="ms-flow relative mx-auto h-[22rem] sm:h-[31rem] lg:h-[34rem] touch-pan-y select-none"
+        style={{ "--cw": wide ? "min(23rem, 30vw)" : "68vw", "--step": wide ? "min(17rem, 22vw)" : "52vw" } as React.CSSProperties}
+        onPointerDown={(e) => { drag.current = { x: e.clientX, moved: false }; }}
+        onPointerMove={(e) => {
+          if (drag.current && Math.abs(e.clientX - drag.current.x) > 8) drag.current.moved = true;
+        }}
+        onPointerUp={(e) => {
+          const d = drag.current;
+          if (!d || !d.moved) { drag.current = null; return; }
+          const dx = e.clientX - d.x;
+          if (Math.abs(dx) > 40) go(dx > 0 ? 1 : -1);
+          // يُترك drag.current لحظة حتى يمنع النقرَ التالي من فتح العمل
+          window.setTimeout(() => { drag.current = null; }, 0);
+        }}
+      >
+        {works.map((work, i) => {
+          const o = offsetOf(i);
+          const a = Math.abs(o);
+          const isActive = o === 0;
+          return (
+            <Link
+              key={work.id}
+              to={`/portfolio/${work.id}`}
+              draggable={false}
+              data-active={isActive}
+              data-hidden={a > range}
+              aria-hidden={a > range}
+              tabIndex={isActive ? 0 : -1}
+              onClick={(e) => {
+                if (drag.current?.moved) { e.preventDefault(); return; }
+                if (!isActive) { e.preventDefault(); setActive(i); }
+              }}
+              className="ms-card group block overflow-hidden rounded-[1.4rem] border border-royal-200/10 bg-ink-850 shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
+              style={{ "--o": -o, "--a": a } as React.CSSProperties}
             >
-              <Icon size={19} />
-            </a>
-          ))}
+              <img
+                src={work.coverImage}
+                alt={work.altText || work.title}
+                loading={a <= 1 ? "eager" : "lazy"}
+                draggable={false}
+                className="h-full w-full object-cover"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950/90 via-transparent to-transparent" />
+              <div
+                className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-5 transition-opacity duration-500"
+                style={{ opacity: isActive ? 1 : 0 }}
+              >
+                <h3 className="text-sm sm:text-base font-semibold text-fg">{work.title}</h3>
+                <span className="ms-glass flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-royal-300 transition-transform group-hover:-rotate-45">
+                  <ArrowLeft size={16} />
+                </span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {count > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-5">
+          <button onClick={() => go(-1)} aria-label="العمل السابق" className="ms-glass flex h-11 w-11 items-center justify-center rounded-full text-fg transition-colors hover:text-royal-300">
+            <ArrowRight size={18} />
+          </button>
+          <div className="flex items-center gap-1.5">
+            {works.map((w, i) => (
+              <button
+                key={w.id}
+                onClick={() => setActive(i)}
+                aria-label={`العمل ${i + 1}`}
+                className={`h-1.5 rounded-full transition-all duration-500 ${i === active ? "w-7 bg-royal-400" : "w-1.5 bg-ink-600"}`}
+              />
+            ))}
+          </div>
+          <button onClick={() => go(1)} aria-label="العمل التالي" className="ms-glass flex h-11 w-11 items-center justify-center rounded-full text-fg transition-colors hover:text-royal-300">
+            <ArrowLeft size={18} />
+          </button>
         </div>
       )}
     </div>
   );
 }
 
+/** عنوان القسم: نقطة ذهبية + عنوان، ورابط اختياري في الطرف الآخر */
+function SectionHead({ eyebrow, title, link }: { eyebrow?: string; title: string; link?: { to: string; label: string } }) {
+  const ref = useReveal<HTMLDivElement>();
+  if (!title) return null;
+  return (
+    <div ref={ref} className="ms-reveal flex flex-wrap items-end justify-between gap-4">
+      <div>
+        {eyebrow && <p className="ms-eyebrow">{eyebrow}</p>}
+        <h2 className={`ms-h2 ${eyebrow ? "mt-3" : ""}`}>{title}</h2>
+      </div>
+      {link?.label && (
+        <Link to={link.to} className="inline-flex items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-royal-300">
+          {link.label}
+          <ArrowLeft size={15} />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useReveal<HTMLDivElement>();
+  return (
+    <div ref={ref} className={`ms-reveal ${className}`} style={{ "--d": `${delay}ms` } as React.CSSProperties}>
+      {children}
+    </div>
+  );
+}
 
 export function HomePage() {
   const t = useText();
@@ -235,20 +529,17 @@ export function HomePage() {
     return () => { u1(); u2(); u3(); };
   }, []);
 
-  // الصورة المعتمدة للبطل هي المرفقة بالمشروع (ذات ربطة العنق الزرقاء).
-  // الصورة المرفوعة من لوحة التحكم ما زالت تُستخدم في بقية الموقع.
   const whatsappUrl = siteInfo.phone
     ? `https://wa.me/${siteInfo.phone.replace(/\D/g, "")}?text=${encodeURIComponent(t("whatsapp.message"))}`
     : "#contact";
 
-  const heroImage = profileImg;
   // العينة الصوتية: المختارة من لوحة التحكم، وإلا أول عمل صوتي حتى لا يفرغ القسم
   const voiceWorks = works.filter((w) => w.category === "voice" && (w.audioUrl || w.soundcloudUrl));
   const voiceSample = voiceWorks.find((w) => w.homeSample) || voiceWorks[0];
   const withCover = works.filter((w) => w.coverImage);
   const picked = withCover.filter((w) => w.featured);
-  // ما لم يُحدَّد شيء من لوحة التحكم، تُعرض أول ستة أعمال حتى لا يفرغ القسم
-  const featured = (picked.length > 0 ? picked : withCover).slice(0, 6);
+  // ما لم يُحدَّد شيء من لوحة التحكم، تُعرض أول ثمانية أعمال حتى لا يفرغ القسم
+  const featured = (picked.length > 0 ? picked : withCover).slice(0, 8);
 
   const socials = [
     { url: siteInfo.linkedinUrl, Icon: Linkedin, label: "لينكدإن" },
@@ -256,323 +547,168 @@ export function HomePage() {
     { url: siteInfo.twitterUrl, Icon: Twitter, label: "تويتر" },
   ].filter((s) => s.url && s.url !== "#");
 
+  // أرقام حقيقية تُحسب من المحتوى نفسه، فتتحدّث وحدها مع كل إضافة
+  const stats = [
+    { Icon: Layers, value: works.length, label: t("home.stats.works") },
+    { Icon: Users, value: clients.length, label: t("home.stats.clients") },
+    { Icon: AudioLines, value: voiceWorks.length, label: t("home.stats.voice") },
+  ].filter((s) => s.value > 0 && s.label);
+
   return (
-    <div className="bg-ink-950 text-fg overflow-x-hidden">
-      {/* ═══════════ البطل ═══════════
-          الجوال: الصورة على يسار العنوان بحجم معتدل
-          الشاشات الكبيرة: التكوين السينمائي كما كان — صورة ممتدة تذوب في الخلفية */}
-      <section className="relative lg:-mt-16">
+    <div className="bg-ink-950 text-fg overflow-x-clip">
+      <Hero siteInfo={siteInfo} whatsappUrl={whatsappUrl} socials={socials} />
 
-        {/* ——— الجوال: تخطيط تصميم Figma بأرقامه ———
-            الصورة بنسبة 1/1.05 والوجه بلا تعتيم، تدرّج سفلي فقط بارتفاع 55%
-            والنص فوقه بعرض كامل، ثم الأزرار وروابط التواصل تحت الصورة. */}
-        <div className="lg:hidden">
-          {/* الصورة */}
-          <div className="relative w-full overflow-hidden" style={{ aspectRatio: "1 / 1.12" }}>
-            <img
-              src={heroMobileImg}
-              alt="مصطفى جغلال — معلق صوتي ومصمم محتوى بصري في مسقط عُمان"
-              title="مصطفى جغلال"
-              width={1164}
-              height={1304}
-              loading="eager"
-              fetchPriority="high"
-              className="block h-full w-full object-cover"
-              style={{ objectPosition: "center top" }}
+      {/* ═══════════ أعمال مختارة ═══════════ */}
+      {featured.length > 0 && (
+        <section className="relative py-20 sm:py-28">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8">
+            <SectionHead
+              eyebrow={t("nav.portfolio")}
+              title={t("home.featured.heading")}
+              link={{ to: "/portfolio", label: t("home.featured.all") }}
             />
+          </div>
+          <Reveal className="mt-12 sm:mt-14" delay={120}>
+            <WorksCarousel works={featured} />
+          </Reveal>
+        </section>
+      )}
 
-            {/* تدرّج سفلي فقط — الوجه يبقى نقياً */}
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-0"
-              style={{
-                height: "55%",
-                background:
-                  "linear-gradient(to top, #08090d 0%, rgba(8,9,13,0.85) 40%, transparent 100%)",
-              }}
-            />
-
-            {/* بطاقة الاقتباس — أعلى اليسار */}
-            {t("home.hero.tagline") && (
+      {/* ═══════════ نماذج صوتية ═══════════ */}
+      {voiceSample && (
+        <section className="mx-auto max-w-7xl px-5 sm:px-8 py-12 sm:py-16">
+          <Reveal>
+            <div className="ms-glass ms-grain relative overflow-hidden rounded-[1.75rem] p-6 sm:p-10 lg:p-14">
               <div
-                className="absolute"
-                style={{
-                  top: 20,
-                  left: 16,
-                  background: "rgba(8,9,13,0.7)",
-                  backdropFilter: "blur(8px)",
-                  WebkitBackdropFilter: "blur(8px)",
-                  border: "1px solid rgba(49,87,213,0.3)",
-                  borderRadius: 12,
-                  padding: "10px 14px",
-                }}
-              >
-                <div style={{ color: "#3157d5", fontSize: 20, lineHeight: 1, marginBottom: 2 }}>”</div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.8, fontStyle: "italic", maxWidth: 110 }}>
-                  {t("home.hero.tagline")}
+                aria-hidden="true"
+                className="pointer-events-none absolute -top-1/2 start-[-10%] h-[140%] w-[60%] rounded-full"
+                style={{ background: "radial-gradient(closest-side, rgba(122,42,49,0.55), transparent)" }}
+              />
+              <div className="relative grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+                <div>
+                  <p className="ms-eyebrow">{t("home.services.voice.title")}</p>
+                  <h2 className="ms-h2 mt-3">{t("home.samples.heading")}</h2>
+                  <p className="mt-4 max-w-sm text-sm leading-[1.9] text-fg-muted">{t("home.services.voice.desc")}</p>
                 </div>
-              </div>
-            )}
-
-            {/* النص فوق التدرّج السفلي */}
-            <div className="absolute inset-x-0 bottom-0" style={{ padding: "0 22px 28px" }}>
-              <h1 style={{ margin: 0, lineHeight: 1.15 }}>
-                {titleLines(siteInfo.heroTitle || defaults.heroTitle).length > 0 && (
-                  <span style={{ display: "block", fontSize: 36, fontWeight: 800, color: "#fff" }}>
-                    {titleLines(siteInfo.heroTitle || defaults.heroTitle).join(" ")}
-                  </span>
-                )}
-                {(siteInfo.heroTitleAccent || defaults.heroTitleAccent).trim() && (
-                  <span style={{ display: "block", fontSize: 40, fontWeight: 900, color: "#3157d5" }}>
-                    {(siteInfo.heroTitleAccent || defaults.heroTitleAccent).trim()}
-                  </span>
-                )}
-              </h1>
-              <div style={{ width: 44, height: 3, background: "#3157d5", borderRadius: 2, margin: "12px 0" }} />
-              <p style={{ margin: 0, color: "rgba(255,255,255,0.7)", fontSize: 13, lineHeight: 1.8, maxWidth: 280 }}>
-                {shortenDescription(siteInfo.heroDescription)}
-              </p>
-            </div>
-          </div>
-
-          {/* الأزرار — تحت الصورة */}
-          <div style={{ padding: "20px 22px 0", display: "flex", flexDirection: "column", gap: 10 }}>
-            {t("home.cta.works") && (
-              <Link
-                to="/portfolio"
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                  background: "#3157d5", color: "#fff", borderRadius: 10, padding: "15px 20px",
-                  fontSize: 15, fontWeight: 700, boxShadow: "0 4px 20px rgba(49,87,213,0.35)",
-                }}
-              >
-                <ArrowLeft size={18} />
-                {t("home.cta.works")}
-              </Link>
-            )}
-            {t("home.cta.contact") && (
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-whatsapp-cta
-                style={{
-                  background: "transparent", color: "#fff", border: "1.5px solid #2e2e2e",
-                  borderRadius: 10, padding: "14px 20px", fontSize: 15, fontWeight: 600, textAlign: "center",
-                }}
-              >
-                {t("home.cta.contact")}
-              </a>
-            )}
-          </div>
-
-          {/* روابط التواصل */}
-          {socials.length > 0 && (
-            <div style={{ display: "flex", gap: 10, padding: "18px 22px 0" }}>
-              {socials.map(({ url, Icon, label }) => (
-                <a
-                  key={label}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  style={{
-                    width: 42, height: 42, borderRadius: 10, background: "#161616",
-                    border: "1px solid #252525", color: "#bbb",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}
-                >
-                  <Icon size={18} />
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ——— الشاشات الكبيرة ——— */}
-        <div className="relative hidden lg:block min-h-[100svh]">
-          <div className="pointer-events-none absolute inset-y-0 start-0 w-[47%] xl:w-[44%]">
-            <img src={heroImage} alt="" aria-hidden="true" className="h-full w-full object-cover object-top" />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(115% 100% at 70% 36%, transparent 42%, #08090d 100%)",
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-ink-950/35 to-ink-950" />
-            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-ink-950 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-ink-950 to-transparent" />
-          </div>
-
-          <div className="relative mx-auto grid min-h-[100svh] max-w-7xl grid-cols-2 items-center px-8">
-            <div aria-hidden="true" />
-            <div className="max-w-[30rem]">
-              <HeroTitle title={siteInfo.heroTitle} accent={siteInfo.heroTitleAccent} />
-              <div className="mt-5">
-                <HeroCopy
-                  description={siteInfo.heroDescription}
-                  whatsapp={whatsappUrl}
-                  socials={socials}
+                <VoiceSampleCard
+                  id={voiceSample.id}
+                  title={voiceSample.title}
+                  audioUrl={voiceSample.audioUrl}
+                  soundcloudUrl={voiceSample.soundcloudUrl}
                 />
               </div>
             </div>
-          </div>
-
-          {/* إضاءة زرقاء خافتة جداً فوق التكوين — تمنع ظهور حافة عند طرف الصورة */}
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(62% 40% at 76% 14%, rgba(49,87,213,0.11), transparent 72%)",
-            }}
-          />
-        </div>
-      </section>
+          </Reveal>
+        </section>
+      )}
 
       {/* ═══════════ مجالات العمل ═══════════ */}
-      <section id="services" className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-4 pb-16 sm:pt-8 sm:pb-24 lg:pt-24">
-        {t("home.services.heading") && (
-          <>
-            <h2 className="text-2xl sm:text-3xl font-bold">{t("home.services.heading")}</h2>
-            <span className="rule-accent mt-4" />
-          </>
-        )}
-
-        <div className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-          {services.map(({ Icon, key, link }) => (
-            <Link key={key} to={link} className="group">
-              <Icon size={22} strokeWidth={1.6} className="text-royal-400" />
-              <h3 className="mt-4 text-[1.02rem] font-semibold transition-colors group-hover:text-royal-300">
-                {t(`home.services.${key}.title`)}
-              </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">{t(`home.services.${key}.desc`)}</p>
-            </Link>
+      <section id="services" className="mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-24">
+        <SectionHead title={t("home.services.heading")} />
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {services.map(({ Icon, key, link }, i) => (
+            <Reveal key={key} delay={i * 90}>
+              <Link to={link} className="ms-glass ms-lift group flex h-full flex-col rounded-[1.4rem] p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon-500/70 text-royal-400 ring-1 ring-royal-400/20">
+                    <Icon size={21} strokeWidth={1.7} />
+                  </span>
+                  <span className="text-xs tabular-nums text-fg-muted/60" dir="ltr">0{i + 1}</span>
+                </div>
+                <h3 className="mt-6 sm:mt-8 text-base sm:text-lg font-semibold transition-colors group-hover:text-royal-300">
+                  {t(`home.services.${key}.title`)}
+                </h3>
+                <p className="mt-2 text-xs sm:text-sm leading-relaxed text-fg-muted">{t(`home.services.${key}.desc`)}</p>
+              </Link>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ═══════════ نماذج صوتية ═══════════ */}
-      {voiceSample && (
-        <section className="bg-ink-900">
-          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
-            {t("home.samples.heading") && (
-              <>
-                <h2 className="text-2xl sm:text-3xl font-bold">{t("home.samples.heading")}</h2>
-                <span className="rule-accent mt-4" />
-              </>
-            )}
-            <div className="mt-8 max-w-3xl">
-              <VoiceSampleCard
-                id={voiceSample.id}
-                title={voiceSample.title}
-                audioUrl={voiceSample.audioUrl}
-                soundcloudUrl={voiceSample.soundcloudUrl}
-              />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ═══════════ أعمالي ═══════════ */}
-      {featured.length > 0 && (
-        <section className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold">{t("home.featured.heading")}</h2>
-            <Link
-              to="/portfolio"
-              className="inline-flex shrink-0 items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-royal-400"
-            >
-              {t("home.featured.all")}
-              {t("home.featured.all") && <ArrowLeft size={15} />}
-            </Link>
-          </div>
-          <span className="rule-accent mt-4" />
-
-          <div className="mt-8 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
-            {featured.map((work) => (
-              <Link
-                key={work.id}
-                to={`/portfolio/${work.id}`}
-                className="group relative block overflow-hidden rounded-lg"
-              >
-                <img
-                  src={work.coverImage}
-                  alt={work.altText || work.title}
-                  loading="lazy"
-                  className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950/95 via-ink-950/20 to-transparent" />
-                <h3 className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-[0.82rem] sm:text-sm font-semibold text-fg">
-                  {work.title}
-                </h3>
-              </Link>
+      {/* ═══════════ أرقام ═══════════ */}
+      {stats.length > 0 && (
+        <section className="mx-auto max-w-5xl px-5 sm:px-8 pb-8">
+          <div className={`grid gap-3 sm:gap-4 ${stats.length === 3 ? "grid-cols-3" : stats.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+            {stats.map(({ Icon, value, label }, i) => (
+              <Reveal key={label} delay={i * 110}>
+                <div className="ms-glass ms-lift flex h-full flex-col items-center rounded-[1.4rem] px-3 py-7 sm:py-9 text-center">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-maroon-500/70 text-royal-400 shadow-[0_0_24px_rgba(238,168,81,0.25)]">
+                    <Icon size={19} />
+                  </span>
+                  <p className="mt-5 text-[2rem] sm:text-5xl font-bold text-fg" dir="ltr">
+                    +<CountUp value={value} />
+                  </p>
+                  <p className="mt-2 text-xs sm:text-sm text-fg-muted">{label}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </section>
       )}
 
-      {/* ═══════════ عملاؤنا المميزون ═══════════ */}
+      {/* ═══════════ العملاء ═══════════ */}
       {clients.length > 0 && (
-        <section className="bg-ink-900">
-          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
-            <h2 className="text-2xl sm:text-3xl font-bold">{t("home.clients.heading")}</h2>
-            {t("home.clients.subheading") && (
-              <p className="mt-3 text-fg-muted">{t("home.clients.subheading")}</p>
-            )}
-            <span className="rule-accent mt-4" />
-
-            <div className="mt-10 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-10">
-              {clients.map((client) => (
-                <div key={client.id} className="group flex flex-col items-center gap-3">
+        <section className="mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-24">
+          <SectionHead eyebrow={t("home.clients.subheading")} title={t("home.clients.heading")} />
+          <div className="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4">
+            {clients.map((client, i) => (
+              <Reveal key={client.id} delay={(i % 6) * 60} className="basis-[calc((100%-1.5rem)/3)] sm:basis-[calc((100%-3rem)/4)] lg:basis-[calc((100%-5rem)/6)]">
+                <div className="ms-glass ms-lift ms-logo flex aspect-[5/4] flex-col items-center justify-center gap-3 rounded-2xl p-4" title={client.name}>
                   {client.logoUrl ? (
                     <img
                       src={client.logoUrl}
                       alt={client.logoAlt || `شعار ${client.name} — عميل مصطفى جغلال`}
-                      title={client.name}
                       width={64}
                       height={64}
                       loading="lazy"
-                      className="h-12 w-12 sm:h-14 sm:w-14 object-contain opacity-60 transition-opacity group-hover:opacity-100"
+                      className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
                     />
                   ) : (
-                    <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-ink-800 text-lg font-bold text-fg-muted">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-maroon-500 text-lg font-bold text-royal-300">
                       {client.name.charAt(0)}
-                    </div>
+                    </span>
                   )}
-                  <p className="text-center text-xs text-fg-muted transition-colors group-hover:text-fg">
-                    {client.name}
-                  </p>
+                  <p className="line-clamp-1 text-center text-[0.7rem] sm:text-xs text-fg-muted">{client.name}</p>
                 </div>
-              ))}
-            </div>
+              </Reveal>
+            ))}
           </div>
         </section>
       )}
 
       {/* ═══════════ دعوة للتواصل ═══════════ */}
-      <section id="contact" className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold">{t("home.contact.heading")}</h2>
-        {t("home.contact.subheading") && (
-          <p className="mt-4 text-fg-muted">{t("home.contact.subheading")}</p>
-        )}
-        <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-          {siteInfo.email && (
-            <a
-              href={`mailto:${siteInfo.email}`}
-              className="rounded-lg bg-royal-500 px-7 py-3.5 text-[0.95rem] font-semibold text-white transition-colors hover:bg-royal-600"
-            >
-              {t("home.contact.email")}
-            </a>
-          )}
-          {siteInfo.phone && (
-            <a
-              href={`tel:${siteInfo.phone}`}
-              className="rounded-lg border border-ink-600 px-7 py-3.5 text-[0.95rem] font-semibold text-fg transition-colors hover:border-royal-500"
-            >
-              {t("home.contact.phone")}
-            </a>
-          )}
-        </div>
+      <section id="contact" className="mx-auto max-w-7xl px-5 sm:px-8 pt-8 pb-24 sm:pb-32">
+        <Reveal>
+          <div
+            className="ms-grain relative overflow-hidden rounded-[2rem] border border-royal-200/10 px-6 py-16 sm:py-24 text-center"
+            style={{ background: "radial-gradient(80% 90% at 50% 0%, rgba(122,42,49,0.9), rgba(42,10,12,0.95) 60%, #140809)" }}
+          >
+            <div
+              aria-hidden="true"
+              className="ms-pattern pointer-events-none absolute inset-0 opacity-[0.06]"
+              style={{ maskImage: "radial-gradient(60% 70% at 50% 40%, #000, transparent)", WebkitMaskImage: "radial-gradient(60% 70% at 50% 40%, #000, transparent)" }}
+            />
+            <div className="relative">
+              <h2 className="ms-h2 mx-auto max-w-2xl">{t("home.contact.heading")}</h2>
+              {t("home.contact.subheading") && (
+                <p className="mx-auto mt-4 max-w-md text-fg-muted">{t("home.contact.subheading")}</p>
+              )}
+              <div className="mt-9 flex flex-col sm:flex-row justify-center gap-3">
+                {siteInfo.email && (
+                  <a href={`mailto:${siteInfo.email}`} className="ms-btn ms-btn-primary">
+                    {t("home.contact.email")}
+                    <span className="ms-arrow"><ArrowLeft size={15} /></span>
+                  </a>
+                )}
+                {siteInfo.phone && (
+                  <a href={`tel:${siteInfo.phone}`} className="ms-btn ms-btn-ghost ms-glass">
+                    {t("home.contact.phone")}
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </Reveal>
       </section>
     </div>
   );

@@ -64,7 +64,7 @@ export default function BriefsAdmin() {
         <div className="flex flex-wrap gap-1 bg-ink-950/40 p-1.5 rounded-xl">
           {([["all", "الكل"], ["new", "جديد"], ["reviewed", "تمت المراجعة"], ["archived", "مؤرشف"]] as const).map(([id, label]) => (
             <button key={id} onClick={() => setFilter(id)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${filter === id ? "bg-royal-600 text-white" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>{label}</button>
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${filter === id ? "bg-royal-600 text-ink-950" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>{label}</button>
           ))}
         </div>
       </div>
