@@ -483,7 +483,9 @@ function WorksCarousel({ works }: { works: Work[] }) {
               <img
                 src={work.coverImage}
                 alt={work.altText || work.title}
-                loading={a <= 1 ? "eager" : "lazy"}
+                // كل الأغلفة تُحمَّل مسبقاً حتى لا تظهر بطاقة فارغة ثم تمتلئ أثناء الانزلاق
+                loading="eager"
+                decoding="async"
                 draggable={false}
                 className="h-full w-full object-cover"
               />

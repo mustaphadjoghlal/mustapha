@@ -247,13 +247,21 @@
   /* انتقال ناعم ومتصل. ترتيب الطبقات (z-index) يتدرّج مع الحركة أيضاً، فلا تقفز البطاقة القادمة
      فوق البطاقة الوسطى فجأة، بل تتبادلان الأمام في منتصف الطريق */
   transition: transform 1.2s cubic-bezier(0.37, 0, 0.63, 1), opacity 1.2s cubic-bezier(0.37, 0, 0.63, 1),
-    filter 1.2s cubic-bezier(0.37, 0, 0.63, 1), z-index 1.2s cubic-bezier(0.37, 0, 0.63, 1);
-  filter: brightness(calc(1 - var(--a) * 0.35));
-  will-change: transform;
+    z-index 1.2s cubic-bezier(0.37, 0, 0.63, 1);
+  /* لا فلتر على البطاقة: فلتر السطوع يعيد رسم الصورة كاملة في كل إطار فيُثقل الحركة.
+     التعتيم يأتي من طبقة داكنة فوقها لا تتحرك إلا شفافيتها، وهذا تنفذه بطاقة الشاشة بلا كلفة */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 .ms-card[data-hidden="true"] { opacity: 0; pointer-events: none; }
+.ms-card::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: #0e0506;
+  opacity: calc(var(--a) * 0.4);
+  transition: opacity 1.2s cubic-bezier(0.37, 0, 0.63, 1);
+}
 /* البطاقة التي تلتف من طرف إلى آخر تنتقل خفيةً ثم تظهر بالتلاشي، فلا تعبر المسرح */
-.ms-card[data-jump="true"] { transition: opacity 1.2s cubic-bezier(0.37, 0, 0.63, 1), filter 1.2s; }
+.ms-card[data-jump="true"] { transition: opacity 1.2s cubic-bezier(0.37, 0, 0.63, 1); }
 .ms-card img { transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
 .ms-card[data-active="true"]:hover img { transform: scale(1.04); }
 

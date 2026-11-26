@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { db, auth, storage } from "../../../firebase";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject, getMetadata } from "firebase/storage";
+import { compressImage, formatSize } from "../../shared/compressImage";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader,
   Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link, Minus, Eye, EyeOff, Star, Search, Headphones } from "lucide-react";
@@ -157,10 +158,15 @@ function SingleImageUploader({ url, onChange, folder = "images", label = "رفع
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const handleFile = async (file: File) => {
+  const [note, setNote] = useState("");
+  const handleFile = async (original: File) => {
     setUploading(true);
+    setNote("جارٍ ضغط الصورة...");
+    const { file, before, after } = await compressImage(original);
+    setNote(after < before ? `ضُغطت من ${formatSize(before)} إلى ${formatSize(after)}` : "");
     const task = uploadBytesResumable(ref(storage, `${folder}/${Date.now()}_${file.name}`), file);
-    task.on("state_changed", (s) => setProgress(Math.round((s.bytesTransferred / s.totalBytes) * 100)), console.error,
+    task.on("state_changed", (s) => setProgress(Math.round((s.bytesTransferred / s.totalBytes) * 100)),
+      (e) => { console.error(e); setUploading(false); setNote("فشل الرفع"); },
       async () => { onChange(await getDownloadURL(task.snapshot.ref)); setUploading(false); setProgress(0); });
   };
   return (
@@ -170,6 +176,7 @@ function SingleImageUploader({ url, onChange, folder = "images", label = "رفع
         {uploading ? <div className="space-y-1"><Loader size={16} className="animate-spin mx-auto text-royal-400" /><p className="text-gray-400 text-xs">{progress}%</p></div>
           : <div className="flex items-center justify-center gap-2 text-gray-400 text-sm"><Upload size={14} /><span>{label}</span></div>}
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+        {note && <p className="mt-1 text-[11px] text-green-400">{note}</p>}
       </div>
     </div>
   );
@@ -225,7 +232,10 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const uploadFile = async (file: File): Promise<string> => {
+  const [saved, setSaved] = useState({ before: 0, after: 0 });
+  const uploadFile = async (original: File): Promise<string> => {
+    const { file, before, after } = await compressImage(original);
+    setSaved((s) => ({ before: s.before + before, after: s.after + after }));
     const storageRef = ref(storage, `works/${Date.now()}_${file.name}`);
     return new Promise((resolve, reject) => {
       const task = uploadBytesResumable(storageRef, file);
@@ -235,6 +245,7 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
   };
   const handleFiles = async (files: FileList) => {
     setUploading(true);
+    setSaved({ before: 0, after: 0 });
     try { const urls: string[] = []; for (const f of Array.from(files)) urls.push(await uploadFile(f)); onChange([...images.filter(img => img.trim()), ...urls]); }
     catch (e) { console.error(e); }
     setUploading(false); setProgress(0);
@@ -250,6 +261,9 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
           : <div className="space-y-2 text-gray-400"><Image size={32} className="mx-auto opacity-50" /><p className="text-sm">اسحب الصور هنا أو انقر للرفع</p></div>}
         <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={(e) => e.target.files && handleFiles(e.target.files)} />
       </div>
+      {saved.after < saved.before && (
+        <p className="text-xs text-green-400 text-center">ضُغطت الصور من {formatSize(saved.before)} إلى {formatSize(saved.after)}</p>
+      )}
       {images.length > 0 && (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
           {images.filter(img => img.trim()).map((img, i) => (
@@ -259,6 +273,95 @@ function ImageUploader({ images, onChange }: { images: string[]; onChange: (imgs
             </div>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * يبحث في أعمال الموقع عن الصور المرفوعة قبل إضافة الضغط (أكبر من 600 كيلوبايت)،
+ * فيضغطها ويرفع النسخة الخفيفة ويستبدل رابطها في العمل ثم يحذف الأصل الثقيل.
+ */
+function HeavyImagesTool({ works }: { works: Work[] }) {
+  const [state, setState] = useState<"idle" | "scanning" | "working" | "done">("idle");
+  const [log, setLog] = useState("");
+  const [heavy, setHeavy] = useState<{ url: string; size: number }[]>([]);
+  const [saved, setSaved] = useState({ before: 0, after: 0, count: 0, failed: 0 });
+
+  const isStorageUrl = (u: string) => /firebasestorage\.googleapis\.com|firebasestorage\.app/.test(u);
+
+  const scan = async () => {
+    setState("scanning"); setLog("جارٍ فحص أحجام الصور...");
+    const urls = Array.from(new Set(works.flatMap((w) => [w.coverImage, ...(w.images || [])]).filter((u) => u && isStorageUrl(u))));
+    const found: { url: string; size: number }[] = [];
+    for (const url of urls) {
+      try {
+        const meta = await getMetadata(ref(storage, url));
+        if (meta.size > 600 * 1024 && /image\/(jpe?g|png|webp)/.test(meta.contentType || "")) found.push({ url, size: meta.size });
+      } catch (e) { console.error(e); }
+    }
+    found.sort((a, b) => b.size - a.size);
+    setHeavy(found);
+    setLog(found.length ? `${found.length} صورة ثقيلة، مجموعها ${formatSize(found.reduce((n, f) => n + f.size, 0))}` : "كل الصور خفيفة ✓");
+    setState(found.length ? "idle" : "done");
+  };
+
+  const compressAll = async () => {
+    setState("working");
+    const totals = { before: 0, after: 0, count: 0, failed: 0 };
+    for (let i = 0; i < heavy.length; i++) {
+      const { url } = heavy[i];
+      setLog(`(${i + 1}/${heavy.length}) جارٍ ضغط الصورة...`);
+      try {
+        const blob = await (await fetch(url)).blob();
+        const name = decodeURIComponent(url.split("/o/")[1]?.split("?")[0] || "image").split("/").pop() || "image";
+        const { file, before, after } = await compressImage(new File([blob], name, { type: blob.type }));
+        if (after >= before) continue;
+        const folder = decodeURIComponent(url.split("/o/")[1]?.split("?")[0] || "works/x").split("/").slice(0, -1).join("/") || "works";
+        const task = uploadBytesResumable(ref(storage, `${folder}/${Date.now()}_${file.name}`), file);
+        await new Promise<void>((res, rej) => task.on("state_changed", undefined, rej, () => res()));
+        const newUrl = await getDownloadURL(task.snapshot.ref);
+        // استبدال الرابط في كل عمل يستعمل الصورة، غلافاً كانت أو ضمن المعرض
+        for (const w of works) {
+          const usesCover = w.coverImage === url;
+          const usesGallery = (w.images || []).includes(url);
+          if (!usesCover && !usesGallery) continue;
+          await updateDoc(doc(db, "works", w.id), {
+            ...(usesCover ? { coverImage: newUrl } : {}),
+            ...(usesGallery ? { images: w.images.map((u) => (u === url ? newUrl : u)) } : {}),
+          });
+        }
+        try { await deleteObject(ref(storage, url)); } catch (e) { console.error(e); }
+        totals.before += before; totals.after += after; totals.count++;
+      } catch (e) {
+        console.error(e);
+        totals.failed++;
+      }
+      setSaved({ ...totals });
+    }
+    setHeavy([]);
+    setState("done");
+    setLog(
+      totals.count
+        ? `ضُغطت ${totals.count} صورة: من ${formatSize(totals.before)} إلى ${formatSize(totals.after)}` + (totals.failed ? ` — تعذّر ضغط ${totals.failed} (أعد رفعها يدوياً)` : "")
+        : totals.failed ? `تعذّر ضغط ${totals.failed} صورة — أعد رفعها يدوياً من زر تعديل العمل` : "لا شيء يحتاج إلى ضغط"
+    );
+  };
+
+  return (
+    <div className="mb-8 flex flex-wrap items-center gap-3 rounded-xl border border-ink-700 bg-ink-950/40 p-4">
+      <div className="flex-1 min-w-[14rem]">
+        <p className="text-sm font-semibold">⚡ تخفيف الصور الحالية</p>
+        <p className="text-xs text-gray-400 mt-1">{log || "كل صورة ترفعها الآن تُضغط تلقائياً. هذا الزر يضغط الصور القديمة الثقيلة التي رُفعت قبل ذلك."}</p>
+        {state === "working" && saved.count > 0 && <p className="text-xs text-green-400 mt-1">وُفّر حتى الآن {formatSize(saved.before - saved.after)}</p>}
+      </div>
+      {heavy.length > 0 && state !== "working" ? (
+        <button onClick={compressAll} className="rounded-lg bg-royal-500 px-4 py-2 text-sm font-semibold text-ink-950 hover:bg-royal-400">ضغط {heavy.length} صورة</button>
+      ) : (
+        <button onClick={scan} disabled={state === "scanning" || state === "working"} className="flex items-center gap-2 rounded-lg border border-ink-600 px-4 py-2 text-sm hover:border-royal-500 disabled:opacity-50">
+          {(state === "scanning" || state === "working") && <Loader size={14} className="animate-spin" />}
+          فحص الصور الثقيلة
+        </button>
       )}
     </div>
   );
@@ -838,6 +941,7 @@ export function AdminPage() {
                 <button key={cat.id} onClick={() => setNewWork({ ...newWork, category: cat.id as any })} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${newWork.category === cat.id ? "bg-royal-600 text-ink-950 shadow-lg" : "text-gray-400 hover:text-white hover:bg-ink-850"}`}>{cat.label}</button>
               ))}
             </div>
+            <HeavyImagesTool works={works} />
             <WorksList works={works} category={newWork.category || "design"} saving={saving} editingWork={editingWork} setEditingWork={setEditingWork} onSave={saveWork} onDelete={deleteWork} onToggleFeatured={toggleWorkFeatured} onToggleHomeSample={toggleHomeSample} showAdd={showAddWork} setShowAdd={setShowAddWork} newWork={newWork} setNewWork={setNewWork} onAdd={addWork} sc={sc} />
           </div>
         )}
