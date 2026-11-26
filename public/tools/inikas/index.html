@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>انعكاس Inikas — انعكاس واقعي للمنتجات في فوتوشوب | مصطفى جغلال</title>
+<meta name="description" content="انعكاس إضافة فوتوشوب تصنع انعكاساً واقعياً لأي منتج مقصوص: أرضية لامعة أو زجاج أو سطح مطفي أو ماء، تقرأ قاعدة المنتج وميل الأرض، وتضع النتيجة ككائن ذكي بفلاتر قابلة للتعديل.">
+<link rel="canonical" href="https://mustaphadjoghlal.com/tools/inikas">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mustaphadjoghlal.com/tools/inikas">
+<meta property="og:title" content="انعكاس Inikas — انعكاس واقعي للمنتجات في فوتوشوب">
+<meta property="og:description" content="أرضية لامعة أو زجاج أو مطفي أو ماء: انعكاس يبدأ من قاعدة كل منتج، ككائن ذكي قابل للتعديل.">
+<meta property="og:image" content="https://mustaphadjoghlal.com/og-image.jpg">
+<meta property="og:locale" content="ar_AR">
+<meta name="author" content="مصطفى جغلال">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script>document.documentElement.className='js'</script>
+<style>
+  :root{
+    --bg:#0c1016; --bg2:#111720; --panel:#151c27; --card:#1a2230; --line:#2a3545;
+    --txt:#eef3f9; --dim:#98a6b8; --a:#4fb3ff; --a2:#9bd5ff; --glow:rgba(79,179,255,.4); --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;overflow-x:hidden}
+  body{font-family:"Cairo","Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--txt);line-height:1.7;overflow-x:hidden;
+    background-image:radial-gradient(900px 520px at 88% -8%,rgba(79,179,255,.16),transparent 60%),
+                     radial-gradient(700px 420px at 0% 8%,rgba(155,213,255,.06),transparent 55%)}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+  .grad{background:linear-gradient(180deg,#ffffff 30%,#9bd5ff 70%,rgba(79,179,255,.35));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(110deg,#4fb3ff,#2a8ee6);color:#04121f;border:none;
+    padding:14px 26px;border-radius:12px;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;text-decoration:none;
+    transition:.25s;box-shadow:0 10px 30px -8px var(--glow)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px -8px var(--glow)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);box-shadow:none;font-weight:700}
+  .btn.ghost:hover{border-color:var(--a);color:var(--a2);background:rgba(79,179,255,.07)}
+
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(12,16,22,.78);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .navstart{display:flex;align-items:center}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px}
+  .logo .mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(180deg,#4fb3ff 50%,rgba(79,179,255,.35) 50%);box-shadow:0 6px 18px -6px var(--glow);color:#04121f;font-size:17px}
+  .navlinks{display:flex;gap:26px;font-size:15px}
+  .navlinks a{color:var(--dim);text-decoration:none;transition:.2s}
+  .navlinks a:hover{color:var(--txt)}
+  @media(max-width:820px){.navlinks{display:none}}
+
+  header{padding:56px 0 26px}
+  .hero{display:grid;grid-template-columns:.95fr 1.05fr;gap:44px;align-items:center}
+  @media(max-width:960px){.hero{grid-template-columns:1fr;gap:30px}}
+  .hero>*,.demo>*,.grid>*,.steps>*{min-width:0}
+  .tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--a2);background:rgba(79,179,255,.1);
+    border:1px solid rgba(79,179,255,.3);padding:6px 14px;border-radius:999px;margin-bottom:22px;font-weight:600}
+  .tag .dot{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 9px #9bd5ff}
+  h1{font-size:clamp(38px,5.6vw,60px);font-weight:900;line-height:1.15;letter-spacing:-.4px}
+  .sub{color:var(--dim);font-size:clamp(16px,2.2vw,18.5px);margin:20px 0 30px;max-width:520px}
+  .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .meta{display:flex;gap:28px;margin-top:30px;color:var(--dim);font-size:14px;flex-wrap:wrap}
+  .meta b{color:var(--txt);font-weight:800;font-size:20px;display:block}
+
+  .view{border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0a0d12;box-shadow:0 40px 80px -34px #000;line-height:0}
+  .view canvas{display:block;width:100%;height:auto}
+  .pills{display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .pills button{background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:999px;padding:6px 15px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.2s}
+  .pills button.on{background:var(--a);color:#04121f;border-color:var(--a)}
+
+  section{padding:64px 0}
+  .shead{text-align:center;max-width:680px;margin:0 auto 44px}
+  .shead h2{font-size:clamp(26px,4vw,38px);font-weight:900;letter-spacing:-.4px}
+  .shead p{color:var(--dim);margin-top:12px;font-size:17px}
+  .kick{color:var(--a2);font-weight:700;font-size:14px;letter-spacing:1px;margin-bottom:8px}
+
+  .demo{display:grid;grid-template-columns:320px 1fr;gap:26px;align-items:start}
+  @media(max-width:900px){.demo{grid-template-columns:1fr}}
+  .ctrl{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:14px}
+  .ctrl h4{font-size:13px;color:var(--dim);font-weight:700;margin-bottom:8px}
+  .seg{display:grid;gap:6px}.seg.c2{grid-template-columns:1fr 1fr}.seg.c3{grid-template-columns:repeat(3,1fr)}
+  .seg button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:8px 2px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:.2s}
+  .seg button.on{background:linear-gradient(110deg,#4fb3ff,#2a8ee6);border-color:var(--a);color:#04121f}
+  .rng label{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);margin-bottom:2px}
+  .rng output{color:var(--a2);direction:ltr;font-variant-numeric:tabular-nums}
+  .rng input{width:100%;direction:ltr;accent-color:#4fb3ff}
+  .drop{border:1.5px dashed var(--line);border-radius:12px;padding:14px;text-align:center;color:var(--dim);font-size:13.5px;cursor:pointer;transition:.2s}
+  .drop:hover,.drop.over{border-color:var(--a);color:var(--a2);background:rgba(79,179,255,.06)}
+  .demo-out .note{color:var(--dim);font-size:13px;text-align:center;margin-top:10px}
+
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  .feat{background:linear-gradient(180deg,var(--card),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:22px;transition:.25s}
+  .feat:hover{transform:translateY(-4px);border-color:rgba(79,179,255,.5);box-shadow:0 24px 50px -28px #000}
+  .feat .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px;background:rgba(79,179,255,.1);border:1px solid rgba(79,179,255,.28)}
+  .feat h3{font-size:17px;font-weight:800;margin-bottom:6px}
+  .feat p{color:var(--dim);font-size:14px}
+
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+  @media(max-width:820px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:460px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;position:relative}
+  .step .n{counter-increment:s;position:absolute;top:-14px;inset-inline-start:20px;width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(110deg,#4fb3ff,#2a8ee6);color:#04121f;font-weight:900;display:grid;place-items:center;box-shadow:0 8px 20px -8px var(--glow)}
+  .step .n::after{content:counter(s)}
+  .step h4{font-size:16px;font-weight:800;margin:10px 0 6px}
+  .step p{color:var(--dim);font-size:14px}
+
+  .band{background:linear-gradient(120deg,#123a66,#2a8ee6 55%,#9bd5ff);border-radius:26px;padding:52px 34px;text-align:center;position:relative;overflow:hidden;box-shadow:0 40px 90px -40px var(--glow)}
+  .band::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 240px at 15% -20%,rgba(255,255,255,.26),transparent 60%)}
+  .band h2{font-size:clamp(26px,4vw,38px);font-weight:900;color:#fff;position:relative}
+  .band p{color:rgba(255,255,255,.92);margin:12px 0 26px;position:relative;font-size:17px;font-weight:600}
+  .band .btn{background:#04121f;color:var(--a2);position:relative;box-shadow:none}
+
+  .install{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:30px;max-width:720px;margin:0 auto}
+  .install ol{margin:0;padding-inline-start:22px;display:grid;gap:12px;color:var(--dim)}
+  .install ol b{color:var(--txt)}
+  .install .note{color:var(--dim);margin-top:18px;font-size:14px}
+  .code{display:inline-block;background:#080b10;border:1px solid var(--line);border-radius:7px;padding:3px 10px;color:var(--a2);font-size:13.5px;direction:ltr}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--dim);text-align:center;font-size:14px}
+  footer b{color:var(--txt)} footer a{color:var(--a2);text-decoration:none}
+  .js .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .js .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="navstart"><div class="logo"><span class="mark">ع</span> انعكاس</div></div>
+  <div class="navlinks">
+    <a href="#try">جرّبها</a>
+    <a href="#features">المزايا</a>
+    <a href="#how">كيف تعمل</a>
+    <a href="#install">التحميل</a>
+  </div>
+  <a href="#install" class="btn" style="padding:10px 20px;font-size:14px">تحميل</a>
+</div></nav>
+
+<header><div class="wrap"><div class="hero">
+  <div>
+    <span class="tag"><span class="dot"></span> إضافة Photoshop · الإصدار 1.9</span>
+    <h1>منتجك يقف<br><span class="grad">على سطح حقيقي.</span></h1>
+    <p class="sub">انعكاس يقرأ قاعدة المنتج المقصوص وميل الأرض تحته، ثم يرسم انعكاسه على أرضية لامعة أو زجاج أو سطح مطفي أو ماء،
+       ويضعه في فوتوشوب ككائن ذكي بفلاتر تعدّلها متى شئت.</p>
+    <div class="cta">
+      <a href="#install" class="btn">حمّل الإضافة
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></a>
+      <a href="#try" class="btn ghost">جرّبها على صورتك</a>
+    </div>
+    <div class="meta">
+      <div><b>4 أسطح</b> لامع · زجاج · مطفي · ماء</div>
+      <div><b>كائن ذكي</b> فلاتر قابلة للتعديل</div>
+      <div><b>تلقائي</b> يقرأ قاعدة المنتج</div>
+    </div>
+  </div>
+  <div class="reveal">
+    <div class="view"><canvas id="heroCv" width="900" height="620" aria-label="منتج مع انعكاسه على سطح لامع"></canvas></div>
+    <div class="pills" id="heroPills">
+      <button data-p="gloss" class="on">أرضية لامعة</button><button data-p="glass">زجاج</button><button data-p="matte">سطح مطفي</button><button data-p="water">ماء</button>
+    </div>
+  </div>
+</div></div></header>
+
+<section id="try">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">جرّبها بنفسك</div>
+      <h2>ارفع صورة منتجك وشاهد انعكاسه</h2>
+      <p>صورة PNG بخلفية شفافة. التحليل يجري في متصفحك بمحرّك الإضافة نفسه، ولا تُرفع صورتك إلى أي مكان.</p>
+    </div>
+    <div class="demo reveal">
+      <div class="ctrl">
+        <label class="drop" id="drop">⬆ اسحب صورة PNG هنا أو اضغط لاختيارها
+          <input type="file" id="file" accept="image/png,image/webp" hidden></label>
+        <div><h4>أو جرّب مثالاً</h4><div class="seg c3" id="samples"><button data-s="can" class="on">علبة دهان</button><button data-s="bottle">زجاجة</button><button data-s="multi">عدة منتجات</button></div></div>
+        <div><h4>السطح</h4><div class="seg c2" id="presets"><button data-p="gloss" class="on">أرضية لامعة</button><button data-p="glass">زجاج</button><button data-p="matte">سطح مطفي</button><button data-p="water">ماء</button></div></div>
+        <div class="rng"><label><span>الشفافية</span><output id="vOpacity"></output></label><input type="range" id="opacity" min="0" max="100" step="1"></div>
+        <div class="rng"><label><span>طول التلاشي</span><output id="vLength"></output></label><input type="range" id="length" min="5" max="100" step="1"></div>
+        <div class="rng"><label><span>التمويه</span><output id="vBlur"></output></label><input type="range" id="blur" min="0" max="8" step="0.1"></div>
+        <div class="rng"><label><span>تموّج الماء</span><output id="vRipple"></output></label><input type="range" id="ripple" min="0" max="300" step="5"></div>
+        <div><h4>الخلفية</h4><div class="seg c3" id="bgs"><button data-b="dark" class="on">داكنة</button><button data-b="light">فاتحة</button><button data-b="checker">شفافة</button></div></div>
+      </div>
+      <div class="demo-out">
+        <div class="view"><canvas id="demoCv" width="900" height="620" aria-label="معاينة الانعكاس"></canvas></div>
+        <p class="note" id="info"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="shead reveal">
+      <div class="kick">ليس قلب صورة وتعتيمها</div>
+      <h2>انعكاس يفهم شكل المنتج</h2>
+      <p>كل عمود من المنتج ينعكس من النقطة التي يلمس فيها الأرض، فيبقى الانعكاس ملتصقاً بالقاعدة مهما كان شكلها.</p>
+    </div>
+    <div class="grid">
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9bd5ff" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="17" rx="8" ry="3"/><path d="M4 17V7a8 3 0 0 1 16 0v10"/></svg></div>
+        <h3>قاعدة مستقيمة أو أسطوانية</h3><p>يتعرّف على القاعدة المنحنية كالعلب والأكواب، ويصحّح انحناءها في الانعكاس.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9bd5ff" stroke-width="2" stroke-linecap="round"><path d="M3 18l18-3"/><path d="M7 17V9h5v7"/></svg></div>
+        <h3>ميل الأرض</h3><p>إذا كانت الأرض مائلة في الصورة يكتشف الميل، ويمكنك تصحيحه بمنزلق.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9bd5ff" stroke-width="2" stroke-linecap="round"><rect x="3" y="7" width="6" height="10"/><rect x="11" y="4" width="4" height="13"/><rect x="17" y="9" width="4" height="8"/></svg></div>
+        <h3>عدة منتجات معاً</h3><p>صورة فيها أكثر من منتج؟ كل منتج ينعكس من قاعدته هو، لا من خط واحد للجميع.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9bd5ff" stroke-width="2" stroke-linecap="round"><path d="M6 20V10M10 20V6M14 20v-8M18 20V8"/></svg></div>
+        <h3>أجزاء مرفوعة</h3><p>للمنتجات ذات الأرجل أو الأجزاء البعيدة عن الأرض، يصل الأرض تحتها ليبقى الانعكاس متصلاً.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9bd5ff" stroke-width="2" stroke-linecap="round"><path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg></div>
+        <h3>أربعة أسطح جاهزة</h3><p>أرضية لامعة وزجاج وسطح مطفي وماء بتموّج، ثم عدّل الشفافية والتلاشي والتمويه والميلان.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9bd5ff" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/></svg></div>
+        <h3>كائن ذكي</h3><p>الانعكاس يُنشأ ككائن ذكي بفلاتر قابلة للتعديل، وإعادة التطبيق تستبدل القديم.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9bd5ff" stroke-width="2" stroke-linecap="round"><path d="M4 4h6v6H4zM14 14h6v6h-6z"/><path d="M10 7h7v7"/></svg></div>
+        <h3>نسبي لحجم المنتج</h3><p>القيم نسبية، فالإعداد نفسه يعطي النتيجة نفسها على صورة صغيرة أو بدقة الطباعة.</p></div>
+      <div class="feat reveal"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9bd5ff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg></div>
+        <h3>المعاينة = النتيجة</h3><p>كل قرار يُتخذ على النسخة نفسها، فلا تختلف المعاينة في اللوحة عما يُطبَّق في فوتوشوب.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">أربع خطوات</div><h2>من صورة مقصوصة إلى منتج على سطح</h2></div>
+    <div class="steps">
+      <div class="step reveal"><div class="n"></div><h4>حدّد الطبقة</h4><p>طبقة المنتج المقصوص بخلفية شفافة.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>معاينة</h4><p>اضغط «معاينة الطبقة المحددة» في اللوحة.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>اختر السطح</h4><p>لامع أو زجاج أو مطفي أو ماء، ثم اضبط المنزلقات.</p></div>
+      <div class="step reveal"><div class="n"></div><h4>تطبيق</h4><p>يُضاف الانعكاس ككائن ذكي تحت المنتج مباشرة.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap"><div class="band reveal">
+    <h2>صور منتجات تبدو كأنها في استوديو</h2>
+    <p>انعكاس مقنع في ثوانٍ بدل نسخ الطبقة وقلبها وتعتيمها يدوياً.</p>
+    <a href="#install" class="btn">حمّل انعكاس الآن</a>
+  </div></div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="shead reveal"><div class="kick">بدون صلاحيات مدير</div><h2>التثبيت</h2></div>
+    <div class="install reveal">
+      <ol>
+        <li><b>فكّ الضغط</b> عن الملف كاملاً في أي مكان على جهازك.</li>
+        <li><b>انقر مرتين</b> على <span class="code">install_inikas.bat</span>.</li>
+        <li><b>أعد تشغيل فوتوشوب</b>، ثم: <span class="code">Window ▸ Extensions (Legacy) ▸ انعكاس — Inikas</span></li>
+      </ol>
+      <p class="note">يعمل مع Photoshop CC 2018 فأحدث. للإزالة احذف المجلد <span class="code">%APPDATA%\Adobe\CEP\extensions\com.mustapha.inikas</span></p>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <div class="logo" style="justify-content:center;margin-bottom:10px">انعكاس · Inikas</div>
+  إضافة فوتوشوب من تصميم وتطوير <b><a href="/">مصطفى جغلال</a></b>.
+</div></footer>
+
+<script src="/tools/inikas/js/engine.js"></script>
+<script>
+(function(){
+  /* المعاينة بمحرّك انعكاس نفسه (engine.js) — مطابقة لما تعرضه اللوحة داخل فوتوشوب */
+  var E=window.InikasEngine;
+  var PRESETS={
+    gloss:{opacity:45,length:60,curve:40,gap:0,squash:100,skew:0,blur:0.4,blurType:'gauss',ripple:0},
+    glass:{opacity:30,length:45,curve:35,gap:0,squash:100,skew:0,blur:0,blurType:'gauss',ripple:0},
+    matte:{opacity:25,length:40,curve:30,gap:0,squash:85,skew:0,blur:2.5,blurType:'motion',ripple:0},
+    water:{opacity:55,length:85,curve:55,gap:1,squash:90,skew:0,blur:0.8,blurType:'motion',ripple:120}
+  };
+  function assign(a,b){for(var k in b)a[k]=b[k];return a;}
+
+  // ---------- أمثلة مرسومة
+  function can(){
+    var c=document.createElement('canvas');c.width=200;c.height=230;var g=c.getContext('2d');
+    var grd=g.createLinearGradient(0,0,200,0);grd.addColorStop(0,'#1b5fb5');grd.addColorStop(.4,'#76bdf7');grd.addColorStop(1,'#0d3a75');
+    g.fillStyle=grd;g.beginPath();g.moveTo(0,22);g.lineTo(0,205);g.ellipse(100,205,100,24,0,Math.PI,0,true);
+    g.lineTo(200,22);g.ellipse(100,22,100,22,0,0,Math.PI,true);g.fill();
+    g.fillStyle='#c9d6e3';g.beginPath();g.ellipse(100,22,100,22,0,0,Math.PI*2);g.fill();
+    g.strokeStyle='#8a9aab';g.lineWidth=3;g.beginPath();g.ellipse(100,22,90,18,0,0,Math.PI*2);g.stroke();
+    g.fillStyle='rgba(255,255,255,.92)';g.beginPath();g.moveTo(0,95);g.ellipse(100,95,100,23,0,Math.PI,0,true);
+    g.lineTo(200,150);g.ellipse(100,150,100,23,0,0,Math.PI,false);g.closePath();g.fill();
+    g.fillStyle='#e8562a';g.beginPath();g.moveTo(0,115);g.ellipse(100,115,100,23,0,Math.PI,0,true);
+    g.lineTo(200,128);g.ellipse(100,128,100,23,0,0,Math.PI,false);g.closePath();g.fill();
+    return c;
+  }
+  function bottleOn(g,x,w,h,c1,c2,label){
+    var y0=230-h, neck=w*.34, sh=h*.28;
+    var grd=g.createLinearGradient(x,0,x+w,0);grd.addColorStop(0,c2);grd.addColorStop(.35,c1);grd.addColorStop(1,c2);
+    g.fillStyle=grd;g.beginPath();
+    g.moveTo(x+w/2-neck/2,y0);g.lineTo(x+w/2+neck/2,y0);g.lineTo(x+w/2+neck/2,y0+sh*.55);
+    g.quadraticCurveTo(x+w,y0+sh*.7,x+w,y0+sh);g.lineTo(x+w,226);g.quadraticCurveTo(x+w,230,x+w-6,230);
+    g.lineTo(x+6,230);g.quadraticCurveTo(x,230,x,226);g.lineTo(x,y0+sh);g.quadraticCurveTo(x,y0+sh*.7,x+w/2-neck/2,y0+sh*.55);g.closePath();g.fill();
+    g.fillStyle='#d9d4cc';g.fillRect(x+w/2-neck/2-3,y0-16,neck+6,18);
+    g.fillStyle='rgba(255,255,255,.88)';g.fillRect(x+6,y0+h*.48,w-12,h*.26);
+    g.fillStyle=c2;g.font='700 '+Math.round(w*.16)+'px Cairo, sans-serif';g.textAlign='center';g.fillText(label,x+w/2,y0+h*.65);
+    g.fillStyle='rgba(255,255,255,.35)';g.fillRect(x+w*.18,y0+sh,w*.07,h*.4);
+  }
+  function bottle(){var c=document.createElement('canvas');c.width=130;c.height=230;bottleOn(c.getContext('2d'),5,120,214,'#4caf7d','#1f5e40','زيت');return c;}
+  function multi(){var c=document.createElement('canvas');c.width=330;c.height=230;var g=c.getContext('2d');
+    bottleOn(g,0,90,200,'#e0a040','#8a5512','عسل');bottleOn(g,110,110,226,'#4caf7d','#1f5e40','زيت');bottleOn(g,240,88,150,'#c24b3a','#6e1f15','صلصة');return c;}
+
+  // ---------- المؤثرات التقريبية للمعاينة (كما في اللوحة)
+  function pixelsToCanvas(px,w,h,pad){var c=document.createElement('canvas');c.width=w+pad*2;c.height=h+pad*2;var g=c.getContext('2d'),id=g.createImageData(w,h);id.data.set(px);g.putImageData(id,pad,pad);return c;}
+  function postFX(srcC,p,hRef){
+    var w=srcC.width,h=srcC.height,b=srcC;
+    if(p.ripple>0){b=document.createElement('canvas');b.width=w;b.height=h;var bc=b.getContext('2d');
+      var amp=p.ripple/100*hRef*.012,period=Math.max(3,hRef*.03);
+      for(var y=0;y<h;y+=2){var dx=amp*Math.sin(y/period)+amp*.5*Math.sin(y/(period*.37));bc.drawImage(srcC,0,y,w,2,dx,y,w,2);}}
+    var blurPx=p.blur/100*hRef;if(blurPx<.2)return b;
+    var c=document.createElement('canvas');c.width=w;c.height=h;var cc=c.getContext('2d');
+    if(p.blurType==='motion'){var dist=blurPx*2,steps=Math.max(4,Math.min(24,Math.round(dist)));cc.globalAlpha=1.6/steps;
+      for(var i=0;i<steps;i++)cc.drawImage(b,0,-dist/2+dist*i/(steps-1));cc.globalAlpha=1;}
+    else{cc.filter='blur('+blurPx.toFixed(2)+'px)';cc.drawImage(b,0,0);cc.filter='none';}
+    return c;
+  }
+  function background(ctx,W,H,floorY,mode){
+    if(mode==='checker'){var s=16;for(var y=0;y<H;y+=s)for(var x=0;x<W;x+=s){ctx.fillStyle=((x/s+y/s)%2)?'#cfcfcf':'#f2f2f2';ctx.fillRect(x,y,s,s);}return;}
+    var dark=mode==='dark',top=ctx.createLinearGradient(0,0,0,floorY);
+    top.addColorStop(0,dark?'#2a2f38':'#fafafa');top.addColorStop(1,dark?'#1a1d23':'#e9e9e9');ctx.fillStyle=top;ctx.fillRect(0,0,W,floorY);
+    var fl=ctx.createLinearGradient(0,floorY,0,H);fl.addColorStop(0,dark?'#121418':'#dcdcdc');fl.addColorStop(1,dark?'#0b0c0f':'#cfcfcf');ctx.fillStyle=fl;ctx.fillRect(0,floorY,W,H-floorY);
+  }
+  function Stage(cv){
+    var ctx=cv.getContext('2d'),src=null,self=this;
+    this.p=assign({shape:'auto',curvFix:100,tiltFix:0},PRESETS.gloss);this.bg='dark';
+    this.set=function(c){src={canvas:c,w:c.width,h:c.height,px:c.getContext('2d').getImageData(0,0,c.width,c.height).data,base:null};return self;};
+    this.render=function(){
+      if(!src)return;var p=self.p;
+      if(!src.base)src.base=E.analyze(src.px,src.w,src.h,p.shape);
+      var base=src.base,ct=E.contact(base,p),FL=E.fadeLen(base,ct.C,p),r=E.warp(src.px,src.w,src.h,ct.C,FL,p);
+      var pad=Math.ceil(p.blur/100*src.h*3+p.ripple/100*src.h*.03+3),fx=postFX(pixelsToCanvas(r.data,r.w,r.h,pad),p,src.h);
+      var W=cv.width,H=cv.height,iw=src.w,ih=src.h;
+      var minX=Math.min(0,r.left),maxX=Math.max(iw,r.left+r.w),maxY=Math.max(ih,r.top+r.h*.8);
+      var k=Math.min((W*.8)/(maxX-minX),(H*.9)/maxY),ox=(W-(maxX-minX)*k)/2-minX*k,oy=(H-maxY*k)/2,hi=Infinity,x;
+      for(x=0;x<iw;x++)if(base.cb[x]>=0&&ct.C[x]<hi)hi=ct.C[x];
+      var floorY=oy+(hi===Infinity?ih*.9:hi-ih*.02)*k;
+      ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W,H);background(ctx,W,H,floorY,self.bg);
+      ctx.globalAlpha=p.opacity/100;ctx.drawImage(fx,ox+(r.left-pad)*k,oy+(r.top-pad)*k,fx.width*k,fx.height*k);ctx.globalAlpha=1;
+      ctx.drawImage(src.canvas,ox,oy,iw*k,ih*k);
+      return base;
+    };
+  }
+
+  // البطل: يتنقّل بين الأسطح الأربعة
+  var hero=new Stage(document.getElementById('heroCv')).set(multi()),hp=document.querySelectorAll('#heroPills button'),order=['gloss','glass','matte','water'],hi=0,ht;
+  function heroShow(name){assign(hero.p,PRESETS[name]);hero.render();hp.forEach(function(b){b.classList.toggle('on',b.dataset.p===name);});hi=order.indexOf(name);}
+  hp.forEach(function(b){b.onclick=function(){clearInterval(ht);heroShow(b.dataset.p);};});
+  ht=setInterval(function(){heroShow(order[(hi+1)%4]);},3000);
+
+  // التجربة
+  var demo=new Stage(document.getElementById('demoCv')).set(can());
+  var R={opacity:['vOpacity','%'],length:['vLength','%'],blur:['vBlur','%'],ripple:['vRipple','']};
+  function sync(){for(var k in R){document.getElementById(k).value=demo.p[k];document.getElementById(R[k][0]).textContent=demo.p[k]+R[k][1];}}
+  function info(base){
+    var t=base.multi?'عدة منتجات — كل منتج ينعكس من قاعدته':(base.cyl?'قاعدة أسطوانية (انحناء '+Math.round(base.ratio*100)+'%)':'قاعدة مستقيمة');
+    if(!base.multi){var tilt=base.tiltDeg+demo.p.tiltFix;t+=' · '+(Math.abs(tilt)>=.5?'خط الأرض مائل '+tilt.toFixed(1)+'°':'خط الأرض أفقي');}
+    document.getElementById('info').textContent='ما اكتشفه المحرّك: '+t;
+  }
+  function go(){var b=demo.render();if(b)info(b);}
+  function pick(group,attr,val){document.querySelectorAll('#'+group+' button').forEach(function(x){x.classList.toggle('on',x.dataset[attr]===val);});}
+  document.querySelectorAll('#presets button').forEach(function(b){b.onclick=function(){assign(demo.p,PRESETS[b.dataset.p]);pick('presets','p',b.dataset.p);sync();go();};});
+  document.querySelectorAll('#bgs button').forEach(function(b){b.onclick=function(){demo.bg=b.dataset.b;pick('bgs','b',b.dataset.b);go();};});
+  var S={can:can,bottle:bottle,multi:multi};
+  document.querySelectorAll('#samples button').forEach(function(b){b.onclick=function(){demo.set(S[b.dataset.s]());pick('samples','s',b.dataset.s);go();};});
+  for(var k in R)(function(k){document.getElementById(k).oninput=function(e){demo.p[k]=parseFloat(e.target.value);document.getElementById(R[k][0]).textContent=demo.p[k]+R[k][1];
+    document.querySelectorAll('#presets button').forEach(function(x){x.classList.remove('on');});go();};})(k);
+
+  // صورة الزائر: تُصغَّر إلى 480 بكسل كما تفعل اللوحة، وتبقى في المتصفح
+  function loadFile(f){
+    if(!f||!/image\//.test(f.type))return;var url=URL.createObjectURL(f),im=new Image();
+    im.onload=function(){var s=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');
+      c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      URL.revokeObjectURL(url);demo.set(c);pick('samples','s','');go();};
+    im.src=url;
+  }
+  var drop=document.getElementById('drop'),file=document.getElementById('file');
+  file.onchange=function(){loadFile(file.files[0]);};
+  ['dragenter','dragover'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add('over');});});
+  ['dragleave','drop'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove('over');});});
+  drop.addEventListener('drop',function(e){loadFile(e.dataTransfer.files[0]);});
+
+  function start(){sync();heroShow('gloss');go();}
+  if(document.fonts&&document.fonts.load)document.fonts.load('700 20px Cairo').then(start,start);else start();
+
+  var els=document.querySelectorAll('.reveal');
+  function showAll(){els.forEach(function(el){el.classList.add('in');});}
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.05});
+    els.forEach(function(el){io.observe(el);});setTimeout(showAll,2500);
+  }else showAll();
+})();
+</script>
+<script src="/tools/tools.js" data-tool="inikas" defer></script>
+</body>
+</html>

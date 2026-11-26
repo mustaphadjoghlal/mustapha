@@ -315,7 +315,7 @@ function ToolsAdmin({ siteInfoId, tools }: { siteInfoId: string; tools: Record<s
                   <p className="text-xs text-gray-400">
                     {cur?.url
                       ? <>✓ الملف مرفوع{cur.version ? ` · الإصدار ${cur.version}` : ""}{cur.size ? ` · ${formatSize(cur.size)}` : ""}{cur.updatedAt ? ` · ${new Date(cur.updatedAt).toLocaleDateString("ar")}` : ""}</>
-                      : tool.slug === "jidari" ? "يُستعمل الملف المرفق بالموقع (الإصدار 7) ما لم ترفع ملفاً هنا" : tool.slug === "alwani" ? "يُستعمل الملف المرفق بالموقع (الإصدار 1.0) ما لم ترفع ملفاً هنا" : <span className="text-amber-400">لم يُرفع ملف بعد — الزر يعرض «اطلبها عبر واتساب»</span>}
+                      : tool.slug === "jidari" ? "يُستعمل الملف المرفق بالموقع (الإصدار 7) ما لم ترفع ملفاً هنا" : tool.slug === "alwani" ? "يُستعمل الملف المرفق بالموقع (الإصدار 1.0) ما لم ترفع ملفاً هنا" : tool.slug === "inikas" ? "يُستعمل الملف المرفق بالموقع (الإصدار 1.9) ما لم ترفع ملفاً هنا" : <span className="text-amber-400">لم يُرفع ملف بعد — الزر يعرض «اطلبها عبر واتساب»</span>}
                   </p>
                 </div>
               </div>
