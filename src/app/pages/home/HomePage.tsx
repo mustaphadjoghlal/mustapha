@@ -396,8 +396,8 @@ function WorksCarousel({ works }: { works: Work[] }) {
       }}
     >
       <div
-        className="ms-flow relative mx-auto h-[22rem] sm:h-[31rem] lg:h-[34rem] touch-pan-y select-none"
-        style={{ "--cw": wide ? "min(23rem, 30vw)" : "68vw", "--step": wide ? "min(17rem, 22vw)" : "52vw" } as React.CSSProperties}
+        className="ms-flow relative mx-auto h-[15.5rem] sm:h-[24rem] lg:h-[28rem] touch-pan-y select-none"
+        style={{ "--cw": wide ? "min(36rem, 46vw)" : "80vw", "--step": wide ? "min(21rem, 25vw)" : "58vw" } as React.CSSProperties}
         onPointerDown={(e) => { drag.current = { x: e.clientX, moved: false }; }}
         onPointerMove={(e) => {
           if (drag.current && Math.abs(e.clientX - drag.current.x) > 8) drag.current.moved = true;
@@ -438,7 +438,7 @@ function WorksCarousel({ works }: { works: Work[] }) {
                 draggable={false}
                 className="h-full w-full object-cover"
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950/90 via-transparent to-transparent" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950/85 via-transparent via-35% to-transparent" />
               <div
                 className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-5 transition-opacity duration-500"
                 style={{ opacity: isActive ? 1 : 0 }}

@@ -238,7 +238,7 @@
 .ms-flow { perspective: 1400px; }
 .ms-card {
   position: absolute; inset-block-start: 0; left: 50%;
-  width: var(--cw); aspect-ratio: 4 / 5;
+  width: var(--cw); aspect-ratio: 4 / 3; /* أغلفة الأعمال مصممة بنسبة 4:3 */
   transform: translateX(-50%) translateX(calc(var(--o) * var(--step))) translateZ(calc(var(--a) * -260px)) rotateY(calc(var(--o) * -32deg));
   opacity: calc(1 - var(--a) * 0.28);
   z-index: calc(20 - var(--a) * 2);
