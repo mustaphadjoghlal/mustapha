@@ -279,6 +279,5 @@
 @media (prefers-reduced-motion: reduce) {
   .ms-line > span, .ms-in, .ms-wave span, .ms-scrollcue span { animation: none; }
   .ms-hero-inner { transform: none; opacity: 1; filter: none; }
-  .ms-card { transition: none; }
   .ms-reveal { opacity: 1; transform: none; transition: none; }
 }
