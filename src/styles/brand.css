@@ -254,6 +254,8 @@
   backface-visibility: hidden;
 }
 .ms-card[data-hidden="true"] { opacity: 0; pointer-events: none; }
+/* أثناء السحب تتبع البطاقات الإصبع مباشرة بلا تأخير، ثم تكمل طريقها بانزلاق عند الإفلات */
+.is-dragging .ms-card, .is-dragging .ms-card::after { transition: none; }
 .ms-card::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
   background: #0e0506;

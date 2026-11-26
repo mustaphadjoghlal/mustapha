@@ -357,7 +357,10 @@ function WorksCarousel({ works }: { works: Work[] }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [wide, setWide] = useState(true);
-  const drag = useRef<{ x: number; moved: boolean } | null>(null);
+  const drag = useRef<{ x: number; moved: boolean; step: number } | null>(null);
+  // إزاحة البطاقات أثناء السحب بالإصبع أو الفأرة (بوحدة «بطاقة»): تتبع الإصبع كما في إنستغرام
+  const [shift, setShift] = useState(0);
+  const [dragging, setDragging] = useState(false);
   const count = works.length;
 
   useEffect(() => {
@@ -447,25 +450,46 @@ function WorksCarousel({ works }: { works: Work[] }) {
       }}
     >
       <div
-        className="ms-flow relative mx-auto h-[15.5rem] sm:h-[24rem] lg:h-[28rem] touch-pan-y select-none"
+        className={`ms-flow relative mx-auto h-[15.5rem] sm:h-[24rem] lg:h-[28rem] touch-pan-y select-none ${dragging ? "is-dragging cursor-grabbing" : "cursor-grab"}`}
         style={{ "--cw": wide ? "min(36rem, 46vw)" : "80vw", "--step": wide ? "min(21rem, 25vw)" : "58vw" } as React.CSSProperties}
-        onPointerDown={(e) => { drag.current = { x: e.clientX, moved: false }; }}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return;
+          // مسافة البطاقة الواحدة بالبكسل — نفس قيمة --step في التنسيق
+          const step = wide ? Math.min(336, window.innerWidth * 0.25) : window.innerWidth * 0.58;
+          drag.current = { x: e.clientX, moved: false, step };
+          setPaused(true);
+        }}
         onPointerMove={(e) => {
-          if (drag.current && Math.abs(e.clientX - drag.current.x) > 8) drag.current.moved = true;
+          const d = drag.current;
+          if (!d) return;
+          const dx = e.clientX - d.x;
+          if (!d.moved && Math.abs(dx) > 8) {
+            d.moved = true;
+            setDragging(true);
+            e.currentTarget.setPointerCapture?.(e.pointerId);
+          }
+          if (d.moved) setShift(Math.max(-1.25, Math.min(1.25, dx / d.step)));
         }}
         onPointerUp={(e) => {
           const d = drag.current;
+          setPaused(false);
           if (!d || !d.moved) { drag.current = null; return; }
           const dx = e.clientX - d.x;
-          if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1); // السحب نحو اليسار = التالي
+          // تكفي سحبة ربع بطاقة أو سحبة سريعة قصيرة لتنتقل
+          if (Math.abs(dx) > Math.min(60, d.step * 0.25)) go(dx < 0 ? 1 : -1); // السحب نحو اليسار = التالي
+          setDragging(false);
+          setShift(0);
           // يُترك drag.current لحظة حتى يمنع النقرَ التالي من فتح العمل
           window.setTimeout(() => { drag.current = null; }, 0);
         }}
+        onPointerCancel={() => { drag.current = null; setDragging(false); setShift(0); setPaused(false); }}
       >
         {works.map((work, i) => {
-          const { o, teleport: jump } = positions[i];
+          const { o: slot, teleport: jump } = positions[i];
+          const isActive = slot === 0;
+          // الموضع المرسوم = الموضع الثابت + ما سحبه الإصبع
+          const o = slot + shift;
           const a = Math.abs(o);
-          const isActive = o === 0;
           return (
             <Link
               key={work.id}
@@ -473,8 +497,8 @@ function WorksCarousel({ works }: { works: Work[] }) {
               draggable={false}
               data-active={isActive}
               data-jump={jump}
-              data-hidden={a > range}
-              aria-hidden={a > range}
+              data-hidden={a > range + (dragging ? 1 : 0)}
+              aria-hidden={Math.abs(slot) > range}
               tabIndex={isActive ? 0 : -1}
               onClick={(e) => {
                 if (drag.current?.moved) { e.preventDefault(); return; }
