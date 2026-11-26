@@ -240,16 +240,20 @@
   position: absolute; inset-block-start: 0; left: 50%;
   width: var(--cw); aspect-ratio: 4 / 3; /* أغلفة الأعمال مصممة بنسبة 4:3 */
   transform: translateX(-50%) translateX(calc(var(--o) * var(--step))) translateZ(calc(var(--a) * -260px)) rotateY(calc(var(--o) * -32deg));
-  opacity: calc(1 - var(--a) * 0.28);
-  z-index: calc(20 - var(--a) * 2);
+  /* البطاقات الجانبية أخفت بوضوح، فتتلاشى البطاقة الوسطى وهي تغادر وتتوهّج القادمة وهي تصل */
+  opacity: calc(1 - var(--a) * 0.42);
+  z-index: calc(40 - var(--a) * 10);
   /* انتقال ناعم ومتصل: بداية هادئة ونهاية أهدأ */
-  transition: transform 1.15s cubic-bezier(0.45, 0, 0.15, 1), opacity 1.15s cubic-bezier(0.45, 0, 0.15, 1), filter 1.15s cubic-bezier(0.45, 0, 0.15, 1);
-  filter: brightness(calc(1 - var(--a) * 0.22));
+  /* انتقال ناعم ومتصل. ترتيب الطبقات (z-index) يتدرّج مع الحركة أيضاً، فلا تقفز البطاقة القادمة
+     فوق البطاقة الوسطى فجأة، بل تتبادلان الأمام في منتصف الطريق */
+  transition: transform 1.2s cubic-bezier(0.37, 0, 0.63, 1), opacity 1.2s cubic-bezier(0.37, 0, 0.63, 1),
+    filter 1.2s cubic-bezier(0.37, 0, 0.63, 1), z-index 1.2s cubic-bezier(0.37, 0, 0.63, 1);
+  filter: brightness(calc(1 - var(--a) * 0.35));
   will-change: transform;
 }
 .ms-card[data-hidden="true"] { opacity: 0; pointer-events: none; }
 /* البطاقة التي تلتف من طرف إلى آخر تنتقل خفيةً ثم تظهر بالتلاشي، فلا تعبر المسرح */
-.ms-card[data-jump="true"] { transition: opacity 1.15s cubic-bezier(0.45, 0, 0.15, 1), filter 1.15s; }
+.ms-card[data-jump="true"] { transition: opacity 1.2s cubic-bezier(0.37, 0, 0.63, 1), filter 1.2s; }
 .ms-card img { transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
 .ms-card[data-active="true"]:hover img { transform: scale(1.04); }
 
