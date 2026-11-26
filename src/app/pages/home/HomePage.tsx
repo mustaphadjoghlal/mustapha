@@ -737,7 +737,7 @@ export function HomePage() {
                       width={64}
                       height={64}
                       loading="lazy"
-                      className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
+                      className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl object-cover shadow-[0_6px_18px_rgba(0,0,0,0.35)] ring-1 ring-white/10"
                     />
                   ) : (
                     <span className="flex h-10 w-10 items-center justify-center rounded-full bg-maroon-500 text-lg font-bold text-royal-300">

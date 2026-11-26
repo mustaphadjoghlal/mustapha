@@ -264,8 +264,9 @@
 .ms-lift { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s; }
 .ms-lift:hover { transform: translateY(-6px); border-color: rgba(244, 201, 140, 0.28); }
 
-.ms-logo img { filter: grayscale(1) brightness(1.6); opacity: 0.6; transition: filter 0.3s, opacity 0.3s; }
-.ms-logo:hover img { filter: none; opacity: 1; }
+/* الشعارات بألوانها الأصلية في مربع مدوّر — أغلبها بخلفية بيضاء، فلا يُطبَّق عليها أي فلتر */
+.ms-logo img { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.ms-logo:hover img { transform: scale(1.06); }
 
 @media (prefers-reduced-motion: reduce) {
   .ms-line > span, .ms-in, .ms-wave span, .ms-scrollcue span { animation: none; }
