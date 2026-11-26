@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link } from "react-router";
 import {
   Mic, Video, Palette, TrendingUp, ArrowLeft, ArrowRight, Linkedin, Instagram, Twitter,
@@ -365,37 +365,73 @@ function WorksCarousel({ works }: { works: Work[] }) {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  const go = useCallback((dir: number) => setActive((a) => (a + dir + count) % count), [count]);
+  // آخر اتجاه حركة: يحدد في أي جانب تنتظر البطاقات المخفية دورها
+  const [dir, setDir] = useState(1);
+  // بعد انتهاء الحركة تُرتَّب البطاقات المخفية بصمت في جهة الدخول التالية
+  // تحفظ رقم البطاقة النشطة التي استقرت الحركة عندها؛ أي تغيير يعني أن الحركة بدأت
+  const [settledAt, setSettledAt] = useState(0);
+  const settled = settledAt === active;
 
-  // مواضع البطاقات في العرض السابق — لاكتشاف البطاقة التي تلتف من طرف إلى آخر
-  const prevOffsets = useRef<number[]>([]);
+  const step = useCallback((delta: number) => {
+    setDir(delta >= 0 ? 1 : -1);
+    setActive((a) => (((a + delta) % count) + count) % count);
+  }, [count]);
+  const go = useCallback((d: number) => step(d), [step]);
+  const goTo = (i: number) => {
+    // أقصر طريق إلى البطاقة المطلوبة في أي اتجاه
+    let d = i - active;
+    if (d > count / 2) d -= count;
+    if (d < -count / 2) d += count;
+    if (d !== 0) step(d);
+  };
+
   useEffect(() => {
-    prevOffsets.current = works.map((_, i) => {
-      let o = i - active;
-      if (o > count / 2) o -= count;
-      if (o < -count / 2) o += count;
-      return o;
-    });
-  });
+    const id = window.setTimeout(() => setSettledAt(active), 1250);
+    return () => window.clearTimeout(id);
+  }, [active]);
 
-  // يدور وحده كل أربع ثوانٍ، ويتوقف حين يمرّ المؤشر فوقه
+  // يدور وحده، ويتوقف حين يمرّ المؤشر فوقه
   useEffect(() => {
     if (paused || count < 2 || reducedMotion()) return;
     const id = window.setInterval(() => go(1), 4500);
     return () => window.clearInterval(id);
   }, [paused, count, go]);
 
-  if (count === 0) return null;
-
-  // المسافة الدائرية بين البطاقة والبطاقة النشطة
-  const offsetOf = (i: number) => {
-    let o = i - active;
-    if (o > count / 2) o -= count;
-    if (o < -count / 2) o += count;
-    return o;
-  };
-  // نُبقي بطاقة واحدة على الأقل خارج المسرح، فتلتف البطاقات من الطرف إلى الطرف وهي مخفية
+  // نُبقي بطاقة واحدة على الأقل خارج المسرح، فتدخل كل بطاقة جديدة من الطرف منزلقةً لا ظاهرةً فجأة
   const range = Math.max(1, Math.min(wide ? 2 : 1, Math.floor((count - 2) / 2)));
+
+  // موضع كل بطاقة في العرض السابق — لتختار كل بطاقة أقصر طريق إلى موضعها الجديد
+  const prev = useRef<number[]>([]);
+  // تُحسب المواضع مرة واحدة لكل حركة، فلا تُفسدها إعادة رسم عابرة (مرور المؤشر مثلاً) أثناء الانزلاق
+  const positions = useMemo(() => works.map((_, i) => {
+    const m = (((i - active) % count) + count) % count;
+    const before = prev.current[i];
+    const wasHidden = before === undefined || Math.abs(before) > range;
+    let o: number;
+    let teleport = false;
+    if (m <= range) o = m;
+    else if (m >= count - range) o = m - count;
+    else {
+      // مخفية الآن
+      const waiting = dir >= 0 ? m : m - count;
+      if (settled || wasHidden) {
+        o = waiting;
+        teleport = true; // تنتقل وهي خفية، فلا يراها أحد
+      } else {
+        // كانت ظاهرة وتغادر: تنزلق إلى الجهة التي تخرج منها
+        o = Math.abs(m - before) <= Math.abs(m - count - before) ? m : m - count;
+      }
+    }
+    // بطاقة تدخل من الجهة المعاكسة لمكان انتظارها (نقرتان سريعتان): تظهر بالتلاشي بدل عبور المسرح
+    if (!teleport && wasHidden && before !== undefined && Math.abs(o - before) > 2) teleport = true;
+    return { o, teleport };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [active, settled, dir, range, count]);
+  useEffect(() => {
+    prev.current = positions.map((p) => p.o);
+  }, [positions]);
+
+  if (count === 0) return null;
 
   return (
     <div
@@ -424,11 +460,9 @@ function WorksCarousel({ works }: { works: Work[] }) {
         }}
       >
         {works.map((work, i) => {
-          const o = offsetOf(i);
+          const { o, teleport: jump } = positions[i];
           const a = Math.abs(o);
           const isActive = o === 0;
-          const prevO = prevOffsets.current[i];
-          const jump = prevO !== undefined && Math.abs(o - prevO) > 1;
           return (
             <Link
               key={work.id}
@@ -441,7 +475,7 @@ function WorksCarousel({ works }: { works: Work[] }) {
               tabIndex={isActive ? 0 : -1}
               onClick={(e) => {
                 if (drag.current?.moved) { e.preventDefault(); return; }
-                if (!isActive) { e.preventDefault(); setActive(i); }
+                if (!isActive) { e.preventDefault(); goTo(i); }
               }}
               className="ms-card group block overflow-hidden rounded-[1.4rem] border border-royal-200/10 bg-ink-850 shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
               style={{ "--o": -o, "--a": a } as React.CSSProperties}
@@ -477,7 +511,7 @@ function WorksCarousel({ works }: { works: Work[] }) {
             {works.map((w, i) => (
               <button
                 key={w.id}
-                onClick={() => setActive(i)}
+                onClick={() => goTo(i)}
                 aria-label={`العمل ${i + 1}`}
                 className={`h-1.5 rounded-full transition-all duration-500 ${i === active ? "w-7 bg-royal-400" : "w-1.5 bg-ink-600"}`}
               />
