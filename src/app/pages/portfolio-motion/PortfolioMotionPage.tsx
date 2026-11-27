@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Clapperboard, Check } from "lucide-react";
+import { Check } from "lucide-react";
+import { ServiceHero } from "../../shared/ServiceHero";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
@@ -30,43 +31,26 @@ export function PortfolioMotionPage() {
 
   return (
     <div className="bg-ink-950 text-fg min-h-screen overflow-x-clip">
-      {/* البطل */}
-      <section className="ms-grain relative -mt-16 overflow-hidden pt-36 pb-16 sm:pt-44 sm:pb-20">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{ background: "radial-gradient(80% 70% at 50% -10%, rgba(122,42,49,0.85), rgba(75,19,23,0.3) 50%, transparent 78%)" }}
-        />
-        <div
-          aria-hidden="true"
-          className="ms-pattern pointer-events-none absolute inset-0 opacity-[0.06]"
-          style={{ maskImage: "radial-gradient(60% 60% at 50% 25%, #000, transparent)", WebkitMaskImage: "radial-gradient(60% 60% at 50% 25%, #000, transparent)" }}
-        />
-        <div className="relative mx-auto max-w-3xl px-5 text-center">
-          <span className="ms-in ms-glass mx-auto flex h-16 w-16 items-center justify-center rounded-full text-royal-400">
-            <Clapperboard size={26} />
-          </span>
-          <h1 className="ms-in mt-7 text-[2.6rem] sm:text-6xl font-bold leading-[1.15]" style={{ "--d": "100ms" } as React.CSSProperties}>
-            {t("motion.hero.title")}
-          </h1>
-          {t("motion.hero.desc") && (
-            <p className="ms-in mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-[1.9] text-fg-muted" style={{ "--d": "200ms" } as React.CSSProperties}>
-              {t("motion.hero.desc")}
-            </p>
-          )}
-        </div>
-      </section>
+      {/* مقدمة مختصرة متحركة — الأعمال تظهر في الشاشة الأولى */}
+      <ServiceHero
+        kind="motion"
+        title={t("motion.hero.title")}
+        lead="أصنع"
+        rotating={services}
+        chips={works.length ? [`${works.length} ${works.length > 10 ? "عملاً" : works.length > 2 ? "أعمال" : works.length === 2 ? "عملان" : "عمل"}`] : []}
+        description={t("motion.hero.desc")}
+      />
 
       {/* الأعمال */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8 pb-20">
-        <div className="text-center">
-          <h2 className="ms-h2">{t("motion.projects.heading")}</h2>
-          {t("motion.projects.sub") && <p className="mt-3 text-sm text-fg-muted">{t("motion.projects.sub")}</p>}
+      <section className="mx-auto max-w-7xl px-3 sm:px-8 pt-4 pb-14">
+        <div className="px-1">
+          <h2 className="text-xl md:text-3xl font-bold">{t("motion.projects.heading")}</h2>
+          {t("motion.projects.sub") && <p className="mt-1.5 text-xs md:text-sm text-fg-muted">{t("motion.projects.sub")}</p>}
         </div>
         {works.length === 0 ? (
           <p className="py-20 text-center text-fg-muted">{t("motion.projects.empty")}</p>
         ) : (
-          <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
             {works.map((w) => (
               <MotionCard key={w.id} work={w} />
             ))}
@@ -74,19 +58,18 @@ export function PortfolioMotionPage() {
         )}
       </section>
 
-      {/* الخدمات */}
+      {/* الخدمات: شارات مختصرة */}
       {services.length > 0 && (
-        <section className="mx-auto max-w-5xl px-5 sm:px-8 pb-20">
-          <h2 className="ms-h2 text-center">{t("motion.services.heading")}</h2>
-          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((s) => (
-              <div key={s} className="ms-glass flex items-center gap-3 rounded-2xl p-5">
-                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-maroon-500/70 text-royal-400">
-                  <Check size={15} />
+        <section className="border-t border-ink-800 bg-ink-900/60 py-12 mb-14">
+          <div className="mx-auto max-w-4xl px-4 text-center">
+            <h2 className="text-xl md:text-2xl font-bold">{t("motion.services.heading")}</h2>
+            <div className="mt-5 flex flex-wrap justify-center gap-2.5">
+              {services.map((s) => (
+                <span key={s} className="inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-850 px-3.5 py-2 text-sm text-gray-200">
+                  <Check className="h-4 w-4 text-royal-400" /> {s}
                 </span>
-                <p className="text-sm sm:text-[0.95rem]">{s}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
       )}
@@ -94,7 +77,7 @@ export function PortfolioMotionPage() {
       {/* الطلب */}
       <section className="mx-auto max-w-7xl px-5 sm:px-8 pb-24">
         <div
-          className="ms-grain relative overflow-hidden rounded-[2rem] border border-royal-200/10 px-6 py-16 text-center"
+          className="ms-grain relative overflow-hidden rounded-[2rem] border border-royal-200/10 px-6 py-12 text-center"
           style={{ background: "radial-gradient(80% 90% at 50% 0%, rgba(122,42,49,0.9), rgba(42,10,12,0.95) 60%, #140809)" }}
         >
           <h2 className="ms-h2 relative mx-auto max-w-2xl">{t("motion.cta.heading")}</h2>
