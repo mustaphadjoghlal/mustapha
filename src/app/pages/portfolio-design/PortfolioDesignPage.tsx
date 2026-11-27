@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { CheckCircle, Palette } from "lucide-react";
+import { CheckCircle } from "lucide-react";
+import { ServiceHero } from "../../shared/ServiceHero";
+import { CategoryArt } from "../portfolio/CategoryArt";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
@@ -40,79 +42,57 @@ export function PortfolioDesignPage() {
 
   const services = [1, 2, 3, 4, 5, 6].map((n) => t(`design.service${n}`));
 
+  // «تصميم الهويات البصرية والشعارات» ← «الهويات البصرية والشعارات» للسطر المتبدّل
+  const rotating = services.map((x) => x.replace(/^تصميم\s+/, ""));
+  const totalImages = works.reduce((n, w) => n + Math.max(w.images?.length || 0, w.coverImage ? 1 : 0), 0);
+  const chips = works.length
+    ? [`${works.length} ${works.length > 10 ? "مشروعاً" : works.length > 2 ? "مشاريع" : "مشروع"}`, totalImages > works.length ? `+${totalImages} ${totalImages > 10 ? "تصميماً" : "تصاميم"}` : ""]
+    : [];
+
   return (
     <div className="bg-ink-950 text-white min-h-screen">
-      <section className="relative py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-royal-900/30 via-royal-800/15 to-black"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-royal-500 to-royal-600 rounded-full mb-6">
-              <Palette className="w-10 h-10" />
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">{t("design.hero.title")}</h1>
-            {t("design.hero.desc") && (
-              <p className="text-xl text-gray-300 leading-relaxed">
-                {t("design.hero.desc")}
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
+      <ServiceHero
+        kind="design"
+        title={t("design.hero.title")}
+        lead="أصمّم"
+        rotating={rotating}
+        chips={chips}
+        description={t("design.hero.desc")}
+      />
 
-      <section className="py-20 bg-ink-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">{t("design.services.heading")}</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, index) => (
-              <div key={index} className="flex items-start gap-3 bg-ink-850 border border-ink-700 rounded-lg p-6 hover:border-royal-500 transition-all">
-                <CheckCircle className="w-6 h-6 text-royal-400 flex-shrink-0 mt-1" />
-                <p className="text-gray-200">{service}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 bg-gradient-to-b from-ink-900 to-ink-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("design.projects.heading")}</h2>
-            {t("design.projects.sub") && (
-              <p className="text-gray-400 text-lg">
-                {t("design.projects.sub")}
-              </p>
-            )}
+      {/* الأعمال مباشرة بعد المقدمة: عمودان على الجوال ليرى الزائر أكثر في كل شاشة */}
+      <section className="pt-4 pb-14">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="mb-5 flex items-end justify-between gap-3 px-1">
+            <h2 className="text-xl md:text-3xl font-bold">{t("design.projects.heading")}</h2>
+            {t("design.projects.sub") && <p className="hidden md:block text-gray-400">{t("design.projects.sub")}</p>}
           </div>
           {works.length === 0 ? (
             <p className="text-center text-gray-500 py-16">{t("design.projects.empty")}</p>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {works.map((work) => {
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-6">
+              {works.map((work, idx) => {
                 const cover = work.coverImage || work.images?.[0];
+                const count = work.images?.length || 0;
                 return (
                   <Link key={work.id} to={`/portfolio/${work.slug || work.id}`}
-                    className="group bg-ink-900 border border-ink-700 rounded-xl overflow-hidden hover:border-royal-500 transition-all hover:shadow-xl hover:shadow-royal-500/20">
-                    <div className="relative h-56 overflow-hidden bg-ink-850">
+                    className={`group overflow-hidden rounded-xl border border-ink-700 bg-ink-900 transition-all hover:border-royal-500 hover:shadow-xl hover:shadow-royal-500/20 ${idx === 0 && works.length % 2 === 1 ? "col-span-2 md:col-span-1" : ""}`}>
+                    <div className={`relative overflow-hidden bg-ink-850 ${idx === 0 && works.length % 2 === 1 ? "aspect-[16/10] md:aspect-square" : "aspect-square"}`}>
                       {cover ? (
                         <img src={cover} alt={work.altText || work.title} loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-600">
-                          <Palette size={40} />
-                        </div>
+                        <div className="h-full w-full"><CategoryArt kind="design" /></div>
                       )}
-                      {work.images?.length > 0 && (
-                        <div className="absolute bottom-3 left-3 bg-ink-950/60 text-white text-xs px-2 py-1 rounded-full">
-                          {work.images.length} صور
-                        </div>
+                      {count > 1 && (
+                        <span className="absolute bottom-2 left-2 rounded-full bg-ink-950/70 px-2 py-0.5 text-[11px] text-white backdrop-blur">
+                          {count} {count === 2 ? "صورتان" : count <= 10 ? "صور" : "صورة"}
+                        </span>
                       )}
-                      <div className="absolute inset-0 bg-ink-950/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="text-white text-sm font-semibold bg-ink-950/60 px-4 py-2 rounded-full">عرض المشروع</span>
-                      </div>
                     </div>
-                    <div className="p-5">
-                      <h3 className="text-lg font-bold mb-1 group-hover:text-royal-300 transition-colors">{work.title}</h3>
-                      <p className="text-gray-400 text-sm line-clamp-2">{work.description}</p>
+                    <div className="p-3 md:p-5">
+                      <h3 className="line-clamp-2 text-sm md:text-lg font-bold leading-snug transition-colors group-hover:text-royal-300">{work.title}</h3>
+                      {work.description && <p className="mt-1 hidden md:block text-sm text-gray-400 line-clamp-2">{work.description}</p>}
                     </div>
                   </Link>
                 );
@@ -122,7 +102,21 @@ export function PortfolioDesignPage() {
         </div>
       </section>
 
-      <section className="py-20 bg-ink-950">
+      {/* الخدمات: شارات مختصرة بدل ست بطاقات كبيرة */}
+      <section className="border-t border-ink-800 bg-ink-900/60 py-12">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-xl md:text-2xl font-bold">{t("design.services.heading")}</h2>
+          <div className="mt-5 flex flex-wrap justify-center gap-2.5">
+            {services.filter(Boolean).map((service) => (
+              <span key={service} className="inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-850 px-3.5 py-2 text-sm text-gray-200">
+                <CheckCircle className="h-4 w-4 text-royal-400" /> {service}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 bg-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">{t("design.cta.heading")}</h2>
           {t("design.cta.sub") && (
@@ -135,7 +129,7 @@ export function PortfolioDesignPage() {
             target="_blank"
             rel="noopener noreferrer"
             data-whatsapp-cta
-            className="inline-block px-8 py-3 bg-royal-500 rounded-lg hover:bg-royal-600 transition-all font-semibold"
+            className="inline-block px-8 py-3 bg-royal-500 text-ink-950 rounded-full hover:bg-royal-400 transition-all font-semibold"
           >
             {t("design.cta.button")}
           </a>

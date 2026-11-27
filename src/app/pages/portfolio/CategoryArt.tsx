@@ -112,10 +112,11 @@ function Photography() {
 
 const ART: Record<Kind, () => JSX.Element> = { voice: Voice, motion: Motion, design: Design, photography: Photography };
 
-export function CategoryArt({ kind, className = "" }: { kind: Kind; className?: string }) {
+/** bare: بلا خلفية ولا نقاط — للمقدمات حيث يجلس الرسم مباشرة على خلفية الصفحة */
+export function CategoryArt({ kind, className = "", bare = false }: { kind: Kind; className?: string; bare?: boolean }) {
   const Art = ART[kind];
   return (
-    <svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" className={`h-full w-full ${className}`} aria-hidden>
+    <svg viewBox="0 0 200 150" preserveAspectRatio={bare ? "xMidYMid meet" : "xMidYMid slice"} className={`h-full w-full ${className}`} aria-hidden>
       <style>{`
         .ca-bar{transform-box:fill-box;transform-origin:center;animation:ca-eq 1.6s ease-in-out infinite}
         .ca-ring{transform-box:fill-box;transform-origin:center;animation:ca-pulse 2.4s ease-out infinite}
@@ -132,8 +133,8 @@ export function CategoryArt({ kind, className = "" }: { kind: Kind; className?: 
         @media (prefers-reduced-motion:reduce){.ca-bar,.ca-ring,.ca-trail,.ca-float,.ca-spin,.ca-blink{animation:none}}
       `}</style>
       <Defs id={kind} />
-      <rect width="200" height="150" fill={`url(#bg-${kind})`} />
-      <rect width="200" height="150" fill={`url(#dots-${kind})`} />
+      {!bare && <rect width="200" height="150" fill={`url(#bg-${kind})`} />}
+      {!bare && <rect width="200" height="150" fill={`url(#dots-${kind})`} />}
       <Art />
     </svg>
   );
