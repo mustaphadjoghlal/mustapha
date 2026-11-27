@@ -4,6 +4,7 @@ import { db } from "../../../firebase";
 import { QUESTIONS_BANK, CATEGORY_LABELS } from "./hakawatiQuestionsBank";
 import type { HakawatiCategory } from "./hakawatiQuestionsBank";
 import { useSeo } from "../../shared/useSeo";
+import { HK_OG } from "./hakawatiSite";
 
 // ─── الأنواع ───
 export interface HakawatiQuestion {
@@ -99,7 +100,7 @@ const HakawatiGamePage: React.FC = () => {
     title: "اللعبة — اختبر معرفتك بالتاريخ",
     description: "لعبة أسئلة من الحكواتي تختبر معرفتك بالسير والأمجاد في التاريخ العربي والإسلامي.",
     siteName: "الحكواتي",
-    image: "https://mustaphadjoghlal.com/hakawati/og-image.jpg",
+    image: HK_OG,
   });
 
   // ─── جلب البيانات من Firestore ───

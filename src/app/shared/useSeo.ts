@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router";
 import { useText } from "./siteText";
+import { HK_SITE, IS_HK_HOST } from "../pages/hakawati/hakawatiSite";
 
 const SITE_URL = "https://mustaphadjoghlal.com";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
@@ -69,7 +70,13 @@ export function useSeo({
       : `${title} | ${name}`
     : t("seo.home.title");
   const img = image || DEFAULT_IMAGE;
-  const canonical = `${SITE_URL}${pathname === "/" ? "" : pathname.replace(/\/+$/, "")}`;
+  // صفحات الحكواتي رابطها الأصلي على نطاقه الفرعي، أينما فُتحت
+  const clean = pathname === "/" ? "" : pathname.replace(/\/+$/, "");
+  const canonical = IS_HK_HOST
+    ? `${HK_SITE}${clean}`
+    : clean === "/hakawati" || clean.startsWith("/hakawati/")
+      ? `${HK_SITE}${clean.slice("/hakawati".length)}`
+      : `${SITE_URL}${clean}`;
 
   useEffect(() => {
     document.title = fullTitle;

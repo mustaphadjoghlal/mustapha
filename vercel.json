@@ -11,6 +11,28 @@
       ],
       "destination": "https://mustaphadjoghlal.com/:path*",
       "permanent": true
+    },
+    {
+      "source": "/hakawati",
+      "has": [
+        {
+          "type": "host",
+          "value": "mustaphadjoghlal.com"
+        }
+      ],
+      "destination": "https://elhakawatti.mustaphadjoghlal.com/",
+      "permanent": true
+    },
+    {
+      "source": "/hakawati/:path(stories.*|game.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "mustaphadjoghlal.com"
+        }
+      ],
+      "destination": "https://elhakawatti.mustaphadjoghlal.com/:path",
+      "permanent": true
     }
   ],
   "rewrites": [

@@ -4,6 +4,7 @@ import { db } from "../../../firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 import { useSeo } from "../../shared/useSeo";
+import { hk, HK_OG } from "./hakawatiSite";
 interface HakawatiStory {
   id: string;
   title: string;
@@ -15,7 +16,6 @@ interface HakawatiStory {
   published: boolean;
 }
 
-const HK_OG = "https://mustaphadjoghlal.com/hakawati/og-image.jpg";
 const PAGE_TITLE = "الحكايات";
 const PAGE_DESC = "كل حكايات ركن الحكواتي: سِيَر وأمجاد من التاريخ العربي والإسلامي، بأسلوب سردي درامي.";
 
@@ -82,7 +82,7 @@ export function HakawatiStoriesPage() {
                 {published.map((story) => (
                   <Link
                     key={story.id}
-                    to={`/hakawati/stories/${story.id}`}
+                    to={hk(`/stories/${story.id}`)}
                     className="group rounded-2xl overflow-hidden transition-all hover:-translate-y-1"
                     style={{ background: "linear-gradient(160deg, rgba(58,36,20,0.85), rgba(18,11,7,0.9))", border: "1px solid rgba(168,99,46,0.25)" }}
                   >

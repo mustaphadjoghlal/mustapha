@@ -5,6 +5,7 @@ import { doc, onSnapshot, collection } from "firebase/firestore";
 import { ArrowRight } from "lucide-react";
 
 import { useSeo } from "../../shared/useSeo";
+import { hk, hkUrl, HK_OG, HK_SITE } from "./hakawatiSite";
 interface HakawatiStory {
   id: string;
   title: string;
@@ -57,7 +58,7 @@ export function HakawatiStoryPage() {
       visible && story
         ? story.excerpt || story.content?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().substring(0, 160)
         : undefined,
-    image: (visible && story?.coverImage) || "https://mustaphadjoghlal.com/hakawati/og-image.jpg",
+    image: (visible && story?.coverImage) || HK_OG,
     type: "article",
     noindex: loaded && !visible,
   });
@@ -82,7 +83,7 @@ export function HakawatiStoryPage() {
       <div className="text-center hk-body">
         <p className="text-5xl mb-4">📜</p>
         <h2 className="hk-display text-2xl text-[#c9853f] mb-4">الحكاية غير موجودة</h2>
-        <Link to="/hakawati/stories" className="text-[#c9853f] hover:underline">← العودة للحكايات</Link>
+        <Link to={hk("/stories")} className="text-[#c9853f] hover:underline">← العودة للحكايات</Link>
       </div>
     </div>
   );
@@ -100,12 +101,12 @@ export function HakawatiStoryPage() {
     "publisher": {
       "@type": "Organization",
       "name": "الحكواتي",
-      "url": "https://mustaphadjoghlal.com/hakawati",
-      "logo": "https://mustaphadjoghlal.com/hakawati/logo.png",
+      "url": HK_SITE,
+      "logo": `${HK_SITE}/hakawati/logo.png`,
     },
     "datePublished": story!.publishedAt,
-    "image": story!.coverImage || "https://mustaphadjoghlal.com/hakawati/og-image.jpg",
-    "url": `https://mustaphadjoghlal.com/hakawati/stories/${id}`,
+    "image": story!.coverImage || HK_OG,
+    "url": hkUrl(`/stories/${id}`),
     "description": story!.excerpt || story!.content?.replace(/<[^>]*>/g, "").substring(0, 160),
   };
 
@@ -119,7 +120,7 @@ export function HakawatiStoryPage() {
       <div className="hk-body">
         {/* Breadcrumb */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          <Link to="/hakawati/stories" className="flex items-center gap-2 text-[#a8763f] hover:text-[#c9853f] transition-colors text-sm w-fit">
+          <Link to={hk("/stories")} className="flex items-center gap-2 text-[#a8763f] hover:text-[#c9853f] transition-colors text-sm w-fit">
             <ArrowRight size={16} />
             العودة للحكايات
           </Link>
@@ -191,7 +192,7 @@ export function HakawatiStoryPage() {
 
           {/* رجوع */}
           <div className="mt-12 pt-8" style={{ borderTop: "1px solid rgba(168,99,46,0.2)" }}>
-            <Link to="/hakawati/stories" className="inline-flex items-center gap-2 text-[#c9853f] hover:text-[#f2e9da] transition-colors font-semibold">
+            <Link to={hk("/stories")} className="inline-flex items-center gap-2 text-[#c9853f] hover:text-[#f2e9da] transition-colors font-semibold">
               <ArrowRight size={18} />
               العودة لجميع الحكايات
             </Link>

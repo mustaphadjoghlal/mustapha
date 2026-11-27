@@ -1,19 +1,20 @@
 import { Link, useLocation } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { hk } from "./hakawatiSite";
 
 export function HakawatiHeader() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { path: "/hakawati", label: "الرئيسية" },
-    { path: "/hakawati/stories", label: "الحكايات" },
-    { path: "/hakawati/game", label: "اللعبة" },
+    { path: hk(), label: "الرئيسية" },
+    { path: hk("/stories"), label: "الحكايات" },
+    { path: hk("/game"), label: "اللعبة" },
   ];
 
   const isActive = (path: string) =>
-    path === "/hakawati" ? location.pathname === "/hakawati" : location.pathname.startsWith(path);
+    path === hk() ? location.pathname === hk() : location.pathname.startsWith(path);
 
   return (
     <header dir="rtl" className="sticky top-0 z-50 backdrop-blur-sm" style={{ background: "rgba(5,3,2,0.92)", borderBottom: "1px solid rgba(168,99,46,0.25)" }}>
@@ -22,7 +23,7 @@ export function HakawatiHeader() {
       `}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ fontFamily: "'Tajawal', sans-serif" }}>
         <div className="flex justify-between items-center h-16">
-          <Link to="/hakawati" className="flex items-center">
+          <Link to={hk()} className="flex items-center">
             <img src="/hakawati/logo.png" alt="الحكواتي" className="h-8 w-auto" />
           </Link>
           <nav className="hidden md:flex items-center gap-8">

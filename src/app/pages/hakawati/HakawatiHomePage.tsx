@@ -5,6 +5,7 @@ import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { BookOpen, Sparkles, ChevronDown } from "lucide-react";
 
 import { useSeo } from "../../shared/useSeo";
+import { hk, HK_OG } from "./hakawatiSite";
 interface HakawatiStory {
   id: string;
   title: string;
@@ -16,7 +17,6 @@ interface HakawatiStory {
   published: boolean;
 }
 
-const HK_OG = "https://mustaphadjoghlal.com/hakawati/og-image.jpg";
 const PAGE_TITLE = "الحكواتي — حيث تعود أحداث الماضي للحياة";
 const PAGE_DESC = "ركن الحكواتي: حكايات درامية من التاريخ العربي والإسلامي، ولعبة أسئلة تختبر معرفتك بالسير والأمجاد.";
 
@@ -78,7 +78,7 @@ export function HakawatiHomePage() {
         <section className="px-4 pb-4 pt-4 sm:pb-16 sm:pt-8">
           <div className="max-w-3xl mx-auto">
             <Link
-              to="/hakawati/game"
+              to={hk("/game")}
               className="group flex flex-col sm:flex-row items-center gap-4 sm:gap-6 rounded-2xl p-5 sm:p-8 transition-all hover:-translate-y-0.5"
               style={{ background: "linear-gradient(160deg, rgba(58,36,20,0.85), rgba(18,11,7,0.9))", border: "1px solid rgba(168,99,46,0.35)" }}
             >
@@ -108,7 +108,7 @@ export function HakawatiHomePage() {
                 <BookOpen className="text-[#c9853f]" size={26} />
                 أحدث الحكايات
               </h2>
-              <Link to="/hakawati/stories" className="text-[#c9853f] text-sm font-semibold hover:text-[#f2e9da] transition-colors">
+              <Link to={hk("/stories")} className="text-[#c9853f] text-sm font-semibold hover:text-[#f2e9da] transition-colors">
                 كل الحكايات ←
               </Link>
             </div>
@@ -139,7 +139,7 @@ export function HakawatiHomePage() {
                 {latest.map((story) => (
                   <Link
                     key={story.id}
-                    to={`/hakawati/stories/${story.id}`}
+                    to={hk(`/stories/${story.id}`)}
                     className="group rounded-2xl overflow-hidden transition-all hover:-translate-y-1"
                     style={{ background: "linear-gradient(160deg, rgba(58,36,20,0.85), rgba(18,11,7,0.9))", border: "1px solid rgba(168,99,46,0.25)" }}
                   >

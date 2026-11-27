@@ -1,4 +1,5 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
+import { IS_HK_HOST } from "./pages/hakawati/hakawatiSite";
 import { Layout } from "./shared/Layout";
 import { HomePage } from "./pages/home/HomePage";
 import { AboutPage } from "./pages/about/AboutPage";
@@ -20,17 +21,29 @@ import { HakawatiStoriesPage } from "./pages/hakawati/HakawatiStoriesPage";
 import { HakawatiStoryPage } from "./pages/hakawati/HakawatiStoryPage";
 import HakawatiGamePage from "./pages/hakawati/HakawatiGamePage";
 
-export const router = createBrowserRouter([
+const hakawatiChildren = [
+  { index: true, Component: HakawatiHomePage },
+  { path: "stories", Component: HakawatiStoriesPage },
+  { path: "stories/:id", Component: HakawatiStoryPage },
+  { path: "game", Component: HakawatiGamePage },
+];
+
+// على elhakawatti.mustaphadjoghlal.com يكون الحكواتي هو الموقع كله، وصفحاته في الجذر
+const hakawatiSiteRouter = () =>
+  createBrowserRouter([
+    {
+      path: "/",
+      Component: HakawatiLayout,
+      children: [...hakawatiChildren, { path: "*", element: <Navigate to="/" replace /> }],
+    },
+  ]);
+
+const mainSiteRouter = () => createBrowserRouter([
   { path: "/admin", Component: AdminPage },
   {
     path: "/hakawati",
     Component: HakawatiLayout,
-    children: [
-      { index: true, Component: HakawatiHomePage },
-      { path: "stories", Component: HakawatiStoriesPage },
-      { path: "stories/:id", Component: HakawatiStoryPage },
-      { path: "game", Component: HakawatiGamePage },
-    ],
+    children: hakawatiChildren,
   },
   {
     path: "/",
@@ -52,3 +65,5 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
+export const router = IS_HK_HOST ? hakawatiSiteRouter() : mainSiteRouter();

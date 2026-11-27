@@ -16,6 +16,8 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
 const SITE = "https://mustaphadjoghlal.com";
+/** الحكواتي موقع مستقل على نطاقه الفرعي؛ ملفاته تبقى تحت dist/hakawati */
+const HK_SITE = "https://elhakawatti.mustaphadjoghlal.com";
 
 /** بطاقة الأسئلة الشائعة لصفحة التعليق الصوتي — تُحقن في الـHTML نفسه
  *  ليقرأها جوجل بلا تشغيل جافاسكربت، وقد يعرضها منسدلةً في نتائج البحث. */
@@ -110,12 +112,14 @@ const mainPages = [
 const hakawatiPages = [
   {
     path: "hakawati/stories",
+    url: `${HK_SITE}/stories`,
     title: "الحكايات — الحكواتي",
     description:
       "حكايات درامية من التاريخ العربي والإسلامي: سير وأمجاد ومواقف، مروية بأسلوب الحكواتي.",
   },
   {
     path: "hakawati/game",
+    url: `${HK_SITE}/game`,
     title: "لعبة الأسئلة — الحكواتي",
     description:
       "اختبر معرفتك بالتاريخ العربي والإسلامي في لعبة أسئلة من الحكواتي.",
@@ -137,7 +141,7 @@ function build(templateFile, pages) {
   const template = readFileSync(join(dist, templateFile), "utf8");
 
   for (const page of pages) {
-    const url = `${SITE}/${page.path}`;
+    const url = page.url || `${SITE}/${page.path}`;
     let html = template;
 
     html = setTag(html, /<title>[\s\S]*?<\/title>/, `<title>${esc(page.title)}</title>`, "<title>", page.path);
