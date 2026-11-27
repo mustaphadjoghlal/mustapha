@@ -5,8 +5,11 @@ import { doc, onSnapshot, collection } from "firebase/firestore";
 import { ArrowRight } from "lucide-react";
 
 import { useSeo } from "../../shared/useSeo";
+import { useDocBySlug } from "../../shared/useDocBySlug";
+import { linkId } from "../../shared/slug";
 import { hk, hkUrl, HK_OG, HK_SITE } from "./hakawatiSite";
 interface HakawatiStory {
+  slug?: string;
   id: string;
   title: string;
   excerpt: string;
@@ -28,19 +31,8 @@ function youtubeEmbedUrl(url: string): string | null {
 
 export function HakawatiStoryPage() {
   const { id } = useParams();
-  const [story, setStory] = useState<HakawatiStory | null>(null);
+  const { item: story, loaded } = useDocBySlug<HakawatiStory>("hakawati_stories", id, (s) => hk(`/stories/${s}`));
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    if (!id) return;
-    const unsub = onSnapshot(doc(db, "hakawati_stories", id), (d) => {
-      if (d.exists()) setStory({ id: d.id, ...d.data() } as HakawatiStory);
-      else setStory(null);
-      setLoaded(true);
-    });
-    return unsub;
-  }, [id]);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "siteInfo"), (s) => {
@@ -106,7 +98,7 @@ export function HakawatiStoryPage() {
     },
     "datePublished": story!.publishedAt,
     "image": story!.coverImage || HK_OG,
-    "url": hkUrl(`/stories/${id}`),
+    "url": hkUrl(`/stories/${linkId(story!)}`),
     "description": story!.excerpt || story!.content?.replace(/<[^>]*>/g, "").substring(0, 160),
   };
 

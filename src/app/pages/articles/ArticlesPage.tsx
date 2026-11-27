@@ -7,6 +7,7 @@ import { useText } from "../../shared/siteText";
 
 interface Article {
   id: string;
+  slug?: string;
   title: string;
   content: string;
   coverImage: string;
@@ -114,7 +115,7 @@ export function ArticlesPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filtered.map((article) => (
-              <Link key={article.id} to={`/articles/${article.id}`}
+              <Link key={article.id} to={`/articles/${article.slug || article.id}`}
                 className="group bg-ink-900 border border-ink-700 rounded-2xl overflow-hidden hover:border-royal-500 transition-all hover:shadow-xl hover:shadow-royal-500/10">
                 {/* الغلاف */}
                 <div className="relative h-48 overflow-hidden bg-ink-850">

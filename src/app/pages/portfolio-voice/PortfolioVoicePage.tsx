@@ -10,6 +10,7 @@ import voiceFaq from "../../shared/voiceFaq.json";
 
 interface VoiceWork {
   id: string;
+  slug?: string;
   title: string;
   description: string;
   coverImage?: string;
@@ -219,7 +220,7 @@ export function PortfolioVoicePage() {
                 <div key={work.id} className="group bg-ink-900 border border-ink-700 rounded-xl overflow-hidden hover:border-royal-500 transition-all hover:shadow-xl hover:shadow-royal-500/20">
                   {/* صورة الغلاف */}
                   {work.coverImage && (
-                    <RouterLink to={`/portfolio/${work.id}`}>
+                    <RouterLink to={`/portfolio/${work.slug || work.id}`}>
                       <div className="relative h-48 overflow-hidden">
                         <img src={work.coverImage} alt={work.title} loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -232,7 +233,7 @@ export function PortfolioVoicePage() {
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="text-xl font-bold">{work.title}</h3>
-                      <RouterLink to={`/portfolio/${work.id}`} className="text-gray-500 hover:text-royal-200 transition-colors">
+                      <RouterLink to={`/portfolio/${work.slug || work.id}`} className="text-gray-500 hover:text-royal-200 transition-colors">
                         <Link size={16} />
                       </RouterLink>
                     </div>

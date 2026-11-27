@@ -4,7 +4,7 @@ import { useText } from "./siteText";
 import { HK_SITE, IS_HK_HOST } from "../pages/hakawati/hakawatiSite";
 
 const SITE_URL = "https://mustaphadjoghlal.com";
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
+const DEFAULT_IMAGE = `${SITE_URL}/og-brand.jpg`;
 
 export interface SeoOptions {
   /** عنوان الصفحة بدون اسم الموقع — يُضاف تلقائياً */

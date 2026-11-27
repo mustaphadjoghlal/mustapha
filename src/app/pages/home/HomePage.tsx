@@ -35,6 +35,7 @@ interface Client {
 
 interface Work {
   id: string;
+  slug?: string;
   title: string;
   coverImage: string;
   altText: string;
@@ -493,7 +494,7 @@ function WorksCarousel({ works }: { works: Work[] }) {
           return (
             <Link
               key={work.id}
-              to={`/portfolio/${work.id}`}
+              to={`/portfolio/${work.slug || work.id}`}
               draggable={false}
               data-active={isActive}
               data-jump={jump}
@@ -696,7 +697,7 @@ export function HomePage() {
                   <p className="mt-4 max-w-sm text-sm leading-[1.9] text-fg-muted">{t("home.services.voice.desc")}</p>
                 </div>
                 <VoiceSampleCard
-                  id={voiceSample.id}
+                  id={voiceSample.slug || voiceSample.id}
                   title={voiceSample.title}
                   audioUrl={voiceSample.audioUrl}
                   soundcloudUrl={voiceSample.soundcloudUrl}

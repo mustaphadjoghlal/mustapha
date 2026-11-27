@@ -7,6 +7,7 @@ import { useSeo } from "../../shared/useSeo";
 import { hk, HK_OG } from "./hakawatiSite";
 interface HakawatiStory {
   id: string;
+  slug?: string;
   title: string;
   excerpt: string;
   content: string;
@@ -82,7 +83,7 @@ export function HakawatiStoriesPage() {
                 {published.map((story) => (
                   <Link
                     key={story.id}
-                    to={hk(`/stories/${story.id}`)}
+                    to={hk(`/stories/${story.slug || story.id}`)}
                     className="group rounded-2xl overflow-hidden transition-all hover:-translate-y-1"
                     style={{ background: "linear-gradient(160deg, rgba(58,36,20,0.85), rgba(18,11,7,0.9))", border: "1px solid rgba(168,99,46,0.25)" }}
                   >

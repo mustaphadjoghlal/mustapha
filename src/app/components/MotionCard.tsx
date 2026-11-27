@@ -4,6 +4,7 @@ import { Play, Volume2, VolumeX } from "lucide-react";
 
 export interface MotionWork {
   id: string;
+  slug?: string;
   title: string;
   description?: string;
   coverImage?: string;
@@ -57,7 +58,7 @@ export function MotionCard({ work, className = "", frame = "aspect-[3/4]" }: { w
 
   return (
     <Link
-      to={`/portfolio/${work.id}`}
+      to={`/portfolio/${work.slug || work.id}`}
       className={`ms-glass ms-lift group relative block overflow-hidden rounded-[1.4rem] ${className}`}
     >
       <div className={`relative ${frame} bg-ink-850`}>

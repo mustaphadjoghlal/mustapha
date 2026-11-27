@@ -4,9 +4,12 @@ import { db } from "../../../firebase";
 import { doc, onSnapshot, collection } from "firebase/firestore";
 import { ArrowRight } from "lucide-react";
 import { useSeo } from "../../shared/useSeo";
+import { useDocBySlug } from "../../shared/useDocBySlug";
+import { linkId } from "../../shared/slug";
 
 interface Article {
   id: string;
+  slug?: string;
   title: string;
   content: string;
   coverImage: string;
@@ -24,9 +27,8 @@ interface SiteInfo {
 
 export function ArticlePage() {
   const { id } = useParams();
-  const [article, setArticle] = useState<Article | null>(null);
+  const { item: article, loaded } = useDocBySlug<Article>("articles", id, (s) => `/articles/${s}`);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
-  const [loaded, setLoaded] = useState(false);
 
   useSeo({
     title: article ? `${article.title} — مصطفى جغلال` : undefined,
@@ -34,15 +36,6 @@ export function ArticlePage() {
     image: article?.coverImage || undefined,
     type: "article",
   });
-
-  useEffect(() => {
-    if (!id) return;
-    const unsub = onSnapshot(doc(db, "articles", id), (d) => {
-      if (d.exists()) setArticle({ id: d.id, ...d.data() } as Article);
-      setLoaded(true);
-    });
-    return unsub;
-  }, [id]);
 
   // قراءة صورة الملف الشخصي من siteInfo
   useEffect(() => {
@@ -78,7 +71,7 @@ export function ArticlePage() {
       "name": "مصطفى جغلال",
       "alternateName": "Mustapha Djoghlal",
       "url": "https://mustaphadjoghlal.com",
-      "image": siteInfo?.profileImageUrl || "https://mustaphadjoghlal.com/og-image.jpg"
+      "image": siteInfo?.profileImageUrl || "https://mustaphadjoghlal.com/og-brand.jpg"
     },
     "publisher": {
       "@type": "Person",
@@ -86,8 +79,8 @@ export function ArticlePage() {
       "url": "https://mustaphadjoghlal.com"
     },
     "datePublished": article.date,
-    "image": article.coverImage || "https://mustaphadjoghlal.com/og-image.jpg",
-    "url": `https://mustaphadjoghlal.com/articles/${id}`,
+    "image": article.coverImage || "https://mustaphadjoghlal.com/og-brand.jpg",
+    "url": `https://mustaphadjoghlal.com/articles/${linkId(article)}`,
     "description": article.content?.replace(/<[^>]*>/g, "").substring(0, 160),
   };
 

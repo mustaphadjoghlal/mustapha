@@ -219,7 +219,7 @@ async function fetchContent() {
   const articles = articlesSnap.docs.map((d) => {
     const a = d.data();
     return {
-      path: `articles/${d.id}`,
+      path: `articles/${a.slug || d.id}`,
       title: `${a.title} — مصطفى جغلال`,
       description: plain(a.excerpt || a.content),
       image: a.coverImage || null,
@@ -237,7 +237,7 @@ async function fetchContent() {
       : w.category === "motion" ? "موشن جرافيك"
       : "تصميم جرافيكي";
     return {
-      path: `portfolio/${d.id}`,
+      path: `portfolio/${w.slug || d.id}`,
       title: `${w.title} | مصطفى جغلال`,
       description: `${kind} — ${plain(w.description, 110) || w.title}`,
       image: w.coverImage || null,

@@ -12,6 +12,7 @@ import { Trash2, Pencil, Plus, LogOut, Save, X, Upload, Image, Loader,
 import HakawatiAdmin from "../hakawati/HakawatiAdmin";
 import BriefsAdmin from "./BriefsAdmin";
 import { useSeo } from "../../shared/useSeo";
+import { toSlug, cleanSlug, uniqueSlug, isReadable } from "../../shared/slug";
 import { TOOLS, type ToolDownload } from "../../shared/tools";
 
 // ============================================================
@@ -118,7 +119,7 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
 // Existing components (unchanged)
 // ============================================================
 interface Work {
-  id: string; title: string; description: string; coverImage: string; images: string[];
+  id: string; slug?: string; title: string; description: string; coverImage: string; images: string[];
   altText: string; soundcloudUrl: string; audioUrl?: string; category: "design" | "photography" | "voice" | "motion";
   /** الموشن جرافيك: الفيديو المرفوع، ورابط خارجي اختياري، ونسبة الفيديو المكتشفة عند الرفع */
   videoUrl?: string; videoLink?: string; videoAspect?: "vertical" | "horizontal" | "square";
@@ -134,13 +135,13 @@ interface MediaOutput {
   date: string; description: string; url: string; coverImage?: string;
 }
 interface Article {
-  id: string; title: string; content: string; coverImage: string;
+  id: string; slug?: string; title: string; content: string; coverImage: string;
   coverAlt: string; date: string; tags: string[]; category: string;
 }
 import { textGroups, HIDDEN_TEXT } from "../../shared/siteText";
 
 interface HakawatiStory {
-  id: string; title: string; excerpt: string; content: string;
+  id: string; slug?: string; title: string; excerpt: string; content: string;
   coverImage?: string; videoUrl?: string; publishedAt: string; published: boolean;
 }
 interface Client { id: string; name: string; logoUrl: string; logoAlt: string; }
@@ -460,6 +461,86 @@ function HeavyImagesTool({ works }: { works: Work[] }) {
   );
 }
 
+
+// ============================================================
+// روابط مفهومة (slug) — /articles/nasaih-al-taaliq بدل /articles/4KCSMOpSYh...
+// ============================================================
+type Sluggable = { id?: string; slug?: string; title?: string };
+
+/** يضبط slug العنصر قبل الحفظ: من الحقل إن كُتب، وإلا من العنوان، مع منع التكرار */
+function withSlug<T extends Sluggable>(item: T, all: Sluggable[]): T {
+  const taken = all.filter((o) => o.id !== item.id).map((o) => o.slug).filter(Boolean) as string[];
+  const base = cleanSlug(item.slug || "") || toSlug(item.title || "") || (item.id && isReadable(item.id) ? item.id : "");
+  return { ...item, slug: uniqueSlug(base, taken) };
+}
+
+/** حقل الرابط في نماذج الإضافة والتعديل */
+function SlugField({ value, title, prefix, onChange, sc }: { value?: string; title?: string; prefix: string; onChange: (v: string) => void; sc: string }) {
+  const suggestion = toSlug(title || "");
+  return (
+    <div className="md:col-span-2">
+      <div className="flex items-stretch rounded-lg overflow-hidden" dir="ltr">
+        <span className="flex items-center px-3 text-xs text-gray-500 bg-ink-950 border border-ink-700 border-r-0 rounded-l-lg whitespace-nowrap">{prefix}</span>
+        <input value={value || ""} onChange={(e) => onChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
+          placeholder={suggestion || "رابط-مفهوم"} className={`${sc} !rounded-l-none flex-1`} dir="ltr" />
+        {suggestion && value !== suggestion && (
+          <button type="button" onClick={() => onChange(suggestion)} className="px-3 text-xs text-royal-300 border border-ink-700 border-l-0 rounded-r-lg hover:bg-ink-800 whitespace-nowrap">من العنوان</button>
+        )}
+      </div>
+      <p className="text-[11px] text-gray-500 mt-1">🔗 رابط الصفحة — حروف إنجليزية وشرطات فقط. اتركه فارغاً ليُولَّد من العنوان تلقائياً.</p>
+    </div>
+  );
+}
+
+/** يولّد روابط مفهومة لكل العناصر القديمة التي ما زالت بمعرّفات عشوائية */
+function SlugsMigration({ works, articles, stories }: { works: Work[]; articles: Article[]; stories: HakawatiStory[] }) {
+  const [busy, setBusy] = useState(false);
+  const [log, setLog] = useState("");
+  const groups = [
+    { name: "works", label: "عمل", items: works as Sluggable[] },
+    { name: "articles", label: "مقال", items: articles as Sluggable[] },
+    { name: "hakawati_stories", label: "حكاية", items: stories as Sluggable[] },
+  ];
+  const missing = groups.reduce((n, g) => n + g.items.filter((i) => !i.slug).length, 0);
+  if (!missing && !log) return null;
+
+  const run = async () => {
+    setBusy(true);
+    let done = 0;
+    try {
+      for (const g of groups) {
+        const pool = [...g.items];
+        for (const item of g.items) {
+          if (item.slug) continue;
+          const next = withSlug(item, pool);
+          pool[pool.indexOf(item)] = next;
+          await updateDoc(doc(db, g.name, item.id!), { slug: next.slug });
+          done++;
+          setLog(`جارٍ التوليد… ${done} / ${missing}`);
+        }
+      }
+      setLog(`✓ تم توليد ${done} رابطاً. الروابط القديمة ما زالت تعمل وتُحوَّل تلقائياً إلى الجديدة. راجعها وعدّل ما تريد من زر التعديل.`);
+    } catch (e: any) {
+      setLog(`تعذّر الإكمال بعد ${done} رابطاً: ${e?.message || e}`);
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="mb-8 flex flex-wrap items-center gap-3 rounded-xl border border-royal-700/50 bg-royal-900/20 p-4">
+      <div className="flex-1 min-w-[14rem]">
+        <p className="text-sm font-semibold">🔗 روابط مفهومة</p>
+        <p className="text-xs text-gray-400 mt-1">{log || `${missing} عنصراً (أعمال ومقالات وحكايات) روابطها حروف وأرقام عشوائية. اضغط لتوليد روابط مقروءة من عناوينها.`}</p>
+      </div>
+      {missing > 0 && (
+        <button onClick={run} disabled={busy} className="flex items-center gap-2 rounded-lg bg-royal-500 px-4 py-2 text-sm font-semibold text-ink-950 hover:bg-royal-400 disabled:opacity-50">
+          {busy && <Loader size={14} className="animate-spin" />} توليد {missing} رابطاً
+        </button>
+      )}
+    </div>
+  );
+}
+
 function WorksList({ works, category, saving, editingWork, setEditingWork, onSave, onDelete, onToggleFeatured, onToggleHomeSample, showAdd, setShowAdd, newWork, setNewWork, onAdd, sc }: any) {
   const filtered = works.filter((w: Work) => w.category === category);
   const isVoice = category === "voice";
@@ -477,6 +558,7 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
           <div className="grid md:grid-cols-2 gap-4">
             <input value={newWork.title} onChange={(e) => setNewWork({ ...newWork, title: e.target.value })} placeholder="عنوان العمل" className={sc} />
             <input value={newWork.altText} onChange={(e) => setNewWork({ ...newWork, altText: e.target.value })} placeholder="Alt text للـ SEO" className={sc} />
+            <SlugField value={newWork.slug} title={newWork.title} prefix="/portfolio/" onChange={(v) => setNewWork({ ...newWork, slug: v })} sc={sc} />
             {isVoice && <input value={newWork.soundcloudUrl} onChange={(e) => setNewWork({ ...newWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud (اختياري)" className={`${sc} md:col-span-2`} />}
             {isMotion && <input value={newWork.videoLink || ""} onChange={(e) => setNewWork({ ...newWork, videoLink: e.target.value })} placeholder="رابط يوتيوب أو إنستغرام أو فيميو (اختياري — يكفي بدل رفع الفيديو)" className={`${sc} md:col-span-2`} dir="ltr" />}
             <textarea value={newWork.description} onChange={(e) => setNewWork({ ...newWork, description: e.target.value })} placeholder="وصف العمل" rows={2} className={`${sc} resize-none md:col-span-2`} />
@@ -515,6 +597,7 @@ function WorksList({ works, category, saving, editingWork, setEditingWork, onSav
                 <div className="grid md:grid-cols-2 gap-4">
                   <input value={editingWork.title} onChange={(e) => setEditingWork({ ...editingWork, title: e.target.value })} className={sc} />
                   <input value={editingWork.altText} onChange={(e) => setEditingWork({ ...editingWork, altText: e.target.value })} placeholder="Alt text" className={sc} />
+                  <SlugField value={editingWork.slug} title={editingWork.title} prefix="/portfolio/" onChange={(v) => setEditingWork({ ...editingWork, slug: v })} sc={sc} />
                   {isVoice && <input value={editingWork.soundcloudUrl || ""} onChange={(e) => setEditingWork({ ...editingWork, soundcloudUrl: e.target.value })} placeholder="رابط SoundCloud" className={`${sc} md:col-span-2`} />}
                   {isMotion && <input value={editingWork.videoLink || ""} onChange={(e) => setEditingWork({ ...editingWork, videoLink: e.target.value })} placeholder="رابط يوتيوب أو إنستغرام أو فيميو (اختياري)" className={`${sc} md:col-span-2`} dir="ltr" />}
                   <textarea value={editingWork.description} onChange={(e) => setEditingWork({ ...editingWork, description: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
@@ -615,6 +698,7 @@ function ArticlesSection({ articles, saving, sc, onAdd, onSave, onDelete }: {
           </div>
           <div className="grid md:grid-cols-2 gap-3">
             <input value={newArticle.title} onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })} placeholder="عنوان المقال" className={sc} />
+            <SlugField value={newArticle.slug} title={newArticle.title} prefix="/articles/" onChange={(v) => setNewArticle({ ...newArticle, slug: v })} sc={sc} />
             <input value={newArticle.category} onChange={(e) => setNewArticle({ ...newArticle, category: e.target.value })} placeholder="الفئة (مثال: تعليق صوتي)" className={sc} />
             <input value={newArticle.date} onChange={(e) => setNewArticle({ ...newArticle, date: e.target.value })} type="date" className={sc} />
             <input value={newArticle.coverAlt} onChange={(e) => setNewArticle({ ...newArticle, coverAlt: e.target.value })} placeholder="نص بديل للصورة" className={sc} />
@@ -655,6 +739,7 @@ function ArticlesSection({ articles, saving, sc, onAdd, onSave, onDelete }: {
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-3">
                   <input value={editingArticle.title} onChange={(e) => setEditingArticle({ ...editingArticle, title: e.target.value })} className={sc} />
+                  <SlugField value={editingArticle.slug} title={editingArticle.title} prefix="/articles/" onChange={(v) => setEditingArticle({ ...editingArticle, slug: v })} sc={sc} />
                   <input value={editingArticle.category} onChange={(e) => setEditingArticle({ ...editingArticle, category: e.target.value })} className={sc} />
                   <input value={editingArticle.date} onChange={(e) => setEditingArticle({ ...editingArticle, date: e.target.value })} type="date" className={sc} />
                   <input
@@ -744,6 +829,7 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
     try {
       for (const t of missingTales) {
         await setDoc(doc(db, "hakawati_stories", t.id), {
+          slug: t.id,
           title: t.title,
           excerpt: t.excerpt,
           content: buildTaleContent(t),
@@ -787,6 +873,7 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
           </div>
           <div className="grid md:grid-cols-2 gap-3">
             <input value={newStory.title} onChange={(e) => setNewStory({ ...newStory, title: e.target.value })} placeholder="عنوان الحكاية" className={sc} />
+            <SlugField value={newStory.slug} title={newStory.title} prefix="elhakawatti…/stories/" onChange={(v) => setNewStory({ ...newStory, slug: v })} sc={sc} />
             <input value={newStory.publishedAt} onChange={(e) => setNewStory({ ...newStory, publishedAt: e.target.value })} type="date" className={sc} />
             <textarea value={newStory.excerpt} onChange={(e) => setNewStory({ ...newStory, excerpt: e.target.value })} placeholder="مقتطف مختصر (يظهر في البطاقات)" rows={2} className={`${sc} resize-none md:col-span-2`} />
             <input value={newStory.videoUrl} onChange={(e) => setNewStory({ ...newStory, videoUrl: e.target.value })} placeholder="رابط فيديو (يوتيوب أو إنستغرام Reel) — اختياري" className={`${sc} md:col-span-2`} />
@@ -823,6 +910,7 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-3">
                   <input value={editingStory.title} onChange={(e) => setEditingStory({ ...editingStory, title: e.target.value })} className={sc} />
+                  <SlugField value={editingStory.slug} title={editingStory.title} prefix="elhakawatti…/stories/" onChange={(v) => setEditingStory({ ...editingStory, slug: v })} sc={sc} />
                   <input value={editingStory.publishedAt} onChange={(e) => setEditingStory({ ...editingStory, publishedAt: e.target.value })} type="date" className={sc} />
                   <textarea value={editingStory.excerpt} onChange={(e) => setEditingStory({ ...editingStory, excerpt: e.target.value })} rows={2} className={`${sc} resize-none md:col-span-2`} />
                   <input value={editingStory.videoUrl || ""} onChange={(e) => setEditingStory({ ...editingStory, videoUrl: e.target.value })} placeholder="رابط فيديو (اختياري)" className={`${sc} md:col-span-2`} />
@@ -983,8 +1071,8 @@ export function AdminPage() {
     return () => subs.forEach(u => u());
   }, [user]);
 
-  const addWork = async () => { setSaving(true); try { await addDoc(collection(db, "works"), newWork); setShowAddWork(false); setNewWork({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category: newWork.category }); } catch (e) { console.error(e); } setSaving(false); };
-  const saveWork = async () => { if (!editingWork) return; setSaving(true); try { await updateDoc(doc(db, "works", editingWork.id), editingWork); setEditingWork(null); } catch (e) { console.error(e); } setSaving(false); };
+  const addWork = async () => { setSaving(true); try { await addDoc(collection(db, "works"), withSlug(newWork, works)); setShowAddWork(false); setNewWork({ title: "", description: "", coverImage: "", images: [], altText: "", soundcloudUrl: "", category: newWork.category }); } catch (e) { console.error(e); } setSaving(false); };
+  const saveWork = async () => { if (!editingWork) return; setSaving(true); try { await updateDoc(doc(db, "works", editingWork.id), withSlug(editingWork, works)); setEditingWork(null); } catch (e) { console.error(e); } setSaving(false); };
   const deleteWork = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "works", id)); };
   /** إظهار/إخفاء العمل في قسم "أعمال مختارة" بالصفحة الرئيسية */
   /** عينة صوتية واحدة فقط تظهر في الصفحة الرئيسية، فتُلغى العلامة عن البقية */
@@ -1011,11 +1099,11 @@ export function AdminPage() {
   const addMedia = async () => { setSaving(true); try { await addDoc(collection(db, "mediaOutputs"), newMedia); setShowAddMedia(false); setNewMedia({ title: "", channel: "", type: "تلفزيون", date: "", description: "", url: "" }); } catch (e) { console.error(e); } setSaving(false); };
   const saveMedia = async () => { if (!editingMedia) return; setSaving(true); try { await updateDoc(doc(db, "mediaOutputs", editingMedia.id), editingMedia); setEditingMedia(null); } catch (e) { console.error(e); } setSaving(false); };
   const deleteMedia = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "mediaOutputs", id)); };
-  const addArticle = async (a: Partial<Article>) => { setSaving(true); try { await addDoc(collection(db, "articles"), a); } catch (e) { console.error(e); } setSaving(false); };
-  const saveArticle = async (a: Article) => { setSaving(true); try { await updateDoc(doc(db, "articles", a.id), a); } catch (e) { console.error(e); } setSaving(false); };
+  const addArticle = async (a: Partial<Article>) => { setSaving(true); try { await addDoc(collection(db, "articles"), withSlug(a, articles)); } catch (e) { console.error(e); } setSaving(false); };
+  const saveArticle = async (a: Article) => { setSaving(true); try { await updateDoc(doc(db, "articles", a.id), withSlug(a, articles)); } catch (e) { console.error(e); } setSaving(false); };
   const deleteArticle = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "articles", id)); };
-  const addHakawatiStory = async (s: Partial<HakawatiStory>) => { setSaving(true); try { await addDoc(collection(db, "hakawati_stories"), s); } catch (e) { console.error(e); } setSaving(false); };
-  const saveHakawatiStory = async (s: HakawatiStory) => { setSaving(true); try { await updateDoc(doc(db, "hakawati_stories", s.id), s); } catch (e) { console.error(e); } setSaving(false); };
+  const addHakawatiStory = async (s: Partial<HakawatiStory>) => { setSaving(true); try { await addDoc(collection(db, "hakawati_stories"), withSlug(s, hakawatiStories)); } catch (e) { console.error(e); } setSaving(false); };
+  const saveHakawatiStory = async (s: HakawatiStory) => { setSaving(true); try { await updateDoc(doc(db, "hakawati_stories", s.id), withSlug(s, hakawatiStories)); } catch (e) { console.error(e); } setSaving(false); };
   const deleteHakawatiStory = async (id: string) => { if (confirm("هل أنت متأكد؟")) await deleteDoc(doc(db, "hakawati_stories", id)); };
   const addCourse = async () => { setSaving(true); try { await addDoc(collection(db, "courses"), newCourse); setShowAddCourse(false); setNewCourse({ title: "", description: "", image: "", duration: "", students: "", level: "", modules: "", email: "" }); } catch (e) { console.error(e); } setSaving(false); };
   const saveCourse = async () => { if (!editingCourse) return; setSaving(true); try { await updateDoc(doc(db, "courses", editingCourse.id), editingCourse); setEditingCourse(null); } catch (e) { console.error(e); } setSaving(false); };
@@ -1060,6 +1148,10 @@ export function AdminPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 mt-8">
+
+        {(activeTab === "works" || activeTab === "articles" || activeTab === "hakawati") && (
+          <SlugsMigration works={works} articles={articles} stories={hakawatiStories} />
+        )}
 
         {activeTab === "briefs" && <BriefsAdmin />}
 

@@ -9,6 +9,7 @@ import { useSitePhone } from "../../shared/useSitePhone";
 
 interface Work {
   id: string;
+  slug?: string;
   title: string;
   description: string;
   coverImage: string;
@@ -89,7 +90,7 @@ export function PortfolioPhotographyPage() {
               {works.map((work) => {
                 const cover = work.coverImage || work.images?.[0];
                 return (
-                  <Link key={work.id} to={`/portfolio/${work.id}`}
+                  <Link key={work.id} to={`/portfolio/${work.slug || work.id}`}
                     className="group bg-ink-900 border border-ink-700 rounded-xl overflow-hidden hover:border-cyan-500 transition-all hover:shadow-xl hover:shadow-cyan-500/20">
                     <div className="relative h-56 overflow-hidden bg-ink-850">
                       {cover ? (

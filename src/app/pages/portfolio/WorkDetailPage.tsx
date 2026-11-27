@@ -6,9 +6,11 @@ import { ArrowRight, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { CustomAudioPlayer } from "../../components/CustomAudioPlayer";
 import { FloatingGallery } from "../../components/FloatingGallery";
 import { useSeo } from "../../shared/useSeo";
+import { useDocBySlug } from "../../shared/useDocBySlug";
 import { MotionPlayer } from "../../components/MotionCard";
 
 interface Work {
+  slug?: string;
   id: string;
   title: string;
   description: string;
@@ -76,8 +78,7 @@ function FloatingCover({ src, alt, onOpen }: { src: string; alt: string; onOpen:
 
 export function WorkDetailPage() {
   const { id } = useParams();
-  const [work, setWork] = useState<Work | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const { item: work, loaded } = useDocBySlug<Work>("works", id, (s) => `/portfolio/${s}`);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useSeo({
@@ -86,15 +87,6 @@ export function WorkDetailPage() {
     image: work?.coverImage || undefined,
     type: "article",
   });
-
-  useEffect(() => {
-    if (!id) return;
-    const unsub = onSnapshot(doc(db, "works", id), (d) => {
-      if (d.exists()) setWork({ id: d.id, ...d.data() } as Work);
-      setLoaded(true);
-    });
-    return unsub;
-  }, [id]);
 
   const allImages = work
     ? [
