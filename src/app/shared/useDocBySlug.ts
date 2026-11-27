@@ -33,9 +33,30 @@ export function useDocBySlug<T extends { id: string; slug?: string }>(
           setLoaded(true);
           return;
         }
-        // لا يوجد عنصر بهذا الرابط: لعله معرّف قديم
+        // لا يوجد عنصر بهذا الرابط: لعله رابط سابق غُيِّر، أو معرّف قديم
         byId?.();
         byId = onSnapshot(
+          query(collection(db, collectionName), where("previousSlugs", "array-contains", param), limit(1)),
+          (prev) => {
+            if (!prev.empty) {
+              const d = prev.docs[0];
+              const found = { id: d.id, ...d.data() } as T;
+              setItem(found);
+              setLoaded(true);
+              if (found.slug) navigate(buildPath(found.slug), { replace: true });
+              return;
+            }
+            byId?.();
+            byId = lookupById();
+          },
+          () => { byId?.(); byId = lookupById(); },
+        );
+      },
+      () => { setItem(null); setLoaded(true); },
+    );
+
+    const lookupById = () =>
+      onSnapshot(
           doc(db, collectionName, param),
           (d) => {
             if (d.exists()) {
@@ -51,9 +72,6 @@ export function useDocBySlug<T extends { id: string; slug?: string }>(
           },
           () => { setItem(null); setLoaded(true); },
         );
-      },
-      () => { setItem(null); setLoaded(true); },
-    );
 
     return () => { bySlug(); byId?.(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps

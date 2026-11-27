@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { db, auth, storage } from "../../../firebase";
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, deleteField, setDoc } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, deleteField, setDoc, arrayUnion } from "firebase/firestore";
 import { DJURDJURA_TALES as DJURDJURA_PART1, DJURDJURA_PUBLISHED_AT, buildTaleContent } from "../hakawati/djurdjuraTales";
 import { DJURDJURA_TALES_PART2 } from "../hakawati/djurdjuraTales2";
 const DJURDJURA_TALES = [...DJURDJURA_PART1, ...DJURDJURA_TALES_PART2];
@@ -13,6 +13,7 @@ import HakawatiAdmin from "../hakawati/HakawatiAdmin";
 import BriefsAdmin from "./BriefsAdmin";
 import { useSeo } from "../../shared/useSeo";
 import { toSlug, cleanSlug, uniqueSlug, isReadable } from "../../shared/slug";
+import { WORK_SLUG_MAP } from "../../shared/workSlugMap";
 import { TOOLS, type ToolDownload } from "../../shared/tools";
 
 // ============================================================
@@ -119,7 +120,7 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
 // Existing components (unchanged)
 // ============================================================
 interface Work {
-  id: string; slug?: string; title: string; description: string; coverImage: string; images: string[];
+  id: string; slug?: string; previousSlugs?: string[]; title: string; description: string; coverImage: string; images: string[];
   altText: string; soundcloudUrl: string; audioUrl?: string; category: "design" | "photography" | "voice" | "motion";
   /** الموشن جرافيك: الفيديو المرفوع، ورابط خارجي اختياري، ونسبة الفيديو المكتشفة عند الرفع */
   videoUrl?: string; videoLink?: string; videoAspect?: "vertical" | "horizontal" | "square";
@@ -135,13 +136,13 @@ interface MediaOutput {
   date: string; description: string; url: string; coverImage?: string;
 }
 interface Article {
-  id: string; slug?: string; title: string; content: string; coverImage: string;
+  id: string; slug?: string; previousSlugs?: string[]; title: string; content: string; coverImage: string;
   coverAlt: string; date: string; tags: string[]; category: string;
 }
 import { textGroups, HIDDEN_TEXT } from "../../shared/siteText";
 
 interface HakawatiStory {
-  id: string; slug?: string; title: string; excerpt: string; content: string;
+  id: string; slug?: string; previousSlugs?: string[]; title: string; excerpt: string; content: string;
   coverImage?: string; videoUrl?: string; publishedAt: string; published: boolean;
 }
 interface Client { id: string; name: string; logoUrl: string; logoAlt: string; }
@@ -465,13 +466,18 @@ function HeavyImagesTool({ works }: { works: Work[] }) {
 // ============================================================
 // روابط مفهومة (slug) — /articles/nasaih-al-taaliq بدل /articles/4KCSMOpSYh...
 // ============================================================
-type Sluggable = { id?: string; slug?: string; title?: string };
+type Sluggable = { id?: string; slug?: string; title?: string; previousSlugs?: string[] };
 
 /** يضبط slug العنصر قبل الحفظ: من الحقل إن كُتب، وإلا من العنوان، مع منع التكرار */
 function withSlug<T extends Sluggable>(item: T, all: Sluggable[]): T {
   const taken = all.filter((o) => o.id !== item.id).map((o) => o.slug).filter(Boolean) as string[];
   const base = cleanSlug(item.slug || "") || toSlug(item.title || "") || (item.id && isReadable(item.id) ? item.id : "");
-  return { ...item, slug: uniqueSlug(base, taken) };
+  const slug = uniqueSlug(base, taken);
+  // إن تغيّر رابط عنصر موجود، يُحفظ القديم ليبقى يعمل ويحوِّل إلى الجديد
+  const stored = item.id ? all.find((o) => o.id === item.id) : undefined;
+  const previousSlugs = [...(stored?.previousSlugs || item.previousSlugs || [])];
+  if (stored?.slug && stored.slug !== slug && !previousSlugs.includes(stored.slug)) previousSlugs.push(stored.slug);
+  return previousSlugs.length ? { ...item, slug, previousSlugs } : { ...item, slug };
 }
 
 /** حقل الرابط في نماذج الإضافة والتعديل */
@@ -488,6 +494,49 @@ function SlugField({ value, title, prefix, onChange, sc }: { value?: string; tit
         )}
       </div>
       <p className="text-[11px] text-gray-500 mt-1">🔗 رابط الصفحة — حروف إنجليزية وشرطات فقط. اتركه فارغاً ليُولَّد من العنوان تلقائياً.</p>
+    </div>
+  );
+}
+
+/** يطبّق الروابط الإنجليزية القصيرة المختارة للأعمال (shared/workSlugMap.ts) */
+function ShortWorkSlugs({ works }: { works: Work[] }) {
+  const [busy, setBusy] = useState(false);
+  const [log, setLog] = useState("");
+  const pending = works.filter((w) => w.slug && WORK_SLUG_MAP[w.slug]);
+  if (!pending.length && !log) return null;
+
+  const run = async () => {
+    setBusy(true);
+    const taken = new Set(works.map((w) => w.slug).filter(Boolean) as string[]);
+    let done = 0;
+    try {
+      for (const w of pending) {
+        const old = w.slug!;
+        taken.delete(old);
+        const next = uniqueSlug(WORK_SLUG_MAP[old], taken);
+        taken.add(next);
+        await updateDoc(doc(db, "works", w.id), { slug: next, previousSlugs: arrayUnion(old) });
+        done++;
+        setLog(`جارٍ التطبيق… ${done} / ${pending.length}`);
+      }
+      setLog(`✓ صار لـ${done} عملاً روابط إنجليزية قصيرة، مثل /portfolio/milan-derby-story. الروابط السابقة تبقى تعمل وتحوِّل تلقائياً.`);
+    } catch (e: any) {
+      setLog(`تعذّر الإكمال بعد ${done}: ${e?.message || e}`);
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="mb-8 flex flex-wrap items-center gap-3 rounded-xl border border-royal-700/50 bg-royal-900/20 p-4">
+      <div className="flex-1 min-w-[14rem]">
+        <p className="text-sm font-semibold">✨ روابط أقصر للأعمال</p>
+        <p className="text-xs text-gray-400 mt-1">{log || `${pending.length} عملاً روابطها طويلة (محوّلة حرفياً من العربية). اضغط لتطبيق روابط إنجليزية قصيرة مثل milan-derby-story.`}</p>
+      </div>
+      {pending.length > 0 && (
+        <button onClick={run} disabled={busy} className="flex items-center gap-2 rounded-lg bg-royal-500 px-4 py-2 text-sm font-semibold text-ink-950 hover:bg-royal-400 disabled:opacity-50">
+          {busy && <Loader size={14} className="animate-spin" />} تطبيق {pending.length} رابطاً
+        </button>
+      )}
     </div>
   );
 }
@@ -1150,7 +1199,10 @@ export function AdminPage() {
       <div className="max-w-7xl mx-auto px-4 mt-8">
 
         {(activeTab === "works" || activeTab === "articles" || activeTab === "hakawati") && (
-          <SlugsMigration works={works} articles={articles} stories={hakawatiStories} />
+          <>
+            <SlugsMigration works={works} articles={articles} stories={hakawatiStories} />
+            <ShortWorkSlugs works={works} />
+          </>
         )}
 
         {activeTab === "briefs" && <BriefsAdmin />}

@@ -88,7 +88,7 @@ export const textGroups: TextGroup[] = [
     title: "صفحة أعمالي",
     items: [
       { key: "works.heading", label: "العنوان", value: "أعمالي" },
-      { key: "works.intro", label: "الفقرة التعريفية", value: "مشاريع مختارة في ثلاثة مجالات. اختر المجال الذي يهمّك لتصفّح أعماله كاملة.", multiline: true },
+      { key: "works.intro", label: "الفقرة التعريفية", value: "مشاريع مختارة في أربعة مجالات. اختر المجال الذي يهمّك لتصفّح أعماله كاملة.", multiline: true },
       { key: "works.voice.title", label: "بطاقة التعليق الصوتي: العنوان", value: "أعمالي في التعليق الصوتي" },
       { key: "works.voice.desc", label: "بطاقة التعليق الصوتي: الوصف", value: "إعلانات ووثائقيات ومحتوى تعليمي ومقدمات برامج" },
       { key: "works.photography.title", label: "بطاقة التصوير: العنوان", value: "أعمالي في التصوير" },
