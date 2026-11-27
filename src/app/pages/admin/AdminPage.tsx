@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { db, auth, storage } from "../../../firebase";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, deleteField, setDoc } from "firebase/firestore";
-import { DJURDJURA_TALES, DJURDJURA_PUBLISHED_AT, buildTaleContent } from "../hakawati/djurdjuraTales";
+import { DJURDJURA_TALES as DJURDJURA_PART1, DJURDJURA_PUBLISHED_AT, buildTaleContent } from "../hakawati/djurdjuraTales";
+import { DJURDJURA_TALES_PART2 } from "../hakawati/djurdjuraTales2";
+const DJURDJURA_TALES = [...DJURDJURA_PART1, ...DJURDJURA_TALES_PART2];
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, getMetadata } from "firebase/storage";
 import { compressImage, formatSize } from "../../shared/compressImage";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
