@@ -7,6 +7,7 @@ import { useSeo } from "../../shared/useSeo";
 import { useText } from "../../shared/siteText";
 import { useSitePhone } from "../../shared/useSitePhone";
 import voiceFaq from "../../shared/voiceFaq.json";
+import { VoiceHeroMotion } from "./VoiceHeroMotion";
 
 interface VoiceWork {
   id: string;
@@ -17,6 +18,8 @@ interface VoiceWork {
   soundcloudUrl?: string;
   audioUrl?: string;
   category: "design" | "photography" | "voice";
+  homeSample?: boolean;
+  featured?: boolean;
 }
 
 function AudioPlayer({ url, title }: { url: string; title: string }) {
@@ -89,6 +92,9 @@ export function PortfolioVoicePage() {
     return unsub;
   }, []);
 
+  // العينة الأبرز: نفس عينة الرئيسية إن حُدّدت، وإلا المميزة، وإلا الأولى
+  const featured = works.find((w) => w.homeSample) || works.find((w) => w.featured) || works[0];
+
   const services = [1, 2, 3, 4, 5, 6].map((n) => t(`voice.service${n}`));
 
   const features = [1, 2, 3].map((n) => ({
@@ -103,28 +109,98 @@ export function PortfolioVoicePage() {
 
   return (
     <div className="bg-ink-950 text-white min-h-screen">
-      {/* Hero */}
-      <section className="relative py-20 lg:py-32 overflow-hidden">
+      {/* Hero — مختصر: الزائر جاء ليسمع، فالعينات تأتي مباشرة بعده */}
+      <section className="relative pt-10 pb-6 md:pt-16 md:pb-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br to-transparent via-royal-900/20 to-black"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-royal-400 to-royal-600 rounded-full mb-6">
-              <Mic className="w-10 h-10" />
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">{t("voice.hero.title")}</h1>
-            {t("voice.hero.desc") && (
-              <p className="text-xl text-gray-300 leading-relaxed">
-                {t("voice.hero.desc")}
-              </p>
+            <VoiceHeroMotion
+              title={t("voice.hero.title")}
+              dialects={[1, 2, 3].map((n) => t(`voice.dialect${n}.title`))}
+              chips={[1, 2, 3].map((n) => t(`voice.feature${n}.title`))}
+            />
+            {/* الفقرة التعريفية تبقى لمحركات البحث وقارئات الشاشة */}
+            {t("voice.hero.desc") && <p className="sr-only">{t("voice.hero.desc")}</p>}
+            {/* أبرز عينة: تُسمع فوراً دون أي نزول */}
+            {featured && (featured.audioUrl || featured.soundcloudUrl) && (
+              <div className="mt-6 text-right rounded-2xl border border-royal-500/40 bg-ink-900/80 p-4 shadow-lg shadow-royal-500/10">
+                <p className="text-xs text-royal-300 mb-1">🎧 استمع الآن</p>
+                <p className="font-bold mb-3 line-clamp-1">{featured.title}</p>
+                {featured.audioUrl ? (
+                  <AudioPlayer url={featured.audioUrl} title={featured.title} />
+                ) : (
+                  <iframe width="100%" height="120" scrolling="no" frameBorder="no" allow="autoplay"
+                    src={getSoundCloudEmbed(featured.soundcloudUrl!)} className="rounded-lg" />
+                )}
+              </div>
             )}
-            {t("voice.intro") && (
-              <p className="mt-6 text-base leading-[2] text-fg-muted">
-                {t("voice.intro")}
-              </p>
+            {works.length > 1 && (
+              <a href="#samples" className="mt-4 inline-flex items-center gap-2 text-sm text-royal-300 hover:text-royal-200">
+                كل العينات ({works.length}) ↓
+              </a>
             )}
           </div>
         </div>
       </section>
+
+      {/* Voice Works */}
+      <section id="samples" className="pt-4 pb-16 md:pt-8 scroll-mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("voice.projects.heading")}</h2>
+            {t("voice.projects.sub") && (
+              <p className="text-gray-400 text-lg">
+                {t("voice.projects.sub")}
+              </p>
+            )}
+          </div>
+          {works.length === 0 ? (
+            <p className="text-center text-gray-500 py-16">{t("voice.projects.empty")}</p>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-6">
+              {works.map((work) => (
+                <div key={work.id} className="group bg-ink-900 border border-ink-700 rounded-xl overflow-hidden hover:border-royal-500 transition-all hover:shadow-xl hover:shadow-royal-500/20">
+                  {/* صورة الغلاف */}
+                  {work.coverImage && (
+                    <RouterLink to={`/portfolio/${work.slug || work.id}`}>
+                      <div className="relative h-32 md:h-48 overflow-hidden">
+                        <img src={work.coverImage} alt={work.title} loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-ink-950/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="text-white text-sm font-semibold bg-ink-950/60 px-4 py-2 rounded-full">عرض التفاصيل</span>
+                        </div>
+                      </div>
+                    </RouterLink>
+                  )}
+                  <div className="p-4 md:p-6">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="text-xl font-bold">{work.title}</h3>
+                      <RouterLink to={`/portfolio/${work.slug || work.id}`} className="text-gray-500 hover:text-royal-200 transition-colors">
+                        <Link size={16} />
+                      </RouterLink>
+                    </div>
+                    {work.description && <p className="text-gray-400 mb-4 text-sm line-clamp-2">{work.description}</p>}
+                    {/* مشغل MP3 */}
+                    {work.audioUrl && <AudioPlayer url={work.audioUrl} title={work.title} />}
+                    {/* SoundCloud fallback */}
+                    {!work.audioUrl && work.soundcloudUrl && (
+                      <iframe width="100%" height="120" scrolling="no" frameBorder="no" allow="autoplay"
+                        src={getSoundCloudEmbed(work.soundcloudUrl)}
+                        className="rounded-lg" loading="lazy" />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {t("voice.intro") && (
+        <section className="pb-4">
+          <p className="max-w-3xl mx-auto px-4 text-center text-base leading-[2] text-fg-muted">{t("voice.intro")}</p>
+        </section>
+      )}
 
       {/* Features */}
       <section className="py-20 bg-ink-900">
@@ -196,59 +272,6 @@ export function PortfolioVoicePage() {
                   ) : null
                 ))}
               </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Voice Works */}
-      <section className="py-20 bg-gradient-to-b from-ink-900 to-ink-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("voice.projects.heading")}</h2>
-            {t("voice.projects.sub") && (
-              <p className="text-gray-400 text-lg">
-                {t("voice.projects.sub")}
-              </p>
-            )}
-          </div>
-          {works.length === 0 ? (
-            <p className="text-center text-gray-500 py-16">{t("voice.projects.empty")}</p>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-6">
-              {works.map((work) => (
-                <div key={work.id} className="group bg-ink-900 border border-ink-700 rounded-xl overflow-hidden hover:border-royal-500 transition-all hover:shadow-xl hover:shadow-royal-500/20">
-                  {/* صورة الغلاف */}
-                  {work.coverImage && (
-                    <RouterLink to={`/portfolio/${work.slug || work.id}`}>
-                      <div className="relative h-48 overflow-hidden">
-                        <img src={work.coverImage} alt={work.title} loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-ink-950/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <span className="text-white text-sm font-semibold bg-ink-950/60 px-4 py-2 rounded-full">عرض التفاصيل</span>
-                        </div>
-                      </div>
-                    </RouterLink>
-                  )}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-xl font-bold">{work.title}</h3>
-                      <RouterLink to={`/portfolio/${work.slug || work.id}`} className="text-gray-500 hover:text-royal-200 transition-colors">
-                        <Link size={16} />
-                      </RouterLink>
-                    </div>
-                    {work.description && <p className="text-gray-400 mb-4 text-sm line-clamp-2">{work.description}</p>}
-                    {/* مشغل MP3 */}
-                    {work.audioUrl && <AudioPlayer url={work.audioUrl} title={work.title} />}
-                    {/* SoundCloud fallback */}
-                    {!work.audioUrl && work.soundcloudUrl && (
-                      <iframe width="100%" height="120" scrolling="no" frameBorder="no" allow="autoplay"
-                        src={getSoundCloudEmbed(work.soundcloudUrl)}
-                        className="rounded-lg" loading="lazy" />
-                    )}
-                  </div>
-                </div>
-              ))}
             </div>
           )}
         </div>
