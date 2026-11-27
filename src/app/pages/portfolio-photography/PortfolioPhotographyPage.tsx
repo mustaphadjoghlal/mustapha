@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { CheckCircle, Camera } from "lucide-react";
+import { CheckCircle } from "lucide-react";
+import { ServiceHero } from "../../shared/ServiceHero";
+import { Lightbox, type LightboxItem } from "../../components/Lightbox";
 import { db } from "../../../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
@@ -40,89 +42,101 @@ export function PortfolioPhotographyPage() {
 
   const services = [1, 2, 3, 4, 5, 6].map((n) => t(`photo.service${n}`));
 
+  // كل صور المشاريع في معرض واحد — في التصوير، الصورة هي العمل نفسه
+  const photos: (LightboxItem & { workId: string })[] = works.flatMap((w) => {
+    const list = [w.coverImage, ...(w.images || [])].filter(Boolean);
+    return [...new Set(list)].map((src) => ({
+      src, workId: w.id, alt: w.altText || w.title, caption: w.title, href: `/portfolio/${w.slug || w.id}`,
+    }));
+  });
+  const [filter, setFilter] = useState<string>("all");
+  const [open, setOpen] = useState<number | null>(null);
+  const shown = filter === "all" ? photos : photos.filter((p) => p.workId === filter);
+
+  const rotating = ["المنتجات والإعلانات", "الفعاليات والحفلات", "البورتريهات الشخصية", "العمارة والعقارات"];
+  const chips = works.length
+    ? [`${works.length} ${works.length > 10 ? "مشروعاً" : works.length > 2 ? "مشاريع" : "مشروع"}`,
+       photos.length ? `${photos.length} ${photos.length > 10 ? "صورة" : photos.length > 2 ? "صور" : "صورة"}` : ""]
+    : [];
+
   return (
     <div className="bg-ink-950 text-white min-h-screen">
-      <section className="relative py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-royal-900/25 via-royal-800/15 to-black"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-royal-400 to-royal-600 rounded-full mb-6">
-              <Camera className="w-10 h-10" />
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">{t("photo.hero.title")}</h1>
-            {t("photo.hero.desc") && (
-              <p className="text-xl text-gray-300 leading-relaxed">
-                {t("photo.hero.desc")}
-              </p>
-            )}
+      <ServiceHero
+        kind="photography"
+        title={t("photo.hero.title")}
+        lead="أصوّر"
+        rotating={rotating}
+        chips={chips}
+        description={t("photo.hero.desc")}
+      />
+
+      {/* المعرض: الصور مباشرة بعد المقدمة، تُفتح بملء الشاشة */}
+      <section className="pt-4 pb-14">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="mb-4 flex items-end justify-between gap-3 px-1">
+            <h2 className="text-xl md:text-3xl font-bold">{t("photo.projects.heading")}</h2>
+            {t("photo.projects.sub") && <p className="hidden md:block text-gray-400">{t("photo.projects.sub")}</p>}
           </div>
+
+          {photos.length === 0 ? (
+            <p className="text-center text-gray-500 py-16">{t("photo.projects.empty")}</p>
+          ) : (
+            <>
+              {/* تصفية حسب المشروع */}
+              {works.length > 1 && (
+                <div className="-mx-3 mb-4 flex gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {[{ id: "all", title: "الكل" }, ...works].map((w) => (
+                    <button key={w.id} onClick={() => setFilter(w.id)}
+                      className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${filter === w.id ? "border-royal-500 bg-royal-500 text-ink-950 font-semibold" : "border-ink-700 bg-ink-900 text-gray-300 hover:border-royal-600"}`}>
+                      {w.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* شبكة متدرّجة (masonry) تحترم أبعاد كل صورة */}
+              <div className="columns-2 gap-2.5 md:columns-3 md:gap-4">
+                {shown.map((p, i) => (
+                  <button key={p.src + i} onClick={() => setOpen(i)}
+                    className="group mb-2.5 md:mb-4 block w-full overflow-hidden rounded-xl bg-ink-850 break-inside-avoid">
+                    <img src={p.src} alt={p.alt} loading="lazy"
+                      className="w-full h-auto transition-transform duration-500 group-hover:scale-105" />
+                  </button>
+                ))}
+              </div>
+
+              {/* روابط المشاريع الكاملة */}
+              {filter !== "all" && (
+                <div className="mt-4 text-center">
+                  {works.filter((w) => w.id === filter).map((w) => (
+                    <Link key={w.id} to={`/portfolio/${w.slug || w.id}`} className="text-sm font-semibold text-royal-300 hover:text-royal-200">
+                      تفاصيل مشروع «{w.title}» ←
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </section>
 
-      <section className="py-20 bg-ink-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">{t("photo.services.heading")}</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, index) => (
-              <div key={index} className="flex items-start gap-3 bg-ink-850 border border-ink-700 rounded-lg p-6 hover:border-cyan-500 transition-all">
-                <CheckCircle className="w-6 h-6 text-cyan-400 flex-shrink-0 mt-1" />
-                <p className="text-gray-200">{service}</p>
-              </div>
+      <Lightbox items={shown} index={open} onChange={setOpen} onClose={() => setOpen(null)} />
+
+      {/* الخدمات: شارات مختصرة */}
+      <section className="border-t border-ink-800 bg-ink-900/60 py-12">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-xl md:text-2xl font-bold">{t("photo.services.heading")}</h2>
+          <div className="mt-5 flex flex-wrap justify-center gap-2.5">
+            {services.filter(Boolean).map((service) => (
+              <span key={service} className="inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-850 px-3.5 py-2 text-sm text-gray-200">
+                <CheckCircle className="h-4 w-4 text-royal-400" /> {service}
+              </span>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-b from-ink-900 to-ink-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("photo.projects.heading")}</h2>
-            {t("photo.projects.sub") && (
-              <p className="text-gray-400 text-lg">
-                {t("photo.projects.sub")}
-              </p>
-            )}
-          </div>
-          {works.length === 0 ? (
-            <p className="text-center text-gray-500 py-16">{t("photo.projects.empty")}</p>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {works.map((work) => {
-                const cover = work.coverImage || work.images?.[0];
-                return (
-                  <Link key={work.id} to={`/portfolio/${work.slug || work.id}`}
-                    className="group bg-ink-900 border border-ink-700 rounded-xl overflow-hidden hover:border-cyan-500 transition-all hover:shadow-xl hover:shadow-cyan-500/20">
-                    <div className="relative h-56 overflow-hidden bg-ink-850">
-                      {cover ? (
-                        <img src={cover} alt={work.altText || work.title} loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-600">
-                          <Camera size={40} />
-                        </div>
-                      )}
-                      {work.images?.length > 0 && (
-                        <div className="absolute bottom-3 left-3 bg-ink-950/60 text-white text-xs px-2 py-1 rounded-full">
-                          {work.images.length} صور
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-ink-950/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="text-white text-sm font-semibold bg-ink-950/60 px-4 py-2 rounded-full">عرض المشروع</span>
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="text-lg font-bold mb-1 group-hover:text-cyan-400 transition-colors">{work.title}</h3>
-                      <p className="text-gray-400 text-sm line-clamp-2">{work.description}</p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="py-20 bg-ink-950">
+      <section className="py-14 bg-ink-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">{t("photo.cta.heading")}</h2>
           {t("photo.cta.sub") && (
@@ -135,7 +149,7 @@ export function PortfolioPhotographyPage() {
             target="_blank"
             rel="noopener noreferrer"
             data-whatsapp-cta
-            className="inline-block px-8 py-3 bg-royal-500 rounded-lg hover:bg-royal-600 transition-all font-semibold"
+            className="inline-block px-8 py-3 bg-royal-500 text-ink-950 rounded-full hover:bg-royal-400 transition-all font-semibold"
           >
             {t("photo.cta.button")}
           </a>
