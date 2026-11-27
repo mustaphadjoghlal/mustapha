@@ -6,6 +6,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { useSeo } from "../../shared/useSeo";
 import { useText } from "../../shared/siteText";
 import { useSitePhone } from "../../shared/useSitePhone";
+import { CategoryArt } from "./CategoryArt";
 
 type Category = "design" | "photography" | "voice" | "motion";
 
@@ -44,14 +45,13 @@ const AR_COUNT: Record<number, string> = { 2: "مجالين", 3: "ثلاثة م�
 const workLink = (w: Work) => `/portfolio/${w.slug || w.id}`;
 
 // ============================================================
-// معاينات حيّة داخل بطاقات المجالات
+// الأغلفة رسوم فيكتور ثابتة (CategoryArt) — لا حاجة لاختيار صورة لكل مجال
 // ============================================================
 
-/** غلاف الصوت: موجة بهوية الموقع + زر يُسمِع العينة الأبرز دون مغادرة الصفحة */
+/** غلاف الصوت: رسم فيكتور + زر يُسمِع العينة الأبرز دون مغادرة الصفحة */
 function VoicePreview({ sample }: { sample?: Work }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
-  const bars = [0.3, 0.55, 0.4, 0.8, 0.6, 1, 0.7, 0.45, 0.85, 0.5, 0.95, 0.6, 0.35, 0.7, 0.5, 0.3];
 
   const toggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,56 +62,18 @@ function VoicePreview({ sample }: { sample?: Work }) {
   };
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_50%_40%,rgba(122,42,49,0.55),transparent_70%)]">
-      <div className="flex h-1/2 items-center gap-[3px]" aria-hidden>
-        {bars.map((h, n) => (
-          <span key={n} className={`w-[3px] rounded-full bg-gradient-to-b from-royal-300 to-royal-600 ${playing ? "animate-pulse" : ""}`}
-            style={{ height: `${h * 100}%`, opacity: 0.45 + h * 0.5, animationDelay: `${n * 80}ms` }} />
-        ))}
-      </div>
+    <div className="relative h-full w-full">
+      <CategoryArt kind="voice" />
       {sample?.audioUrl && (
         <>
           <audio ref={audioRef} src={sample.audioUrl} preload="none"
             onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} />
           <button onClick={toggle} aria-label={playing ? "إيقاف العينة" : `استمع: ${sample.title}`}
-            className="absolute inset-0 m-auto flex h-11 w-11 items-center justify-center rounded-full bg-royal-500 text-ink-950 shadow-lg shadow-royal-500/30 transition-transform hover:scale-110">
-            {playing ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="translate-x-[-1px]" />}
+            className="absolute bottom-2 left-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-royal-500 text-ink-950 shadow-lg shadow-royal-500/30 transition-transform hover:scale-110">
+            {playing ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" className="translate-x-[-1px]" />}
           </button>
         </>
       )}
-    </div>
-  );
-}
-
-/** غلاف الموشن: أول فيديو يعمل صامتاً ومتكرراً حين تظهر البطاقة فقط */
-function MotionPreview({ work, fallback: Fallback }: { work?: Work; fallback: typeof Mic }) {
-  const ref = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? v.play().catch(() => {}) : v.pause()), { threshold: 0.3 });
-    io.observe(v);
-    return () => io.disconnect();
-  }, [work?.videoUrl]);
-
-  if (work?.videoUrl) {
-    return <video ref={ref} src={work.videoUrl} poster={work.coverImage} muted loop playsInline preload="metadata"
-      className="h-full w-full object-cover opacity-80" />;
-  }
-  if (work?.coverImage) return <img src={work.coverImage} alt={work.altText || work.title} loading="lazy" className="h-full w-full object-cover opacity-75" />;
-  return <div className="flex h-full w-full items-center justify-center"><Fallback size={36} strokeWidth={1.3} className="text-royal-500/60" /></div>;
-}
-
-/** غلاف الصور: موزاييك من أغلفة أحدث الأعمال */
-function MosaicPreview({ items, fallback: Fallback }: { items: Work[]; fallback: typeof Mic }) {
-  const imgs = items.flatMap((w) => [w.coverImage, ...(w.images || [])]).filter(Boolean).slice(0, 3) as string[];
-  if (!imgs.length) return <div className="flex h-full w-full items-center justify-center"><Fallback size={36} strokeWidth={1.3} className="text-royal-500/60" /></div>;
-  if (imgs.length < 3) return <img src={imgs[0]} alt="" loading="lazy" className="h-full w-full object-cover opacity-75" />;
-  return (
-    <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-0.5">
-      <img src={imgs[0]} alt="" loading="lazy" className="row-span-2 h-full w-full object-cover opacity-80" />
-      <img src={imgs[1]} alt="" loading="lazy" className="h-full w-full object-cover opacity-80" />
-      <img src={imgs[2]} alt="" loading="lazy" className="h-full w-full object-cover opacity-80" />
     </div>
   );
 }
@@ -152,7 +114,6 @@ export function PortfolioIndexPage() {
   const featured = (withCover.some((w) => w.featured) ? withCover.filter((w) => w.featured) : withCover).slice(0, 8);
 
   const voiceSample = byCat("voice").find((w) => w.homeSample && w.audioUrl) || byCat("voice").find((w) => w.audioUrl);
-  const motionWork = byCat("motion").find((w) => w.featured && w.videoUrl) || byCat("motion").find((w) => w.videoUrl) || byCat("motion")[0];
 
   const waText = encodeURIComponent("السلام عليكم مصطفى، اطلعت على أعمالك في موقعك وأرغب في عرض سعر لمشروع.");
 
@@ -173,8 +134,7 @@ export function PortfolioIndexPage() {
                 className="group relative flex flex-col overflow-hidden rounded-2xl border border-ink-700 bg-ink-900 transition-colors hover:border-royal-600">
                 <div className="relative aspect-[4/3] overflow-hidden bg-ink-850">
                   {key === "voice" && <VoicePreview sample={voiceSample} />}
-                  {key === "motion" && <MotionPreview work={motionWork} fallback={Icon} />}
-                  {(key === "design" || key === "photography") && <MosaicPreview items={items} fallback={Icon} />}
+                  {key !== "voice" && <CategoryArt kind={key} className="transition-transform duration-500 group-hover:scale-105" />}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink-900 to-transparent" />
                 </div>
                 <div className="flex flex-1 flex-col p-3 sm:p-5">
