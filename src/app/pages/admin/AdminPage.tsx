@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { db, auth, storage } from "../../../firebase";
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, deleteField } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, deleteField, setDoc } from "firebase/firestore";
+import { DJURDJURA_TALES, DJURDJURA_PUBLISHED_AT, buildTaleContent } from "../hakawati/djurdjuraTales";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, getMetadata } from "firebase/storage";
 import { compressImage, formatSize } from "../../shared/compressImage";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
@@ -731,13 +732,48 @@ function HakawatiStoriesSection({ stories, saving, sc, onAdd, onSave, onDelete }
     setEditingStory(null);
   };
 
+  // استيراد «حكايات من جرجرة» بمعرّفات ثابتة: لا تكرار، ولا مساس بحكاية موجودة
+  const [importing, setImporting] = useState(false);
+  const missingTales = DJURDJURA_TALES.filter((t) => !stories.some((s) => s.id === t.id));
+  const importDjurdjura = async () => {
+    if (missingTales.length === 0) return;
+    if (!confirm(`استيراد ${missingTales.length} حكاية من «حكايات من جرجرة» ونشرها على الموقع؟`)) return;
+    setImporting(true);
+    try {
+      for (const t of missingTales) {
+        await setDoc(doc(db, "hakawati_stories", t.id), {
+          title: t.title,
+          excerpt: t.excerpt,
+          content: buildTaleContent(t),
+          coverImage: "",
+          videoUrl: "",
+          publishedAt: DJURDJURA_PUBLISHED_AT,
+          published: true,
+          series: "حكايات من جرجرة",
+        });
+      }
+      alert("✓ تم استيراد الحكايات");
+    } catch (e) {
+      console.error(e);
+      alert("⚠ تعذّر الاستيراد — تحقّق من تسجيل الدخول وصلاحيات Firestore");
+    }
+    setImporting(false);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">حكايات الحكواتي ({stories.length})</h2>
-        <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-700 px-5 py-2 rounded-lg font-semibold text-sm">
-          <Plus size={16} /> إضافة حكاية
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {missingTales.length > 0 && (
+            <button onClick={importDjurdjura} disabled={importing} className="flex items-center gap-2 border border-amber-600 text-amber-300 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-amber-900/30 disabled:opacity-50">
+              📜 {importing ? "جارٍ الاستيراد..." : `استيراد «حكايات من جرجرة» (${missingTales.length})`}
+            </button>
+          )}
+          <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-700 px-5 py-2 rounded-lg font-semibold text-sm">
+            <Plus size={16} /> إضافة حكاية
+          </button>
+        </div>
       </div>
 
       {/* Add Form */}
